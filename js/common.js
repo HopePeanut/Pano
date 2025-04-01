@@ -4,11 +4,11 @@
  */
 
 document.addEventListener('DOMContentLoaded', function() {
-    // 初始化组件
-    initComponents();
+    // 加载通用组件
+    loadCommonComponents();
     
-    // 检查当前页面路径，激活对应导航项
-    highlightCurrentNav();
+    // 初始化通用功能
+    initCommonFeatures();
     
     // 添加菜单下拉功能
     setupNavDropdowns();
@@ -21,80 +21,12 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 /**
- * 初始化自定义组件
+ * 加载通用组件
+ * 加载页面中所有需要复用的组件
  */
-function initComponents() {
-    // 查找页面中所有带有data-component属性的元素
-    const componentElements = document.querySelectorAll('[data-component]');
-    
-    componentElements.forEach(element => {
-        const componentName = element.getAttribute('data-component');
-        
-        // 根据组件名称加载不同的组件
-        switch(componentName) {
-            case 'navbar':
-                loadNavbar(element);
-                break;
-            // 可以在这里添加其他组件
-        }
-    });
-}
-
-/**
- * 加载导航栏
- * @param {HTMLElement} container - 导航栏容器元素
- */
-function loadNavbar(container) {
-    // 获取当前页面路径
-    const currentPath = window.location.pathname;
-    // 如果在本地文件系统打开，处理相对路径前缀
-    const pathPrefix = window.location.protocol === 'file:' ? '' : '/';
-    
-    // 导航栏HTML内容
-    const navbarHtml = `
-    <div class="navbar">
-        <a href="${pathPrefix}index.html" class="navbar-logo">
-            <img src="${pathPrefix}images/logo.png" alt="Logo">
-            <span>Pano全栈式综合能源管理平台</span>
-        </a>
-        <div class="navbar-links">
-            <a href="${pathPrefix}index.html" class="navbar-link">监控中心</a>
-            <a href="${pathPrefix}device-manage.html" class="navbar-link">运维管理</a>
-            <a href="${pathPrefix}data-analysis.html" class="navbar-link">数据分析</a>
-            <a href="${pathPrefix}statistics-compare.html" class="navbar-link">统计对比</a>
-            <a href="${pathPrefix}admin.html" class="navbar-link">后台管理</a>
-            <a href="${pathPrefix}personal.html" class="navbar-link">个人中心</a>
-        </div>
-    </div>
-    `;
-    
-    // 设置导航栏HTML
-    container.innerHTML = navbarHtml;
-}
-
-/**
- * 高亮显示当前页面对应的导航菜单项
- */
-function highlightCurrentNav() {
-    // 获取当前页面路径
-    const currentPath = window.location.pathname;
-    
-    // 查找所有导航链接
-    const navLinks = document.querySelectorAll('.navbar-link');
-    
-    // 遍历导航链接，找到对应当前页面的链接
-    navLinks.forEach(link => {
-        const href = link.getAttribute('href');
-        
-        // 如果href包含在当前路径中，或者两者都是首页，则高亮显示
-        if (
-            (currentPath.indexOf(href) !== -1 && href !== 'index.html') || 
-            (currentPath.endsWith('/') && href === 'index.html') ||
-            (currentPath.endsWith('index.html') && href === 'index.html')
-        ) {
-            link.classList.add('active');
-        }
-    });
+function loadCommonComponents() {
+    // 加载导航栏
+    loadNavbar();
 }
 
 /**
@@ -110,6 +42,107 @@ function initCommonFeatures() {
     
     // 初始化用户下拉菜单
     initUserDropdown();
+}
+
+/**
+ * 加载导航栏
+ * 将导航栏组件加载到带有data-component="navbar"属性的元素中
+ */
+function loadNavbar() {
+    const navbarContainers = document.querySelectorAll('[data-component="navbar"]');
+    
+    if (navbarContainers.length === 0) return;
+    
+    // 获取当前页面文件名，用于高亮对应导航项
+    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    
+    // 检测是否在admin子目录下
+    const isInAdminDir = window.location.pathname.includes('/admin/');
+    
+    // 根据目录层级确定资源路径前缀
+    const pathPrefix = isInAdminDir ? '../' : '';
+    
+    // 导航栏HTML模板
+    const navbarHTML = `
+    <div class="header-left">
+        <div class="logo">
+            <img src="${pathPrefix}images/logo-color.png" alt="QAES Logo">
+        </div>
+        <div class="system-title">
+            <span class="platform-name">Pano全栈式综合能源管理平台</span>
+            <span class="system-name">智慧运维系统</span>
+        </div>
+    </div>
+    
+    <div class="main-nav">
+        <ul>
+            <li class="nav-item" data-module="monitoring" data-page="maintenance-system.html,site-monitor.html,site-detail.html,video-monitor.html,alarm-log.html">
+                <a href="${pathPrefix}maintenance-system.html">监控中心</a>
+            </li>
+            <li class="nav-item" data-module="maintenance" data-page="">
+                <a href="#">运维管理</a>
+            </li>
+            <li class="nav-item" data-module="data-analysis" data-page="">
+                <a href="#">数据分析</a>
+            </li>
+            <li class="nav-item" data-module="admin" data-page="">
+                <a href="#">后台管理</a>
+            </li>
+            <li class="nav-item" data-module="personal" data-page="notifications.html,personal-info.html">
+                <a href="#">个人中心</a>
+            </li>
+        </ul>
+        
+        <!-- 二级导航区域 -->
+        <div class="sub-nav-container">
+            <div class="sub-nav" data-for="monitoring">
+                <a href="${pathPrefix}maintenance-system.html" data-page="maintenance-system.html">GIS地图</a>
+                <a href="${pathPrefix}site-monitor.html" data-page="site-monitor.html">站点监控</a>
+                <a href="${pathPrefix}video-monitor.html" data-page="video-monitor.html">视频监控</a>
+                <a href="${pathPrefix}alarm-log.html" data-page="alarm-log.html">告警与日志</a>
+            </div>
+            <div class="sub-nav" data-for="maintenance">
+                <a href="#maintenance-dashboard">运维看板</a>
+                <a href="#work-orders">工单管理</a>
+                <a href="#maintenance-tools">维护工具</a>
+            </div>
+            <div class="sub-nav" data-for="data-analysis">
+                <a href="${pathPrefix}statistics-compare.html">统计对比</a>
+                <a href="#data-query">数据查询</a>
+            </div>
+            <div class="sub-nav" data-for="admin">
+                <a href="#site-config">站点配置</a>
+                <a href="#template-management">模版管理</a>
+            </div>
+            <div class="sub-nav" data-for="personal">
+                <a href="${pathPrefix}notifications.html" data-page="notifications.html">消息通知</a>
+                <a href="${pathPrefix}personal-info.html" data-page="personal-info.html">个人信息</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="header-right">
+        <div class="user-info">
+            <div class="user-avatar">
+                <img src="${pathPrefix}images/avatar.jpg" alt="User Avatar">
+            </div>
+            <div class="user-details">
+                <span class="user-name">用户名</span>
+                <span class="user-role">管理员</span>
+            </div>
+            <div class="user-dropdown">
+                <a href="${pathPrefix}notifications.html"><i class="fas fa-bell"></i> 消息通知</a>
+                <a href="${pathPrefix}personal-info.html"><i class="fas fa-user-circle"></i> 个人信息</a>
+                <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> 退出登录</a>
+            </div>
+        </div>
+    </div>
+    `;
+    
+    // 将导航栏HTML插入到所有导航容器中
+    navbarContainers.forEach(container => {
+        container.innerHTML = navbarHTML;
+    });
 }
 
 /**

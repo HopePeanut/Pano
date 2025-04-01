@@ -1758,14 +1758,6 @@ function initGeoChart(metric) {
     const chartDom = document.getElementById('geo-chart');
     const myChart = echarts.init(chartDom);
     
-    // 检查是否有中国地图数据
-    if (typeof echarts.getMap === 'function' && !echarts.getMap('china')) {
-        // 如果没有中国地图数据，创建一个简单的柱状图作为替代
-        console.warn('中国地图数据未加载，显示替代图表');
-        showAlternativeGeoChart(myChart, metric);
-        return;
-    }
-    
     // 模拟数据
     const geoData = [
         {name: '北京', value: Math.floor(Math.random() * 100)},
@@ -1823,127 +1815,48 @@ function initGeoChart(metric) {
             break;
     }
     
-    try {
-        option = {
-            title: {
-                text: title,
-                left: 'center'
-            },
-            tooltip: {
-                trigger: 'item',
-                formatter: function(params) {
-                    return params.name + ': ' + params.value + valueUnit;
-                }
-            },
-            visualMap: {
-                min: 0,
-                max: 100,
-                text: ['高', '低'],
-                realtime: false,
-                calculable: true,
-                inRange: {
-                    color: ['#e0f7fa', '#4fc3f7', '#0288d1', '#01579b']
-                }
-            },
-            series: [
-                {
-                    name: metric,
-                    type: 'map',
-                    map: 'china',
-                    roam: true,
-                    emphasis: {
-                        label: {
-                            show: true
-                        }
-                    },
-                    data: geoData
-                }
-            ]
-        };
-        
-        // 设置图表选项
-        myChart.setOption(option);
-    } catch (error) {
-        console.error('地图加载失败:', error);
-        showAlternativeGeoChart(myChart, metric);
-    }
-    
-    // 监听窗口大小变化，调整图表大小
-    window.addEventListener('resize', function() {
-        myChart.resize();
-    });
-}
-
-/**
- * 显示替代的地理分布图表
- * @param {ECharts} chart - ECharts 实例
- * @param {string} metric - 指标类型
- */
-function showAlternativeGeoChart(chart, metric) {
-    // 生成地区数据
-    const regions = ['华北', '华东', '华南', '华中', '华西', '东北', '西北'];
-    const data = regions.map(region => ({
-        name: region,
-        value: Math.floor(Math.random() * 100)
-    }));
-    
-    let title = '';
-    let valueUnit = '';
-    
-    switch(metric) {
-        case 'performance':
-            title = '各地区站点性能分布';
-            valueUnit = '分';
-            break;
-        case 'climate':
-            title = '各地区气候影响分析';
-            valueUnit = '%';
-            break;
-        case 'cluster':
-            title = '各地区集群效益分析';
-            valueUnit = '万元';
-            break;
-    }
-    
-    // 配置柱状图作为替代
-    const option = {
+    option = {
         title: {
             text: title,
             left: 'center'
         },
         tooltip: {
-            trigger: 'axis',
+            trigger: 'item',
             formatter: function(params) {
-                return params[0].name + ': ' + params[0].value + valueUnit;
+                return params.name + ': ' + params.value + valueUnit;
             }
         },
-        xAxis: {
-            type: 'category',
-            data: data.map(item => item.name)
-        },
-        yAxis: {
-            type: 'value',
-            name: '数值'
+        visualMap: {
+            min: 0,
+            max: 100,
+            text: ['高', '低'],
+            realtime: false,
+            calculable: true,
+            inRange: {
+                color: ['#e0f7fa', '#4fc3f7', '#0288d1', '#01579b']
+            }
         },
         series: [
             {
-                type: 'bar',
-                data: data.map(item => item.value),
-                itemStyle: {
-                    color: function(params) {
-                        const colors = ['#3498db', '#2ecc71', '#e74c3c', '#f39c12', '#9b59b6', '#1abc9c', '#34495e'];
-                        return colors[params.dataIndex % colors.length];
+                name: metric,
+                type: 'map',
+                map: 'china',
+                roam: true,
+                emphasis: {
+                    label: {
+                        show: true
                     }
                 },
-                label: {
-                    show: true,
-                    position: 'top',
-                    formatter: '{c}' + valueUnit
-                }
+                data: geoData
             }
         ]
     };
     
     // 设置图表选项
-    chart.setOption(option);
+    myChart.setOption(option);
+    
+    // 监听窗口大小变化，调整图表大小
+    window.addEventListener('resize', function() {
+        myChart.resize();
+    });
 } 

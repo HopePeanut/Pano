@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://at.alicdn.com/t/font_3114416_1nc9cwrht5h.css">
     <!-- 使用CDN引入ECharts -->
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
-    <!-- 移除中国地图依赖，由代码动态处理 -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/map/js/china.js"></script>
 </head>
 <body>
     <!-- 顶部导航栏 -->
@@ -290,65 +290,6 @@
             </div>
         </div>
     </main>
-
-    <!-- 添加创建默认logo的脚本，确保导航正常显示 -->
-    <script>
-    // 确保logo图片存在
-    window.addEventListener('DOMContentLoaded', function() {
-        const checkAndCreateFolder = function(folderPath) {
-            // 在实际环境中，这只是一个兼容处理，无实际文件创建功能
-            console.log('检查目录: ' + folderPath);
-        };
-        
-        const checkAndCreateLogo = function() {
-            // 仅做日志输出，确保js执行
-            console.log('确保logo加载正常');
-            
-            // 修复导航图标
-            const logoImg = document.querySelector('.navbar-logo img');
-            if (logoImg && !logoImg.complete) {
-                logoImg.onerror = function() {
-                    this.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI0MCIgZmlsbD0iIzFlODhlNSIvPjxwYXRoIGQ9Ik0zMCA3MEg3ME02NSAzMEw0NSA3ME0zNSAzMEw1NSA3MCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSI0IiBmaWxsPSJub25lIi8+PC9zdmc+';
-                    console.log('使用备用logo图标');
-                };
-            }
-        };
-        
-        checkAndCreateFolder('images');
-        checkAndCreateLogo();
-        
-        // 确保导航栏加载
-        console.log('尝试强制初始化导航栏');
-        // 检查common.js是否正确加载
-        if (typeof initComponents === 'function') {
-            console.log('common.js已加载，执行initComponents');
-            initComponents();
-        } else {
-            console.error('common.js未正确加载，手动初始化导航栏');
-            // 手动初始化导航栏
-            const navbarContainer = document.querySelector('[data-component="navbar"]');
-            if (navbarContainer) {
-                const pathPrefix = window.location.protocol === 'file:' ? '' : '/';
-                navbarContainer.innerHTML = `
-                <div class="navbar">
-                    <a href="${pathPrefix}index.html" class="navbar-logo">
-                        <img src="${pathPrefix}images/logo.png" alt="Logo" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI0MCIgZmlsbD0iIzFlODhlNSIvPjxwYXRoIGQ9Ik0zMCA3MEg3ME02NSAzMEw0NSA3ME0zNSAzMEw1NSA3MCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSI0IiBmaWxsPSJub25lIi8+PC9zdmc+';">
-                        <span>Pano全栈式综合能源管理平台</span>
-                    </a>
-                    <div class="navbar-links">
-                        <a href="${pathPrefix}index.html" class="navbar-link">监控中心</a>
-                        <a href="${pathPrefix}device-manage.html" class="navbar-link">运维管理</a>
-                        <a href="${pathPrefix}data-analysis.html" class="navbar-link">数据分析</a>
-                        <a href="${pathPrefix}statistics-compare.html" class="navbar-link active">统计对比</a>
-                        <a href="${pathPrefix}admin.html" class="navbar-link">后台管理</a>
-                        <a href="${pathPrefix}personal.html" class="navbar-link">个人中心</a>
-                    </div>
-                </div>
-                `;
-            }
-        }
-    });
-    </script>
 
     <script src="js/common.js"></script>
     <script src="js/statistics-compare.js"></script>
