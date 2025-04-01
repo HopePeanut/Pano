@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>SVG到PNG转换器</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background-color: #f5f7fa;
+            padding: 30px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #39B49A;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .images-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .image-card {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        .image-card h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .svg-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #login-bg-container {
+            height: 200px;
+            overflow: hidden;
+        }
+        button {
+            background-color: #39B49A;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #2FA084;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>图像资源转换器</h1>
+        <p style="text-align: center; margin-bottom: 30px;">点击下载按钮将SVG转换为PNG格式</p>
+        
+        <div class="images-grid">
+            <div class="image-card">
+                <h3>Logo</h3>
+                <div class="svg-container">
+                    <img src="logo.svg" alt="Logo" id="logo">
+                </div>
+                <button onclick="convertToPng('logo', 'logo.png', 100, 40)">下载 PNG</button>
+            </div>
+            
+            <div class="image-card">
+                <h3>密码隐藏图标</h3>
+                <div class="svg-container">
+                    <img src="eye-close.svg" alt="密码隐藏" id="eye-close">
+                </div>
+                <button onclick="convertToPng('eye-close', 'eye-close.png', 24, 24)">下载 PNG</button>
+            </div>
+            
+            <div class="image-card">
+                <h3>密码显示图标</h3>
+                <div class="svg-container">
+                    <img src="eye-open.svg" alt="密码显示" id="eye-open">
+                </div>
+                <button onclick="convertToPng('eye-open', 'eye-open.png', 24, 24)">下载 PNG</button>
+            </div>
+            
+            <div class="image-card">
+                <h3>微信登录图标</h3>
+                <div class="svg-container">
+                    <img src="wechat.svg" alt="微信" id="wechat">
+                </div>
+                <button onclick="convertToPng('wechat', 'wechat.png', 24, 24)">下载 PNG</button>
+            </div>
+            
+            <div class="image-card">
+                <h3>手机登录图标</h3>
+                <div class="svg-container">
+                    <img src="mobile.svg" alt="手机" id="mobile">
+                </div>
+                <button onclick="convertToPng('mobile', 'mobile.png', 24, 24)">下载 PNG</button>
+            </div>
+            
+            <div class="image-card">
+                <h3>用户头像</h3>
+                <div class="svg-container">
+                    <img src="avatar.svg" alt="用户头像" id="avatar">
+                </div>
+                <button onclick="convertToPng('avatar', 'avatar.png', 40, 40)">下载 PNG</button>
+            </div>
+            
+            <div class="image-card" style="grid-column: 1 / -1;">
+                <h3>登录背景图</h3>
+                <div class="svg-container" id="login-bg-container">
+                    <img src="login-bg.svg" alt="登录背景" id="login-bg" style="width: 100%;">
+                </div>
+                <button onclick="convertToPng('login-bg', 'login-bg.jpg', 1920, 1080)">下载 JPG</button>
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px;">
+            <button onclick="convertAll()">一键下载全部</button>
+        </div>
+    </div>
+    
+    <script>
+        function convertToPng(id, filename, width, height) {
+            const img = document.getElementById(id);
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            
+            // 对于JPG格式，使用不同的MIME类型
+            const format = filename.endsWith('.jpg') ? 'image/jpeg' : 'image/png';
+            const dataUrl = canvas.toDataURL(format, 0.9);
+            
+            const a = document.createElement('a');
+            a.href = dataUrl;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+        
+        function convertAll() {
+            convertToPng('logo', 'logo.png', 100, 40);
+            convertToPng('eye-close', 'eye-close.png', 24, 24);
+            convertToPng('eye-open', 'eye-open.png', 24, 24);
+            convertToPng('wechat', 'wechat.png', 24, 24);
+            convertToPng('mobile', 'mobile.png', 24, 24);
+            convertToPng('avatar', 'avatar.png', 40, 40);
+            convertToPng('login-bg', 'login-bg.jpg', 1920, 1080);
+        }
+        
+        // 加载时确保所有SVG都已正确加载
+        window.onload = function() {
+            document.querySelectorAll('img').forEach(img => {
+                img.onerror = function() {
+                    console.error('Failed to load:', img.src);
+                    img.parentNode.style.backgroundColor = '#ffeeee';
+                };
+            });
+        };
+    </script>
+</body>
+</html> 

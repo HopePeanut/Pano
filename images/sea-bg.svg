@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+  <defs>
+    <linearGradient id="skyGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#87CEEB" />
+      <stop offset="100%" stop-color="#B0E0E6" />
+    </linearGradient>
+    <linearGradient id="seaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1E90FF" />
+      <stop offset="100%" stop-color="#00008B" />
+    </linearGradient>
+    <filter id="blur" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="10" />
+    </filter>
+  </defs>
+  
+  <!-- 天空背景 -->
+  <rect width="1920" height="650" fill="url(#skyGradient)" />
+  
+  <!-- 海洋背景 -->
+  <rect y="650" width="1920" height="430" fill="url(#seaGradient)" />
+  
+  <!-- 云朵 -->
+  <g opacity="0.8" filter="url(#blur)">
+    <ellipse cx="200" cy="150" rx="100" ry="40" fill="white" />
+    <ellipse cx="500" cy="100" rx="120" ry="50" fill="white" />
+    <ellipse cx="800" cy="200" rx="150" ry="40" fill="white" />
+    <ellipse cx="1200" cy="120" rx="130" ry="60" fill="white" />
+    <ellipse cx="1600" cy="180" rx="140" ry="45" fill="white" />
+  </g>
+  
+  <!-- 波浪 -->
+  <g>
+    <!-- 第一层波浪 -->
+    <path d="M0,650 C160,620 320,680 480,650 C640,620 800,680 960,650 C1120,620 1280,680 1440,650 C1600,620 1760,680 1920,650 L1920,750 L0,750 Z" fill="#2E8BC0" opacity="0.8" />
+    
+    <!-- 第二层波浪 -->
+    <path d="M0,700 C160,670 320,730 480,700 C640,670 800,730 960,700 C1120,670 1280,730 1440,700 C1600,670 1760,730 1920,700 L1920,800 L0,800 Z" fill="#1A5276" opacity="0.6" />
+    
+    <!-- 第三层波浪 -->
+    <path d="M0,750 C160,720 320,780 480,750 C640,720 800,780 960,750 C1120,720 1280,780 1440,750 C1600,720 1760,780 1920,750 L1920,1080 L0,1080 Z" fill="#154360" opacity="0.9" />
+  </g>
+  
+  <!-- 泡沫和浪花 -->
+  <g fill="white" opacity="0.5">
+    <circle cx="100" cy="680" r="3" />
+    <circle cx="150" cy="690" r="2" />
+    <circle cx="300" cy="670" r="4" />
+    <circle cx="450" cy="685" r="3" />
+    <circle cx="600" cy="675" r="2" />
+    <circle cx="750" cy="690" r="3" />
+    <circle cx="900" cy="670" r="4" />
+    <circle cx="1050" cy="685" r="2" />
+    <circle cx="1200" cy="680" r="3" />
+    <circle cx="1350" cy="670" r="4" />
+    <circle cx="1500" cy="690" r="2" />
+    <circle cx="1650" cy="675" r="3" />
+    <circle cx="1800" cy="685" r="4" />
+  </g>
+  
+  <!-- 远处小船 -->
+  <g transform="translate(500, 620) scale(0.5)">
+    <path d="M0,0 L40,0 L20,-20 Z" fill="#8B4513" />
+    <rect x="5" y="0" width="30" height="10" fill="#A0522D" />
+  </g>
+  
+  <g transform="translate(1200, 600) scale(0.7)">
+    <path d="M0,0 L50,0 L25,-30 Z" fill="#8B4513" />
+    <rect x="5" y="0" width="40" height="12" fill="#A0522D" />
+  </g>
+</svg> 

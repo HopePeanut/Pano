@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设备监控系统 - 储能电站</title>
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/monitor.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.2/dist/echarts.min.js"></script>
+</head>
+<body>
+    <!-- 全局提示框 -->
+    <div id="tooltip" class="tooltip" style="display: none;">
+        <div class="tooltip-title">提示</div>
+        <div class="tooltip-message">操作成功</div>
+    </div>
+
+    <!-- 页头导航 -->
+    <header class="header">
+        <div class="logo-container">
+            <img src="images/logo.png" alt="Logo" class="logo">
+            <div class="platform-info">
+                <div class="platform-name">Pano全栈式综合能源管理平台</div>
+                <div class="system-name">智慧运维系统</div>
+            </div>
+        </div>
+        <div class="top-nav">
+            <a href="#" class="nav-item">监控中心</a>
+            <a href="#" class="nav-item active">运维管理</a>
+            <a href="#" class="nav-item">数据分析</a>
+            <a href="#" class="nav-item">后台管理</a>
+            <a href="#" class="nav-item">个人中心</a>
+        </div>
+        <div class="user-info">
+            <img src="images/avatar.png" alt="用户头像" class="avatar">
+            <span class="username">管理员</span>
+        </div>
+    </header>
+
+    <!-- 主内容区域 -->
+    <main class="main-container">
+        <!-- 当前站点和面包屑导航 -->
+        <div class="site-header">
+            <div class="current-site">
+                <span class="site-label">当前电站</span>
+                <h2 class="site-name">张家口储能电站</h2>
+            </div>
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="搜索电站...">
+                <button class="search-btn"><i class="bi bi-search"></i></button>
+            </div>
+        </div>
+
+        <!-- 面包屑导航 -->
+        <div class="breadcrumb">
+            <a href="index.html">张家口储能电站</a>
+            <span class="separator">></span>
+            <span class="current">系统监控</span>
+        </div>
+
+        <!-- 系统选项卡 -->
+        <div class="system-tabs">
+            <div class="tab-item active" data-system="ems">EMS</div>
+            <div class="tab-item" data-system="system1">1#储能系统</div>
+            <div class="tab-item" data-system="system2">2#储能系统</div>
+            <div class="tab-item" data-system="system3">3#储能系统</div>
+        </div>
+
+        <!-- 设备部件选项卡 -->
+        <div class="device-tabs">
+            <div class="tab-item active" data-device="local">本地控制器</div>
+            <div class="tab-item" data-device="bms">BMS</div>
+            <div class="tab-item" data-device="pcs">PCS</div>
+            <div class="tab-item" data-device="thermal">温控系统</div>
+            <div class="tab-item" data-device="fire">消防系统</div>
+            <div class="tab-item" data-device="enviro">动环</div>
+            <div class="tab-item" data-device="electrical">电气</div>
+        </div>
+
+        <!-- 功能选项卡 -->
+        <div class="function-tabs">
+            <div class="tab-item active" data-function="monitor">监视</div>
+            <div class="tab-item" data-function="control">控制</div>
+            <div class="tab-item" data-function="config">参数配置</div>
+        </div>
+
+        <!-- 内容区域 -->
+        <div class="content-area">
+            <!-- 监视页面 -->
+            <div class="function-content active" id="monitor-content">
+                <div class="monitor-grid">
+                    <!-- 重点数据和图表 -->
+                    <div class="monitor-section" id="key-data">
+                        <h3 class="section-title">重点数据</h3>
+                        <div class="key-data-grid">
+                            <!-- 数据卡片将通过JavaScript动态加载 -->
+                        </div>
+                    </div>
+
+                    <!-- 状态点位 -->
+                    <div class="monitor-section" id="status-points">
+                        <h3 class="section-title">状态点位</h3>
+                        <div class="status-list">
+                            <!-- 状态点位将通过JavaScript动态加载 -->
+                        </div>
+                    </div>
+
+                    <!-- 遥测信息 -->
+                    <div class="monitor-section" id="telemetry-data">
+                        <h3 class="section-title">遥测信息</h3>
+                        <div class="telemetry-table">
+                            <!-- 遥测数据表格将通过JavaScript动态加载 -->
+                        </div>
+                    </div>
+
+                    <!-- 告警点位状态 -->
+                    <div class="monitor-section" id="alarm-points">
+                        <h3 class="section-title">告警点位</h3>
+                        <div class="alarm-list">
+                            <!-- 告警点位将通过JavaScript动态加载 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 控制页面 -->
+            <div class="function-content" id="control-content">
+                <div class="control-container">
+                    <h3 class="section-title">控制点位</h3>
+                    <div class="control-points-list">
+                        <!-- 控制点位将通过JavaScript动态加载 -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 参数配置页面 -->
+            <div class="function-content" id="config-content">
+                <div class="config-container">
+                    <!-- 参数组选择 -->
+                    <div class="param-group-tabs">
+                        <div class="tab-item active" data-param-group="operation">运行参数</div>
+                        <div class="tab-item" data-param-group="protection">保护参数</div>
+                    </div>
+
+                    <!-- 参数列表 -->
+                    <div class="param-list-container">
+                        <!-- 参数列表将通过JavaScript动态加载 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 底部信息 -->
+    <footer class="footer">
+        <div class="footer-content">
+            <span>© 2023 储能管理系统</span>
+            <span>版本: v1.0.0</span>
+        </div>
+    </footer>
+
+    <!-- JavaScript文件 -->
+    <script src="js/monitor.js"></script>
+</body>
+</html> 

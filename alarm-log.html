@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>告警与日志 - 清安储能智慧运维系统</title>
+    <!-- 先引入CSS -->
+    <link rel="stylesheet" href="css/maintenance-system.css">
+    <link rel="stylesheet" href="css/alarm-log.css">
+    <!-- 字体图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- 引入ECharts图表库 -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <!-- 先加载common.js，确保导航栏正确初始化 -->
+    <script src="js/common.js"></script>
+</head>
+<body>
+    <!-- 全局提示框 -->
+    <div id="tooltip" class="tooltip">
+        <div class="tooltip-title">提示</div>
+        <div class="tooltip-message">操作成功</div>
+    </div>
+
+    <!-- 头部导航 - 使用组件系统 -->
+    <header data-component="navbar">
+        <!-- 导航内容将由common.js动态插入 -->
+    </header>
+
+    <!-- 主内容区域 -->
+    <main>
+        <!-- 内容头部 -->
+        <div class="content-header">
+            <div class="breadcrumb">
+                <i class="fas fa-home"></i>
+                <span>首页</span>
+                <span class="separator">/</span>
+                <span class="current">告警与日志</span>
+            </div>
+            <div class="search-box">
+                <input type="text" id="alarmSearchInput" placeholder="搜索告警信息...">
+                <button id="alarmSearchBtn"><i class="fas fa-search"></i></button>
+            </div>
+        </div>
+
+        <!-- 告警操作栏 -->
+        <div class="alarm-action-bar">
+            <!-- 告警类型标签 -->
+            <div class="alarm-tabs">
+                <div class="tab-item active" data-tab="realtime">实时告警</div>
+                <div class="tab-item" data-tab="history">历史告警</div>
+            </div>
+            
+            <!-- 操作按钮 -->
+            <div class="action-buttons">
+                <button class="action-btn" id="showFilterBtn">
+                    <i class="fas fa-filter"></i> 筛选
+                </button>
+                <button class="action-btn" id="showChartBtn">
+                    <i class="fas fa-chart-bar"></i> 趋势图
+                </button>
+            </div>
+        </div>
+
+        <!-- 筛选面板（默认隐藏） -->
+        <div class="filter-panel" id="filterPanel" style="display: none;">
+            <div class="filter-content">
+                <div class="filter-row">
+                    <div class="filter-item">
+                        <label>站点：</label>
+                        <select class="multi-select" id="siteSelect" multiple>
+                            <option value="all" selected>全部站点</option>
+                            <option value="site1">清安储能站</option>
+                            <option value="site2">南海储能站</option>
+                            <option value="site3">东湖储能站</option>
+                            <option value="site4">西区储能站</option>
+                        </select>
+                    </div>
+                    <div class="filter-item">
+                        <label>设备：</label>
+                        <select class="multi-select" id="deviceSelect" multiple>
+                            <option value="all" selected>全部设备</option>
+                            <option value="system1">1#储能系统</option>
+                            <option value="system2">2#储能系统</option>
+                            <option value="system3">3#储能系统</option>
+                            <option value="system4">4#储能系统</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="filter-row">
+                    <div class="filter-item">
+                        <label>子部件：</label>
+                        <div class="tag-filter" id="componentFilter">
+                            <label class="tag active" data-value="all">
+                                <input type="checkbox" name="component" value="all" checked>
+                                <span>全部</span>
+                            </label>
+                            <label class="tag" data-value="bms">
+                                <input type="checkbox" name="component" value="bms">
+                                <span>BMS</span>
+                            </label>
+                            <label class="tag" data-value="pcs">
+                                <input type="checkbox" name="component" value="pcs">
+                                <span>PCS</span>
+                            </label>
+                            <label class="tag" data-value="thermal">
+                                <input type="checkbox" name="component" value="thermal">
+                                <span>热管理</span>
+                            </label>
+                            <label class="tag" data-value="fire">
+                                <input type="checkbox" name="component" value="fire">
+                                <span>消防</span>
+                            </label>
+                            <label class="tag" data-value="electrical">
+                                <input type="checkbox" name="component" value="electrical">
+                                <span>动环电气</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="filter-item">
+                        <label>告警级别：</label>
+                        <div class="tag-filter" id="levelFilter">
+                            <label class="tag active" data-value="all">
+                                <input type="checkbox" name="alarmLevel" value="all" checked>
+                                <span>全部</span>
+                            </label>
+                            <label class="tag" data-value="fault">
+                                <input type="checkbox" name="alarmLevel" value="fault">
+                                <span>故障</span>
+                            </label>
+                            <label class="tag" data-value="warning">
+                                <input type="checkbox" name="alarmLevel" value="warning">
+                                <span>告警</span>
+                            </label>
+                            <label class="tag" data-value="info">
+                                <input type="checkbox" name="alarmLevel" value="info">
+                                <span>提示</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="filter-row">
+                    <div class="filter-item date-range">
+                        <label>时间范围：</label>
+                        <div class="date-picker">
+                            <input type="date" id="startDate">
+                            <span class="date-separator">至</span>
+                            <input type="date" id="endDate">
+                            <button class="date-filter-btn" id="dateFilterBtn"><i class="fas fa-calendar-check"></i> 确定</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 告警趋势图（默认隐藏） -->
+        <div class="alarm-trend-container" id="trendChartContainer" style="display: none;">
+            <div class="section-header">
+                <h3>24小时告警趋势</h3>
+                <button class="close-chart-btn" id="closeChartBtn"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="alarmChart" class="alarm-chart"></div>
+        </div>
+
+        <!-- 告警表格容器 -->
+        <div class="alarm-table-container">
+            <!-- 实时告警表格 -->
+            <table class="alarm-table" id="realTimeAlarmTable">
+                <thead>
+                    <tr>
+                        <th>电站名称</th>
+                        <th>设备名称</th>
+                        <th>子部件名称</th>
+                        <th>告警级别</th>
+                        <th>告警描述</th>
+                        <th>发生时间</th>
+                        <th>智能诊断处理建议</th>
+                    </tr>
+                </thead>
+                <tbody id="realTimeAlarmTableBody">
+                    <!-- 动态生成告警数据 -->
+                </tbody>
+            </table>
+
+            <!-- 历史告警表格 -->
+            <table class="alarm-table" id="historyAlarmTable" style="display: none;">
+                <thead>
+                    <tr>
+                        <th>电站名称</th>
+                        <th>设备名称</th>
+                        <th>子部件名称</th>
+                        <th>告警级别</th>
+                        <th>告警描述</th>
+                        <th>发生时间</th>
+                        <th>恢复时间</th>
+                    </tr>
+                </thead>
+                <tbody id="historyAlarmTableBody">
+                    <!-- 动态生成历史告警数据 -->
+                </tbody>
+            </table>
+
+            <!-- 加载指示器 -->
+            <div class="loading-indicator" id="loadingIndicator" style="display: none;">
+                <i class="fas fa-spinner fa-spin"></i>
+                <span>正在加载数据...</span>
+            </div>
+
+            <!-- 空数据提示 -->
+            <div class="empty-data-tip" id="emptyDataTip" style="display: none;">
+                <i class="fas fa-inbox"></i>
+                <span>暂无告警数据</span>
+            </div>
+        </div>
+
+        <!-- 分页控件 -->
+        <div class="pagination">
+            <button class="page-btn" id="prevPage" disabled><i class="fas fa-chevron-left"></i></button>
+            <div class="page-numbers" id="pageNumbers">
+                <div class="page-number active">1</div>
+                <div class="page-number">2</div>
+                <div class="page-number">3</div>
+            </div>
+            <button class="page-btn" id="nextPage"><i class="fas fa-chevron-right"></i></button>
+        </div>
+
+        <!-- 告警详情模态框 -->
+        <div class="modal" id="alarmDetailModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="alarmDetailTitle">告警详情</h3>
+                    <span class="close-btn" id="closeAlarmDetail">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div class="alarm-detail-content" id="alarmDetailContent">
+                        <!-- 告警详情内容将动态生成 -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="modal-btn cancel" id="closeDetailBtn">关闭</button>
+                    <button class="modal-btn confirm" id="confirmAction">确认处理</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/alarm-log.js"></script>
+</body>
+</html> 

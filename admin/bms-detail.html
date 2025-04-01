@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMS详情 - 储能电站监控系统</title>
+    <!-- 引入导航和通用样式 -->
+    <link rel="stylesheet" href="../css/maintenance-system.css">
+    <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.css">
+    <!-- 引入通用脚本 -->
+    <script src="../js/common.js"></script>
+</head>
+<body>
+    <!-- 顶部导航栏 - 使用组件系统 -->
+    <header data-component="navbar">
+        <!-- 导航内容将由common.js动态插入 -->
+    </header>
+
+    <div class="admin-container">
+        <!-- 左侧导航 -->
+        <nav class="admin-sidebar">
+            <!-- 当前站点显示 -->
+            <div class="current-site">
+                <h3>当前电站</h3>
+                <div class="site-name">张家口储能电站</div>
+            </div>
+
+            <!-- 设备导航栏 -->
+            <div class="device-nav-container">
+                <h3>设备导航</h3>
+                <ul class="device-nav">
+                    <li class="device-nav-item has-children">
+                        <div class="device-nav-link"><i class="fas fa-server"></i> EMS</div>
+                        <ul class="device-subnav">
+                            <li class="device-subnav-item"><a href="#"><i class="fas fa-desktop"></i> 系统监控</a></li>
+                            <li class="device-subnav-item"><a href="#"><i class="fas fa-cog"></i> 系统配置</a></li>
+                        </ul>
+                    </li>
+                    <li class="device-nav-item has-children active">
+                        <div class="device-nav-link"><i class="fas fa-battery-three-quarters"></i> BMS</div>
+                        <ul class="device-subnav">
+                            <li class="device-subnav-item has-children">
+                                <div class="device-subnav-link"><i class="fas fa-th-large"></i> 储能单元1</div>
+                                <ul class="device-subnav">
+                                    <li class="device-subnav-item has-children">
+                                        <div class="device-subnav-link"><i class="fas fa-cubes"></i> 电池堆1</div>
+                                        <ul class="device-subnav">
+                                            <li class="device-subnav-item active"><a href="#"><i class="fas fa-cube"></i> 电池簇1</a></li>
+                                            <li class="device-subnav-item"><a href="#"><i class="fas fa-cube"></i> 电池簇2</a></li>
+                                            <li class="device-subnav-item"><a href="#"><i class="fas fa-cube"></i> 电池簇3</a></li>
+                                        </ul>
+                                    </li>
+                                    <li class="device-subnav-item">
+                                        <a href="#"><i class="fas fa-cubes"></i> 电池堆2</a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="device-subnav-item">
+                                <a href="#"><i class="fas fa-th-large"></i> 储能单元2</a>
+                            </li>
+                            <li class="device-subnav-item">
+                                <a href="#"><i class="fas fa-cog"></i> BMS配置</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="device-nav-item has-children">
+                        <div class="device-nav-link"><i class="fas fa-bolt"></i> PCS</div>
+                        <ul class="device-subnav">
+                            <li class="device-subnav-item"><a href="#"><i class="fas fa-bolt"></i> PCS-1</a></li>
+                            <li class="device-subnav-item"><a href="#"><i class="fas fa-bolt"></i> PCS-2</a></li>
+                            <li class="device-subnav-item"><a href="#"><i class="fas fa-cog"></i> PCS配置</a></li>
+                        </ul>
+                    </li>
+                    <li class="device-nav-item has-children">
+                        <div class="device-nav-link"><i class="fas fa-temperature-high"></i> 热管理</div>
+                        <ul class="device-subnav">
+                            <li class="device-subnav-item"><a href="#"><i class="fas fa-fan"></i> 空调系统</a></li>
+                            <li class="device-subnav-item"><a href="#"><i class="fas fa-tint"></i> 液冷系统</a></li>
+                            <li class="device-subnav-item"><a href="#"><i class="fas fa-cog"></i> 热管理配置</a></li>
+                        </ul>
+                    </li>
+                    <li class="device-nav-item has-children">
+                        <div class="device-nav-link"><i class="fas fa-fire-extinguisher"></i> 消防</div>
+                        <ul class="device-subnav">
+                            <li class="device-subnav-item"><a href="#"><i class="fas fa-fire-extinguisher"></i> 消防系统</a></li>
+                            <li class="device-subnav-item"><a href="#"><i class="fas fa-cog"></i> 消防配置</a></li>
+                        </ul>
+                    </li>
+                    <li class="device-nav-item has-children">
+                        <div class="device-nav-link"><i class="fas fa-plug"></i> 电气设备</div>
+                        <ul class="device-subnav">
+                            <li class="device-subnav-item"><a href="#"><i class="fas fa-plug"></i> 配电系统</a></li>
+                            <li class="device-subnav-item"><a href="#"><i class="fas fa-cog"></i> 电气配置</a></li>
+                        </ul>
+                    </li>
+                    <li class="device-nav-item has-children">
+                        <div class="device-nav-link"><i class="fas fa-wind"></i> 动环设备</div>
+                        <ul class="device-subnav">
+                            <li class="device-subnav-item"><a href="#"><i class="fas fa-temperature-high"></i> 动环监测</a></li>
+                            <li class="device-subnav-item"><a href="#"><i class="fas fa-cog"></i> 动环配置</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- 主内容区域 -->
+        <main class="admin-content">
+            <div class="bms-detail-container">
+                <div class="breadcrumb">
+                    <a href="../site-detail.html">张家口储能电站</a> &gt;
+                    <span class="current">电池簇1</span>
+                </div>
+                <div class="bms-detail-header">
+                    <h2><i class="fas fa-battery-three-quarters"></i> 电池簇1 详细信息</h2>
+                    <div class="last-update">
+                        <span>最后更新: 2025/03/27 15:38:26</span>
+                        <button class="refresh-btn"><i class="fas fa-sync-alt"></i> 刷新</button>
+                    </div>
+                </div>
+                
+                <!-- 核心信息展示 -->
+                <div class="core-info-grid">
+                    <div class="core-info-card">
+                        <div class="info-label">BMS在线状态</div>
+                        <div class="info-value online">在线</div>
+                    </div>
+                    <div class="core-info-card">
+                        <div class="info-label">充放电状态</div>
+                        <div class="info-value charging">充电中</div>
+                    </div>
+                    <div class="core-info-card">
+                        <div class="info-label">运行状态</div>
+                        <div class="info-value normal">正常</div>
+                    </div>
+                    <div class="core-info-card">
+                        <div class="info-label">SOC</div>
+                        <div class="info-value">86.5%</div>
+                    </div>
+                    <div class="core-info-card">
+                        <div class="info-label">总电压</div>
+                        <div class="info-value">826.4 V</div>
+                    </div>
+                    <div class="core-info-card">
+                        <div class="info-label">总电流</div>
+                        <div class="info-value">124.6 A</div>
+                    </div>
+                    <div class="core-info-card">
+                        <div class="info-label">电芯平均温度</div>
+                        <div class="info-value">28.3 °C</div>
+                    </div>
+                    <div class="core-info-card">
+                        <div class="info-label">绝缘电阻</div>
+                        <div class="info-value">5.26 MΩ</div>
+                    </div>
+                </div>
+                
+                <!-- 限值信息展示 -->
+                <div class="limits-grid">
+                    <div class="limits-item">
+                        <div class="limits-label">最高单体温度</div>
+                        <div class="limits-value">32.6 °C</div>
+                        <div class="limits-location">Pack 5 / 电芯 18</div>
+                    </div>
+                    <div class="limits-item">
+                        <div class="limits-label">最低单体温度</div>
+                        <div class="limits-value">25.3 °C</div>
+                        <div class="limits-location">Pack 2 / 电芯 42</div>
+                    </div>
+                    <div class="limits-item">
+                        <div class="limits-label">最高单体电压</div>
+                        <div class="limits-value">3.42 V</div>
+                        <div class="limits-location">Pack 3 / 电芯 7</div>
+                    </div>
+                    <div class="limits-item">
+                        <div class="limits-label">最低单体电压</div>
+                        <div class="limits-value">3.38 V</div>
+                        <div class="limits-location">Pack 8 / 电芯 32</div>
+                    </div>
+                    <div class="limits-item">
+                        <div class="limits-label">最大充电电流</div>
+                        <div class="limits-value">150 A</div>
+                    </div>
+                    <div class="limits-item">
+                        <div class="limits-label">最大放电电流</div>
+                        <div class="limits-value">180 A</div>
+                    </div>
+                    <div class="limits-item">
+                        <div class="limits-label">最大充电功率</div>
+                        <div class="limits-value">125 kW</div>
+                    </div>
+                    <div class="limits-item">
+                        <div class="limits-label">最大放电功率</div>
+                        <div class="limits-value">150 kW</div>
+                    </div>
+                </div>
+                
+                <!-- 电池使用信息展示 -->
+                <div class="usage-grid">
+                    <div class="usage-item">
+                        <div class="usage-label">今日充电量</div>
+                        <div class="usage-value">568.2 kWh</div>
+                    </div>
+                    <div class="usage-item">
+                        <div class="usage-label">今日放电量</div>
+                        <div class="usage-value">234.5 kWh</div>
+                    </div>
+                    <div class="usage-item">
+                        <div class="usage-label">可充电电量</div>
+                        <div class="usage-value">156.8 kWh</div>
+                    </div>
+                    <div class="usage-item">
+                        <div class="usage-label">可放电电量</div>
+                        <div class="usage-value">865.3 kWh</div>
+                    </div>
+                </div>
+                
+                <!-- 电池单体信息可视化 -->
+                <div class="visualization-container">
+                    <div class="vis-header">
+                        <h3>电池单体信息</h3>
+                        <div class="vis-controls">
+                            <select id="packSelector">
+                                <option value="all">所有Pack</option>
+                                <option value="1">Pack 1</option>
+                                <option value="2">Pack 2</option>
+                                <option value="3">Pack 3</option>
+                                <option value="4">Pack 4</option>
+                                <option value="5">Pack 5</option>
+                                <option value="6">Pack 6</option>
+                                <option value="7">Pack 7</option>
+                                <option value="8">Pack 8</option>
+                                <option value="9">Pack 9</option>
+                                <option value="10">Pack 10</option>
+                                <option value="11">Pack 11</option>
+                                <option value="12">Pack 12</option>
+                            </select>
+                            <select id="visType">
+                                <option value="voltage">电压分布</option>
+                                <option value="temperature">温度分布</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- 电芯电压/温度可视化图表 -->
+                    <div class="vis-charts">
+                        <div class="chart-container" id="cellVoltageChart"></div>
+                        <div class="chart-container" id="cellTemperatureChart" style="display: none;"></div>
+                    </div>
+                    
+                    <!-- 电池组结构信息 -->
+                    <div class="battery-structure">
+                        <h3>电池组结构信息</h3>
+                        <div class="structure-info">
+                            <div class="structure-item">
+                                <span class="structure-label">电芯总数</span>
+                                <span class="structure-value">624个 (12个Pack x 52个/Pack)</span>
+                            </div>
+                            <div class="structure-item">
+                                <span class="structure-label">电芯型号</span>
+                                <span class="structure-value">LFP-260Ah</span>
+                            </div>
+                            <div class="structure-item">
+                                <span class="structure-label">额定电压</span>
+                                <span class="structure-value">3.2V/电芯</span>
+                            </div>
+                            <div class="structure-item">
+                                <span class="structure-label">额定容量</span>
+                                <span class="structure-value">260Ah/电芯</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 参数列表 -->
+                <div class="params-container">
+                    <div class="params-header">
+                        <h3>遥测数据</h3>
+                        <div class="params-controls">
+                            <select id="paramsGroup">
+                                <option value="all">全部参数</option>
+                                <option value="status">状态参数</option>
+                                <option value="electrical">电气参数</option>
+                                <option value="thermal">热管理参数</option>
+                                <option value="limits">限值参数</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="params-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>参数名称</th>
+                                    <th>数值</th>
+                                    <th>单位</th>
+                                    <th>更新时间</th>
+                                    <th>状态</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>总电压</td>
+                                    <td>826.4</td>
+                                    <td>V</td>
+                                    <td>15:38:26</td>
+                                    <td class="status normal">正常</td>
+                                </tr>
+                                <tr>
+                                    <td>总电流</td>
+                                    <td>124.6</td>
+                                    <td>A</td>
+                                    <td>15:38:26</td>
+                                    <td class="status normal">正常</td>
+                                </tr>
+                                <tr>
+                                    <td>SOC</td>
+                                    <td>86.5</td>
+                                    <td>%</td>
+                                    <td>15:38:26</td>
+                                    <td class="status normal">正常</td>
+                                </tr>
+                                <tr>
+                                    <td>平均温度</td>
+                                    <td>28.3</td>
+                                    <td>°C</td>
+                                    <td>15:38:26</td>
+                                    <td class="status normal">正常</td>
+                                </tr>
+                                <tr>
+                                    <td>最高温度</td>
+                                    <td>32.6</td>
+                                    <td>°C</td>
+                                    <td>15:38:26</td>
+                                    <td class="status normal">正常</td>
+                                </tr>
+                                <tr>
+                                    <td>最低温度</td>
+                                    <td>25.3</td>
+                                    <td>°C</td>
+                                    <td>15:38:26</td>
+                                    <td class="status normal">正常</td>
+                                </tr>
+                                <tr>
+                                    <td>温差</td>
+                                    <td>7.3</td>
+                                    <td>°C</td>
+                                    <td>15:38:26</td>
+                                    <td class="status normal">正常</td>
+                                </tr>
+                                <tr>
+                                    <td>最高单体电压</td>
+                                    <td>3.42</td>
+                                    <td>V</td>
+                                    <td>15:38:26</td>
+                                    <td class="status normal">正常</td>
+                                </tr>
+                                <tr>
+                                    <td>最低单体电压</td>
+                                    <td>3.38</td>
+                                    <td>V</td>
+                                    <td>15:38:26</td>
+                                    <td class="status normal">正常</td>
+                                </tr>
+                                <tr>
+                                    <td>电压差</td>
+                                    <td>0.04</td>
+                                    <td>V</td>
+                                    <td>15:38:26</td>
+                                    <td class="status normal">正常</td>
+                                </tr>
+                                <tr>
+                                    <td>绝缘电阻</td>
+                                    <td>5.26</td>
+                                    <td>MΩ</td>
+                                    <td>15:38:26</td>
+                                    <td class="status normal">正常</td>
+                                </tr>
+                                <tr>
+                                    <td>功率</td>
+                                    <td>102.98</td>
+                                    <td>kW</td>
+                                    <td>15:38:26</td>
+                                    <td class="status normal">正常</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- 控制面板 -->
+                <div class="control-panel">
+                    <h3>控制面板</h3>
+                    <div class="control-grid">
+                        <button class="control-btn" disabled>
+                            <i class="fas fa-power-off"></i>
+                            <span>强制下线</span>
+                        </button>
+                        <button class="control-btn">
+                            <i class="fas fa-balance-scale"></i>
+                            <span>均衡充电</span>
+                        </button>
+                        <button class="control-btn">
+                            <i class="fas fa-thermometer-half"></i>
+                            <span>温度自检</span>
+                        </button>
+                        <button class="control-btn">
+                            <i class="fas fa-bolt"></i>
+                            <span>容量测试</span>
+                        </button>
+                        <button class="control-btn">
+                            <i class="fas fa-sliders-h"></i>
+                            <span>参数配置</span>
+                        </button>
+                        <button class="control-btn">
+                            <i class="fas fa-history"></i>
+                            <span>历史数据</span>
+                        </button>
+                        <button class="control-btn">
+                            <i class="fas fa-file-export"></i>
+                            <span>导出数据</span>
+                        </button>
+                        <button class="control-btn">
+                            <i class="fas fa-chart-line"></i>
+                            <span>趋势分析</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="js/bms-detail.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html> 

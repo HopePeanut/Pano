@@ -1,0 +1,601 @@
+/* 全局样式重置 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Microsoft YaHei', sans-serif;
+}
+
+body {
+    background-color: #f5f7fa;
+    color: #333;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 头部样式 */
+header {
+    background-color: white;
+    height: 70px;
+    padding: 0 30px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+}
+
+.logo img {
+    height: 35px;
+    margin-right: 12px;
+}
+
+.company-name {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+    padding-left: 12px;
+    border-left: 1px solid #e5e5e5;
+}
+
+.company-name span {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+}
+
+.company-name .en-name {
+    font-size: 12px;
+    color: #999;
+    font-weight: normal;
+    letter-spacing: 0.5px;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    margin-right: 20px;
+    position: relative;
+}
+
+.user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-right: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f0f0f0;
+    cursor: pointer;
+    position: relative;
+    border: 2px solid #39B49A;
+}
+
+.user-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.user-avatar:hover::after {
+    content: '点击修改头像';
+    position: absolute;
+    background: rgba(57, 180, 154, 0.8);
+    color: white;
+    font-size: 10px;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 1.2;
+    opacity: 0;
+    transition: opacity 0.3s;
+    opacity: 1;
+}
+
+.user-name {
+    font-size: 14px;
+    color: #555;
+    cursor: pointer;
+}
+
+.user-dropdown {
+    position: absolute;
+    top: 45px;
+    right: 0;
+    width: 150px;
+    background-color: white;
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 10px 0;
+    display: none;
+    z-index: 200;
+}
+
+.user-dropdown a {
+    display: block;
+    padding: 8px 15px;
+    text-decoration: none;
+    color: #666;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.user-dropdown a:hover {
+    background-color: #f5f5f5;
+    color: #39B49A;
+}
+
+.user-info:hover .user-dropdown {
+    display: block;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.logout-btn {
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+    text-decoration: none;
+    color: #666;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+.logout-btn i {
+    margin-right: 5px;
+    font-size: 16px;
+}
+
+.logout-btn:hover {
+    background-color: #eaeaea;
+    transform: translateY(-2px);
+}
+
+/* 主内容区域 */
+main {
+    flex: 1;
+    padding: 30px;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.dashboard-title {
+    text-align: center;
+    margin-bottom: 40px;
+    position: relative;
+}
+
+.dashboard-title h1 {
+    font-size: 28px;
+    color: #333;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.dashboard-title h2 {
+    font-size: 18px;
+    color: #666;
+    font-weight: 400;
+    margin-bottom: 20px;
+}
+
+.dashboard-title h2:after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 3px;
+    background-color: #39B49A;
+    border-radius: 2px;
+}
+
+/* 系统卡片容器 */
+.systems-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 25px;
+}
+
+/* 系统卡片样式 */
+.system-card {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    padding: 30px;
+    display: flex;
+    transition: transform 0.4s, box-shadow 0.4s;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.system-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 6px;
+    height: 100%;
+    background-color: #39B49A;
+    opacity: 0.8;
+}
+
+.system-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+.system-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 20px;
+    flex-shrink: 0;
+    transition: all 0.3s;
+    background-color: #f0f8f6;
+    position: relative;
+    overflow: hidden;
+}
+
+.system-icon::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(57, 180, 154, 0.2) 0%, rgba(57, 180, 154, 0) 60%);
+    z-index: 1;
+}
+
+.system-card:hover .system-icon {
+    transform: scale(1.1) rotate(5deg);
+}
+
+.system-icon i {
+    font-size: 28px;
+    color: #39B49A;
+    z-index: 2;
+    transition: all 0.3s;
+}
+
+.system-icon.highlight {
+    background-color: #39B49A;
+}
+
+.system-icon.highlight i {
+    color: white;
+}
+
+/* 能源规划系统图标特殊样式 */
+.system-card:nth-child(1) .system-icon {
+    background-color: #f3f7ff;
+}
+.system-card:nth-child(1) .system-icon i {
+    color: #4a89dc;
+}
+.system-card:nth-child(1)::before {
+    background-color: #4a89dc;
+}
+
+/* 交付管理系统图标特殊样式 */
+.system-card:nth-child(2) .system-icon {
+    background-color: #fff7f0;
+}
+.system-card:nth-child(2) .system-icon i {
+    color: #ff9966;
+}
+.system-card:nth-child(2)::before {
+    background-color: #ff9966;
+}
+
+/* 综合能源管理系统图标特殊样式 */
+.system-card:nth-child(3) .system-icon {
+    background-color: #f0f7f7;
+}
+.system-card:nth-child(3) .system-icon i {
+    color: #36b9cc;
+}
+.system-card:nth-child(3)::before {
+    background-color: #36b9cc;
+}
+
+/* 智慧运维系统图标特殊样式 */
+.system-card:nth-child(4) .system-icon {
+    background-color: #f0f8f6;
+}
+.system-card:nth-child(4) .system-icon i {
+    color: #39B49A;
+}
+.system-card:nth-child(4)::before {
+    background-color: #39B49A;
+}
+
+/* 数智运营系统图标特殊样式 */
+.system-card:nth-child(5) .system-icon {
+    background-color: #f7f0f7;
+}
+.system-card:nth-child(5) .system-icon i {
+    color: #9966cc;
+}
+.system-card:nth-child(5)::before {
+    background-color: #9966cc;
+}
+
+.system-info {
+    flex: 1;
+}
+
+.system-info h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #333;
+    position: relative;
+    display: inline-block;
+    transition: all 0.3s;
+}
+
+.system-card:hover .system-info h3 {
+    transform: translateX(5px);
+}
+
+.system-info p {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 15px;
+}
+
+.system-features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.system-features span {
+    background-color: #f0f8f6;
+    color: #39B49A;
+    padding: 5px 12px;
+    border-radius: 15px;
+    font-size: 12px;
+    transition: all 0.3s;
+}
+
+.system-card:hover .system-features span {
+    transform: translateY(-3px);
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.05);
+}
+
+/* 动态添加不同颜色的功能标签背景 */
+.system-card:nth-child(1) .system-features span {
+    background-color: #f3f7ff;
+    color: #4a89dc;
+}
+
+.system-card:nth-child(2) .system-features span {
+    background-color: #fff7f0;
+    color: #ff9966;
+}
+
+.system-card:nth-child(3) .system-features span {
+    background-color: #f0f7f7;
+    color: #36b9cc;
+}
+
+.system-card:nth-child(4) .system-features span {
+    background-color: #f0f8f6;
+    color: #39B49A;
+}
+
+.system-card:nth-child(5) .system-features span {
+    background-color: #f7f0f7;
+    color: #9966cc;
+}
+
+.enter-btn {
+    display: inline-block;
+    padding: 8px 20px;
+    background-color: white;
+    color: #39B49A;
+    border: 1px solid #39B49A;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+.enter-btn:hover {
+    background-color: #39B49A;
+    color: white;
+}
+
+/* 为每个系统设置不同的按钮颜色 */
+.system-card:nth-child(1) .enter-btn {
+    color: #4a89dc;
+    border-color: #4a89dc;
+}
+.system-card:nth-child(1) .enter-btn:hover {
+    background-color: #4a89dc;
+    color: white;
+}
+
+.system-card:nth-child(2) .enter-btn {
+    color: #ff9966;
+    border-color: #ff9966;
+}
+.system-card:nth-child(2) .enter-btn:hover {
+    background-color: #ff9966;
+    color: white;
+}
+
+.system-card:nth-child(3) .enter-btn {
+    color: #36b9cc;
+    border-color: #36b9cc;
+}
+.system-card:nth-child(3) .enter-btn:hover {
+    background-color: #36b9cc;
+    color: white;
+}
+
+.system-card:nth-child(4) .enter-btn {
+    color: #39B49A;
+    border-color: #39B49A;
+}
+.system-card:nth-child(4) .enter-btn:hover {
+    background-color: #39B49A;
+    color: white;
+}
+
+.system-card:nth-child(5) .enter-btn {
+    color: #9966cc;
+    border-color: #9966cc;
+}
+.system-card:nth-child(5) .enter-btn:hover {
+    background-color: #9966cc;
+    color: white;
+}
+
+/* 智慧运维系统特殊突出样式 */
+.system-card:nth-child(4) .enter-btn.highlight {
+    background-color: #39B49A;
+    color: white;
+    border: 2px solid #39B49A;
+    font-weight: bold;
+    box-shadow: 0 3px 8px rgba(57, 180, 154, 0.3);
+}
+
+.system-card:nth-child(4) .enter-btn.highlight:hover {
+    background-color: #2FA084;
+    border-color: #2FA084;
+}
+
+/* 页脚 */
+footer {
+    text-align: center;
+    padding: 20px;
+    background-color: white;
+    color: #999;
+    font-size: 12px;
+    border-top: 1px solid #eee;
+}
+
+/* 提示框样式 */
+.tooltip {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    background-color: white;
+    border-left: 4px solid #39B49A;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    padding: 15px 20px;
+    border-radius: 4px;
+    z-index: 1000;
+    opacity: 0;
+    transform: translateX(50px);
+    transition: all 0.5s;
+    max-width: 300px;
+}
+
+.tooltip.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.tooltip.success {
+    border-left-color: #39B49A;
+}
+
+.tooltip.error {
+    border-left-color: #e74a3b;
+}
+
+.tooltip-title {
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.tooltip-message {
+    color: #666;
+    font-size: 14px;
+}
+
+/* 动画效果 */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.system-card {
+    animation: fadeIn 0.8s ease-out;
+    animation-fill-mode: both;
+}
+
+.system-card:nth-child(1) { animation-delay: 0.1s; }
+.system-card:nth-child(2) { animation-delay: 0.2s; }
+.system-card:nth-child(3) { animation-delay: 0.3s; }
+.system-card:nth-child(4) { animation-delay: 0.4s; }
+.system-card:nth-child(5) { animation-delay: 0.5s; }
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+/* 响应式设计 */
+@media (max-width: 1200px) {
+    .systems-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    header {
+        padding: 0 15px;
+    }
+    
+    .company-name {
+        display: none;
+    }
+    
+    .systems-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .system-card {
+        padding: 20px;
+    }
+    
+    main {
+        padding: 20px 15px;
+    }
+} 

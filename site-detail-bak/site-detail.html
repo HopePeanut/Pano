@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>站点详情 - 储能电站</title>
+    <link rel="stylesheet" href="css/site-detail.css">
+    <link rel="stylesheet" href="css/maintenance-system.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.2/dist/echarts.min.js"></script>
+    <script src="js/common.js"></script>
+</head>
+<body>
+    <!-- 全局提示框 (仅在需要时显示，默认隐藏) -->
+    <div id="tooltip" class="tooltip" style="display: none;">
+        <div class="tooltip-title">提示</div>
+        <div class="tooltip-message">操作成功</div>
+    </div>
+
+    <!-- 页头与导航 - 使用通用导航组件 -->
+    <header data-component="navbar">
+        <!-- 导航内容将由common.js动态插入 -->
+    </header>
+
+    <!-- 主内容区域 -->
+    <main>
+        <!-- 页面顶部 - 面包屑导航和站点信息 -->
+        <div class="page-top-row">
+            <!-- 面包屑导航 -->
+            <div class="breadcrumb-container">
+                <nav aria-label="面包屑导航" class="breadcrumb">
+                    <a href="maintenance-system.html"><i class="bi bi-house-door"></i> 监控中心</a>
+                    <span class="separator"><i class="bi bi-chevron-right"></i></span>
+                    <a href="site-monitor.html"><i class="bi bi-grid-3x3"></i> 站点监控</a>
+                    <span class="separator"><i class="bi bi-chevron-right"></i></span>
+                    <span class="current"><i class="bi bi-building"></i> <span id="breadcrumbSiteName">张家口储能电站</span></span>
+                </nav>
+            </div>
+            
+            <!-- 当前站点信息展示 -->
+            <div class="site-actions-container">
+                <div class="site-info-main">
+                    <i class="bi bi-geo-alt-fill"></i>
+                    <span>当前站点：</span>
+                    <strong id="currentSiteName">张家口储能电站</strong>
+                </div>
+                
+                <div class="site-actions">
+                    <div class="site-search-container">
+                        <input type="text" id="siteSearch" placeholder="搜索站点..." class="site-search">
+                        <i class="bi bi-search search-icon"></i>
+                    </div>
+                    <button id="enterBackendBtn" class="admin-btn"><i class="bi bi-display"></i> 设备监控</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 主要内容区域 - 三栏布局 -->
+        <div class="main-content three-column">
+            <!-- 左侧栏 - 站点信息、运行策略和视频监控 -->
+            <div class="left-column">
+                <!-- 站点基本信息 - 移至左上角 -->
+                <div class="info-panel">
+                    <div class="panel-header">
+                        <h3><i class="bi bi-info-circle"></i> 站点信息</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="info-grid">
+                            <div class="info-grid-item">
+                                <div class="info-icon">
+                                    <i class="bi bi-pin-map-fill"></i>
+                                </div>
+                                <div class="info-content">
+                                    <div class="info-label">站点位置</div>
+                                    <div class="info-value">河北省张家口市</div>
+                                </div>
+                            </div>
+                            <div class="info-grid-item">
+                                <div class="info-icon">
+                                    <i class="bi bi-battery-full"></i>
+                                </div>
+                                <div class="info-content">
+                                    <div class="info-label">装机容量</div>
+                                    <div class="info-value">2.5MW/5MWh</div>
+                                </div>
+                            </div>
+                            <div class="info-grid-item">
+                                <div class="info-icon">
+                                    <i class="bi bi-calendar2-check-fill"></i>
+                                </div>
+                                <div class="info-content">
+                                    <div class="info-label">已投运天数</div>
+                                    <div class="info-value">236天</div>
+                                </div>
+                            </div>
+                            <div class="info-grid-item">
+                                <div class="info-icon">
+                                    <i class="bi bi-coin"></i>
+                                </div>
+                                <div class="info-content">
+                                    <div class="info-label">今日收益</div>
+                                    <div class="info-value">¥860.5 <span class="compare up">↑12.8%</span></div>
+                                </div>
+                            </div>
+                            <div class="info-grid-item">
+                                <div class="info-icon">
+                                    <i class="bi bi-lightning-charge-fill"></i>
+                                </div>
+                                <div class="info-content">
+                                    <div class="info-label">系统效率</div>
+                                    <div class="info-value">92.5%</div>
+                                </div>
+                            </div>
+                            <div class="info-grid-item">
+                                <div class="info-icon">
+                                    <i class="bi bi-arrow-left-right"></i>
+                                </div>
+                                <div class="info-content">
+                                    <div class="info-label">今日充放电</div>
+                                    <div class="info-value multi-line">
+                                        <div class="info-sub-value">
+                                            <i class="bi bi-arrow-down-circle-fill" style="color: #3498db;"></i> 4.2MWh <span class="compare up">↑15.3%</span>
+                                        </div>
+                                        <div class="info-sub-value">
+                                            <i class="bi bi-arrow-up-circle-fill" style="color: #e74c3c;"></i> 3.8MWh <span class="compare down">↓5.2%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 运行策略 -->
+                <div class="strategy-panel">
+                    <div class="panel-header">
+                        <h3><i class="bi bi-sliders"></i> 运行策略</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="current-strategy">
+                            当前执行策略：<strong>峰谷套利</strong>
+                        </div>
+                        <div id="powerCurveChart" class="chart-container strategy-chart"></div>
+                        <div class="chart-legend">
+                            <div class="legend-item">
+                                <span class="legend-color plan"></span>
+                                <span class="legend-text">计划功率</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color actual"></span>
+                                <span class="legend-text">实际功率</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color price"></span>
+                                <span class="legend-text">电价</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 视频监控 -->
+                <div class="video-panel">
+                    <div class="panel-header">
+                        <h3><i class="bi bi-camera-video"></i> 视频监控</h3>
+                        <div class="panel-actions">
+                            <span class="status-indicator offline">
+                                <i class="bi bi-circle-fill"></i>
+                                <span>离线</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        <div class="video-container">
+                            <div class="video-placeholder">
+                                <i class="bi bi-camera-video-fill"></i>
+                                <p>暂无视频信号</p>
+                                <button class="video-btn"><i class="bi bi-play-circle"></i> 尝试重新连接</button>
+                            </div>
+                        </div>
+                        <!-- 添加视频选择器 -->
+                        <div class="video-selector">
+                            <div class="video-selector-title">选择监控摄像头:</div>
+                            <div class="video-selector-list">
+                                <button class="video-selector-btn active">主控室</button>
+                                <button class="video-selector-btn">电池仓A</button>
+                                <button class="video-selector-btn">电池仓B</button>
+                                <button class="video-selector-btn">逆变器室</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 中间栏 - 运行状态和SCADA图 -->
+            <div class="middle-column">
+                <!-- 运行状态 - 优化布局 -->
+                <div class="status-panel">
+                    <div class="panel-header">
+                        <h3><i class="bi bi-lightning-charge"></i> 运行状态</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="status-grid optimized">
+                            <div class="status-grid-item">
+                                <div class="status-label">储能系统状态</div>
+                                <div class="status-value online"><i class="bi bi-check-circle-fill"></i> 模式投运</div>
+                            </div>
+                            <div class="status-grid-item">
+                                <div class="status-label">设备在线情况</div>
+                                <div class="status-value online"><i class="bi bi-wifi"></i> 全部在线</div>
+                            </div>
+                            <div class="status-grid-item">
+                                <div class="status-label">运行状态</div>
+                                <div class="status-value charging"><i class="bi bi-battery-charging"></i> 充电中</div>
+                            </div>
+                            <div class="status-grid-item strategy-trigger">
+                                <div class="status-label">策略触发情况（今日）</div>
+                                <div class="strategy-list horizontal">
+                                    <div class="strategy-item active">
+                                        <span class="indicator"></span>
+                                        <span class="strategy-name">防逆流: 3h25m</span>
+                                    </div>
+                                    <span class="strategy-separator">|</span>
+                                    <div class="strategy-item">
+                                        <span class="indicator"></span>
+                                        <span class="strategy-name">需量控制: 1h40m</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="status-grid-item soc-item">
+                                <div class="status-label">站级SOC</div>
+                                <div class="status-value">
+                                    <div class="soc-container">
+                                        <div class="soc-bar">
+                                            <div class="soc-fill" style="width: 65.2%"></div>
+                                        </div>
+                                        <span class="soc-text">65.2%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SCADA图 - 标题在一行显示 -->
+                <div class="scada-panel">
+                    <div class="panel-header">
+                        <h3><i class="bi bi-diagram-3"></i> SCADA</h3>
+                        <div class="panel-actions">
+                            <span class="scada-update-time">更新时间: 2023-11-15 15:30:45</span>
+                            <button id="scadaFullscreenBtn" class="alert-more-btn">查看大图</button>
+                        </div>
+                    </div>
+                    <div class="scada-container">
+                        <img src="images/scada-diagram.png" id="scadaImage" class="scada-image" alt="SCADA监控图">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧栏 - 收益情况、停机率和告警情况 -->
+            <div class="right-column">
+                <!-- 收益情况 -->
+                <div class="income-panel">
+                    <div class="panel-header">
+                        <h3><i class="bi bi-graph-up-arrow"></i> 收益情况</h3>
+                        <div class="panel-actions">
+                            <div class="btn-group">
+                                <button class="time-btn active" data-period="day">日</button>
+                                <button class="time-btn" data-period="week">周</button>
+                                <button class="time-btn" data-period="month">月</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        <div class="income-summary">
+                            <div class="income-item">
+                                <div class="income-value">¥3,280.5</div>
+                                <div class="income-label">本周收益</div>
+                            </div>
+                            <div class="income-item">
+                                <div class="income-value compare up">↑12%</div>
+                                <div class="income-label">环比增长</div>
+                            </div>
+                        </div>
+                        <div id="incomeChart" class="chart-container"></div>
+                    </div>
+                </div>
+
+                <!-- 非计划停机率 -->
+                <div class="downtime-panel">
+                    <div class="panel-header">
+                        <h3><i class="bi bi-bar-chart"></i> 非计划停机率</h3>
+                        <div class="panel-actions">
+                            <div class="btn-group">
+                                <button class="time-btn active" data-period="day">日</button>
+                                <button class="time-btn" data-period="week">周</button>
+                                <button class="time-btn" data-period="month">月</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        <div class="downtime-summary">
+                            <div class="downtime-item">
+                                <div class="downtime-value">1.2%</div>
+                                <div class="downtime-label">本月停机率</div>
+                            </div>
+                            <div class="downtime-item">
+                                <div class="downtime-value">0.8%</div>
+                                <div class="downtime-label">累计停机率</div>
+                            </div>
+                        </div>
+                        <div id="downtimeChart" class="chart-container"></div>
+                        <!-- 日周年切换不了的提示 -->
+                        <div class="date-switch-error" style="display: none;">日周年切换不了了</div>
+                    </div>
+                </div>
+
+                <!-- 告警情况 - 提高可视范围 -->
+                <div class="alert-panel">
+                    <div class="panel-header">
+                        <h3><i class="bi bi-exclamation-triangle"></i> 告警情况</h3>
+                        <div class="panel-actions">
+                            <button class="alert-more-btn">查看更多</button>
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        <div class="alert-summary">
+                            <div class="alert-count-item">
+                                <div class="alert-count fault">0</div>
+                                <div class="alert-label">故障</div>
+                            </div>
+                            <div class="alert-count-item">
+                                <div class="alert-count alert">1</div>
+                                <div class="alert-label">告警</div>
+                            </div>
+                            <div class="alert-count-item">
+                                <div class="alert-count prompt">2</div>
+                                <div class="alert-label">提示</div>
+                            </div>
+                        </div>
+                        <div class="alert-list scrollable">
+                            <div class="alert-item alert">
+                                <div class="alert-time">14:25</div>
+                                <div class="alert-content">
+                                    <div class="alert-device">1#储能系统</div>
+                                    <div class="alert-message">温度偏高，请注意监控</div>
+                                </div>
+                            </div>
+                            <div class="alert-item prompt">
+                                <div class="alert-time">11:36</div>
+                                <div class="alert-content">
+                                    <div class="alert-device">2#储能系统</div>
+                                    <div class="alert-message">通信中断，已自动重连</div>
+                                </div>
+                            </div>
+                            <div class="alert-item prompt">
+                                <div class="alert-time">09:15</div>
+                                <div class="alert-content">
+                                    <div class="alert-device">3#储能系统</div>
+                                    <div class="alert-message">SOC低于15%警告</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 站点切换模态框 -->
+    <div id="siteModal" class="modal">
+        <div class="modal-content site-selector-modal">
+            <div class="modal-header">
+                <h3><i class="bi bi-building"></i> 选择站点</h3>
+                <span class="close-btn" id="closeSiteModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="site-search-modal">
+                    <input type="text" id="modalSiteSearch" placeholder="搜索站点名称或容量...">
+                    <i class="bi bi-search"></i>
+                </div>
+                <div class="site-list">
+                    <div class="site-item" data-site="site1">
+                        <div class="site-item-icon"><i class="bi bi-building-fill"></i></div>
+                        <div class="site-item-content">
+                            <div class="site-item-name">张家口储能电站</div>
+                            <div class="site-item-info">
+                                <span class="site-capacity"><i class="bi bi-lightning-charge"></i> 2.5MW/5MWh</span>
+                                <span class="site-location"><i class="bi bi-geo-alt"></i> 河北省张家口市</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="site-item" data-site="site2">
+                        <div class="site-item-icon"><i class="bi bi-building-fill"></i></div>
+                        <div class="site-item-content">
+                            <div class="site-item-name">广州储能电站</div>
+                            <div class="site-item-info">
+                                <span class="site-capacity"><i class="bi bi-lightning-charge"></i> 5MW/10MWh</span>
+                                <span class="site-location"><i class="bi bi-geo-alt"></i> 广东省广州市</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="site-item" data-site="site3">
+                        <div class="site-item-icon"><i class="bi bi-building-fill"></i></div>
+                        <div class="site-item-content">
+                            <div class="site-item-name">深圳储能电站</div>
+                            <div class="site-item-info">
+                                <span class="site-capacity"><i class="bi bi-lightning-charge"></i> 3MW/6MWh</span>
+                                <span class="site-location"><i class="bi bi-geo-alt"></i> 广东省深圳市</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="site-item" data-site="site4">
+                        <div class="site-item-icon"><i class="bi bi-building-fill"></i></div>
+                        <div class="site-item-content">
+                            <div class="site-item-name">东莞储能电站</div>
+                            <div class="site-item-info">
+                                <span class="site-capacity"><i class="bi bi-lightning-charge"></i> 1.5MW/3MWh</span>
+                                <span class="site-location"><i class="bi bi-geo-alt"></i> 广东省东莞市</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCADA全屏模态框 -->
+    <div id="scadaModal" class="modal">
+        <div class="modal-content scada-modal">
+            <div class="modal-header">
+                <h3>SCADA监控图</h3>
+                <span class="close-btn" id="closeScadaModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <img src="images/scada-diagram.png" class="fullscreen-scada-image" alt="SCADA监控图">
+            </div>
+        </div>
+    </div>
+
+    <script src="js/site-detail.js"></script>
+</body>
+</html> 

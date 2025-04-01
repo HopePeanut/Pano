@@ -1,0 +1,263 @@
+/* 统计对比页面样式 */
+:root {
+    /* 图表颜色变量 */
+    --chart-color-1: #3498db;
+    --chart-color-2: #2ecc71;
+    --chart-color-3: #e74c3c;
+    --chart-color-4: #f39c12;
+    --chart-color-5: #9b59b6;
+    --chart-color-6: #1abc9c;
+    --chart-color-7: #d35400;
+    --chart-color-8: #34495e;
+}
+
+/* 筛选条件区域 */
+.filter-section {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px;
+    background-color: var(--card-background);
+    border-radius: var(--border-radius);
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 8px var(--shadow-color);
+}
+
+.filter-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.filter-item label {
+    color: var(--text-color);
+    font-weight: 500;
+}
+
+.filter-item select, 
+.filter-item input {
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    background-color: #fff;
+    color: var(--text-color);
+    min-width: 120px;
+}
+
+.btn {
+    padding: 8px 16px;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-weight: 500;
+    transition: all var(--transition-speed);
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-hover);
+}
+
+.btn-outline {
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+}
+
+.btn-outline:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+/* 统计内容区 */
+.statistics-content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.stat-card-row {
+    display: flex;
+    gap: 16px;
+    width: 100%;
+}
+
+.stat-card {
+    flex: 1;
+    background-color: var(--card-background);
+    border-radius: var(--border-radius);
+    box-shadow: 0 2px 8px var(--shadow-color);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-card.full-width {
+    width: 100%;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.card-title {
+    margin: 0;
+    color: var(--heading-color);
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.card-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.card-actions select {
+    padding: 6px 8px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    background-color: #fff;
+}
+
+.btn-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-light);
+    cursor: pointer;
+    transition: all var(--transition-speed);
+}
+
+.btn-icon:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.btn-icon.active {
+    background-color: var(--primary-light);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.card-body {
+    flex: 1;
+    padding: 16px;
+    overflow: hidden;
+}
+
+/* 图表容器 */
+.chart-container {
+    width: 100%;
+    height: 300px;
+    min-height: 200px; /* 保证最小高度 */
+    position: relative; /* 添加相对定位，用于错误信息的绝对定位 */
+}
+
+.stat-card.full-width .chart-container {
+    height: 400px;
+}
+
+/* 图表错误状态 */
+.chart-error {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 10px 20px;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    color: #e74c3c;
+    text-align: center;
+    font-size: 14px;
+}
+
+/* 表格容器 */
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table th,
+.data-table td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.data-table th {
+    background-color: var(--background-color);
+    font-weight: 500;
+    color: var(--heading-color);
+}
+
+.data-table tr:last-child td {
+    border-bottom: none;
+}
+
+.data-table tbody tr:hover {
+    background-color: var(--background-color);
+}
+
+/* 响应式布局 */
+@media (max-width: 1200px) {
+    .stat-card-row {
+        flex-direction: column;
+    }
+    
+    .chart-container,
+    .stat-card.full-width .chart-container {
+        height: 350px;
+    }
+}
+
+@media (max-width: 768px) {
+    .filter-section {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .filter-item {
+        width: 100%;
+    }
+    
+    .filter-item select, 
+    .filter-item input {
+        width: 100%;
+    }
+    
+    .chart-container,
+    .stat-card.full-width .chart-container {
+        height: 300px;
+    }
+}
+
+/* 确保数据加载中状态有合适的样式 */
+.chart-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    color: var(--text-light);
+    font-style: italic;
+} 

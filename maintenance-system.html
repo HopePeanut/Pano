@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智慧运维系统 - Pano综合能源管理平台</title>
+    <link rel="stylesheet" href="css/maintenance-system.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- 引入通用脚本 -->
+    <script src="js/common.js"></script>
+</head>
+<body>
+    <!-- 顶部导航栏 - 使用组件系统 -->
+    <header data-component="navbar">
+        <!-- 导航内容将由common.js动态插入 -->
+    </header>
+
+    <!-- 主内容区域 -->
+    <main>
+        <!-- GIS地图区域 -->
+        <div class="gis-map-container">
+            <div class="gis-map">
+                <!-- 静态GIS地图图片作为背景 -->
+                <div id="gaodeMapContainer" class="map-container"></div>
+                
+                <!-- 站点标记动态生成 -->
+                <div class="site-markers">
+                    <!-- 站点标记会通过JS动态生成 -->
+                </div>
+            </div>
+            
+            <!-- 左侧浮动面板 -->
+            <div class="floating-panel left-panel">
+                <!-- 运行概况部分 -->
+                <div class="panel-section operation-summary">
+                    <h3>运行概况</h3>
+                    <div class="summary-cards">
+                        <div class="summary-card">
+                            <div class="card-value">128</div>
+                            <div class="card-label">总站点数</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="card-value">365</div>
+                            <div class="card-label">安全运行天数</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="card-value status-normal">正常</div>
+                            <div class="card-label">消防火警</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="card-value">1.2%</div>
+                            <div class="card-comparison down">同比 <i class="fas fa-arrow-down"></i> 0.3%</div>
+                            <div class="card-label">月度非计划停机率</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 筛选条件 -->
+                <div class="panel-section filter-section">
+                    <h3>筛选条件</h3>
+                    <div class="filter-group">
+                        <div class="filter-title">站点状态：</div>
+                        <div class="filter-options">
+                            <label class="filter-option">
+                                <input type="checkbox" value="all" checked>
+                                <span class="option-label">全部</span>
+                                <span class="option-count">128</span>
+                            </label>
+                            <label class="filter-option">
+                                <input type="checkbox" value="normal">
+                                <span class="option-label status-normal">正常</span>
+                                <span class="option-count">112</span>
+                            </label>
+                            <label class="filter-option">
+                                <input type="checkbox" value="warning">
+                                <span class="option-label status-warning">告警</span>
+                                <span class="option-count">12</span>
+                            </label>
+                            <label class="filter-option">
+                                <input type="checkbox" value="fault">
+                                <span class="option-label status-fault">故障</span>
+                                <span class="option-count">4</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <div class="filter-title">站点类型：</div>
+                        <div class="filter-options">
+                            <label class="filter-option">
+                                <input type="checkbox" value="all" checked>
+                                <span class="option-label">全部</span>
+                                <span class="option-count">128</span>
+                            </label>
+                            <label class="filter-option">
+                                <input type="checkbox" value="type1">
+                                <span class="option-label">储能电站</span>
+                                <span class="option-count">36</span>
+                            </label>
+                            <label class="filter-option">
+                                <input type="checkbox" value="type2">
+                                <span class="option-label">充电桩配储</span>
+                                <span class="option-count">32</span>
+                            </label>
+                            <label class="filter-option">
+                                <input type="checkbox" value="type3">
+                                <span class="option-label">光储充一体</span>
+                                <span class="option-count">25</span>
+                            </label>
+                            <label class="filter-option">
+                                <input type="checkbox" value="type4">
+                                <span class="option-label">充电站</span>
+                                <span class="option-count">35</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 地图图例 -->
+            <div class="map-legend">
+                <div class="legend-title">图例</div>
+                <div class="legend-items">
+                    <div class="legend-item">
+                        <span class="legend-icon normal"></span>
+                        <span class="legend-text">正常站点</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-icon warning"></span>
+                        <span class="legend-text">告警站点</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-icon fault"></span>
+                        <span class="legend-text">故障站点</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 全屏按钮 -->
+            <div class="fullscreen-btn" id="fullscreenBtn">
+                <i class="fas fa-expand"></i>
+            </div>
+        </div>
+    </main>
+
+    <!-- 提示框 -->
+    <div class="tooltip" id="tooltip">
+        <div class="tooltip-title">提示</div>
+        <div class="tooltip-message">操作成功</div>
+    </div>
+
+    <!-- 高德地图API -->
+    <script type="text/javascript" src="https://webapi.amap.com/maps?v=2.0&key=82d018675c18540fbe5d3eb2ba1c2b93&securityJsCode=fe718e66f1eec99306d822d5ae03b084"></script>
+    <script src="js/maintenance-system.js"></script>
+</body>
+</html> 

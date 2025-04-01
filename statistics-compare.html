@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>统计对比 - Pano全栈式综合能源管理平台</title>
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/statistics-compare.css">
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_3114416_1nc9cwrht5h.css">
+    <!-- 使用CDN引入ECharts -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <!-- 移除中国地图依赖，由代码动态处理 -->
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <header class="header" data-component="navbar"></header>
+
+    <!-- 主要内容区 -->
+    <main>
+        <!-- 面包屑导航 -->
+        <div class="page-top-row">
+            <div class="breadcrumb">
+                <a href="index.html" class="breadcrumb-item">
+                    <i class="iconfont icon-home"></i>
+                    监控中心
+                </a>
+                <span class="breadcrumb-separator">/</span>
+                <a href="data-analysis.html" class="breadcrumb-item">数据分析</a>
+                <span class="breadcrumb-separator">/</span>
+                <span class="breadcrumb-item active">统计对比</span>
+            </div>
+        </div>
+
+        <!-- 筛选条件区域 -->
+        <div class="filter-section">
+            <div class="filter-item">
+                <label>时间范围：</label>
+                <select id="time-range">
+                    <option value="day">今日</option>
+                    <option value="week" selected>本周</option>
+                    <option value="month">本月</option>
+                    <option value="quarter">本季度</option>
+                    <option value="year">本年度</option>
+                    <option value="custom">自定义</option>
+                </select>
+            </div>
+            <div class="filter-item">
+                <label>站点类型：</label>
+                <select id="site-type">
+                    <option value="all" selected>全部</option>
+                    <option value="industrial">工业</option>
+                    <option value="commercial">商业</option>
+                    <option value="residential">住宅</option>
+                </select>
+            </div>
+            <div class="filter-item">
+                <label>区域：</label>
+                <select id="region">
+                    <option value="all" selected>全部</option>
+                    <option value="north">华北</option>
+                    <option value="east">华东</option>
+                    <option value="south">华南</option>
+                    <option value="west">华西</option>
+                    <option value="center">华中</option>
+                </select>
+            </div>
+            <button class="btn btn-primary" id="apply-filter">应用筛选</button>
+            <button class="btn btn-outline" id="reset-filter">重置</button>
+        </div>
+
+        <!-- 统计对比内容区 -->
+        <div class="statistics-content">
+            <!-- 第一行卡片 -->
+            <div class="stat-card-row">
+                <!-- 告警统计卡片 -->
+                <div class="stat-card">
+                    <div class="card-header">
+                        <h3 class="card-title">站点告警/故障情况排名</h3>
+                        <div class="card-actions">
+                            <button class="btn-icon toggle-view" data-target="alarm-chart">
+                                <i class="iconfont icon-chart"></i>
+                            </button>
+                            <button class="btn-icon toggle-view active" data-target="alarm-table">
+                                <i class="iconfont icon-table"></i>
+                            </button>
+                            <button class="btn-icon export-data" data-source="alarm-stats">
+                                <i class="iconfont icon-download"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- 图表 -->
+                        <div class="chart-container" id="alarm-chart" style="display:none;"></div>
+                        <!-- 表格 -->
+                        <div class="table-container" id="alarm-table">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>排名</th>
+                                        <th>站点名称</th>
+                                        <th>告警数量</th>
+                                        <th>严重告警</th>
+                                        <th>一般告警</th>
+                                        <th>故障持续时长</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- 数据将由JS动态生成 -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 停机率统计卡片 -->
+                <div class="stat-card">
+                    <div class="card-header">
+                        <h3 class="card-title">站点非计划停机率排名</h3>
+                        <div class="card-actions">
+                            <button class="btn-icon toggle-view active" data-target="downtime-chart">
+                                <i class="iconfont icon-chart"></i>
+                            </button>
+                            <button class="btn-icon toggle-view" data-target="downtime-table">
+                                <i class="iconfont icon-table"></i>
+                            </button>
+                            <button class="btn-icon export-data" data-source="downtime-stats">
+                                <i class="iconfont icon-download"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- 图表 -->
+                        <div class="chart-container" id="downtime-chart"></div>
+                        <!-- 表格 -->
+                        <div class="table-container" id="downtime-table" style="display:none;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 第二行卡片 -->
+            <div class="stat-card-row">
+                <!-- 系统效率统计卡片 -->
+                <div class="stat-card">
+                    <div class="card-header">
+                        <h3 class="card-title">站点系统效率排名</h3>
+                        <div class="card-actions">
+                            <button class="btn-icon toggle-view active" data-target="efficiency-chart">
+                                <i class="iconfont icon-chart"></i>
+                            </button>
+                            <button class="btn-icon toggle-view" data-target="efficiency-table">
+                                <i class="iconfont icon-table"></i>
+                            </button>
+                            <button class="btn-icon export-data" data-source="efficiency-stats">
+                                <i class="iconfont icon-download"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- 图表 -->
+                        <div class="chart-container" id="efficiency-chart"></div>
+                        <!-- 表格 -->
+                        <div class="table-container" id="efficiency-table" style="display:none;"></div>
+                    </div>
+                </div>
+
+                <!-- 收益情况统计卡片 -->
+                <div class="stat-card">
+                    <div class="card-header">
+                        <h3 class="card-title">站点收益情况排名</h3>
+                        <div class="card-actions">
+                            <button class="btn-icon toggle-view active" data-target="profit-chart">
+                                <i class="iconfont icon-chart"></i>
+                            </button>
+                            <button class="btn-icon toggle-view" data-target="profit-table">
+                                <i class="iconfont icon-table"></i>
+                            </button>
+                            <button class="btn-icon export-data" data-source="profit-stats">
+                                <i class="iconfont icon-download"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- 图表 -->
+                        <div class="chart-container" id="profit-chart"></div>
+                        <!-- 表格 -->
+                        <div class="table-container" id="profit-table" style="display:none;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 能源生产与消耗对比 -->
+            <div class="stat-card full-width">
+                <div class="card-header">
+                    <h3 class="card-title">能源生产与消耗对比</h3>
+                    <div class="card-actions">
+                        <select id="energy-view-type">
+                            <option value="production">发电量</option>
+                            <option value="consumption">用电量</option>
+                            <option value="self-sufficiency">能源自给率</option>
+                            <option value="peak-valley">峰谷用电对比</option>
+                        </select>
+                        <button class="btn-icon export-data" data-source="energy-stats">
+                            <i class="iconfont icon-download"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" id="energy-chart"></div>
+                </div>
+            </div>
+
+            <!-- 电池性能指标对比 -->
+            <div class="stat-card full-width">
+                <div class="card-header">
+                    <h3 class="card-title">电池性能指标对比</h3>
+                    <div class="card-actions">
+                        <select id="battery-metric">
+                            <option value="soh">电池健康度(SOH)</option>
+                            <option value="cycles">循环次数</option>
+                            <option value="efficiency">充放电效率</option>
+                        </select>
+                        <button class="btn-icon export-data" data-source="battery-stats">
+                            <i class="iconfont icon-download"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" id="battery-chart"></div>
+                </div>
+            </div>
+
+            <!-- 系统可靠性指标 -->
+            <div class="stat-card full-width">
+                <div class="card-header">
+                    <h3 class="card-title">系统可靠性指标</h3>
+                    <div class="card-actions">
+                        <select id="reliability-metric">
+                            <option value="lifetime">设备寿命预测</option>
+                            <option value="mttr">故障恢复时间</option>
+                            <option value="response">维护响应速度</option>
+                        </select>
+                        <button class="btn-icon export-data" data-source="reliability-stats">
+                            <i class="iconfont icon-download"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" id="reliability-chart"></div>
+                </div>
+            </div>
+
+            <!-- 时间维度分析 -->
+            <div class="stat-card full-width">
+                <div class="card-header">
+                    <h3 class="card-title">时间维度分析</h3>
+                    <div class="card-actions">
+                        <select id="time-dimension">
+                            <option value="seasonal">季节性能差异</option>
+                            <option value="weekday">工作日/周末表现</option>
+                            <option value="year-on-year">同比/环比增长</option>
+                        </select>
+                        <button class="btn-icon export-data" data-source="time-dimension-stats">
+                            <i class="iconfont icon-download"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" id="time-dimension-chart"></div>
+                </div>
+            </div>
+
+            <!-- 地理分布分析 -->
+            <div class="stat-card full-width">
+                <div class="card-header">
+                    <h3 class="card-title">地理分布分析</h3>
+                    <div class="card-actions">
+                        <select id="geo-metric">
+                            <option value="performance">性能热图</option>
+                            <option value="climate">气候影响分析</option>
+                            <option value="cluster">区域集群效益</option>
+                        </select>
+                        <button class="btn-icon export-data" data-source="geo-stats">
+                            <i class="iconfont icon-download"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" id="geo-chart"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 添加创建默认logo的脚本，确保导航正常显示 -->
+    <script>
+    // 确保logo图片存在
+    window.addEventListener('DOMContentLoaded', function() {
+        const checkAndCreateFolder = function(folderPath) {
+            // 在实际环境中，这只是一个兼容处理，无实际文件创建功能
+            console.log('检查目录: ' + folderPath);
+        };
+        
+        const checkAndCreateLogo = function() {
+            // 仅做日志输出，确保js执行
+            console.log('确保logo加载正常');
+            
+            // 修复导航图标
+            const logoImg = document.querySelector('.navbar-logo img');
+            if (logoImg && !logoImg.complete) {
+                logoImg.onerror = function() {
+                    this.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI0MCIgZmlsbD0iIzFlODhlNSIvPjxwYXRoIGQ9Ik0zMCA3MEg3ME02NSAzMEw0NSA3ME0zNSAzMEw1NSA3MCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSI0IiBmaWxsPSJub25lIi8+PC9zdmc+';
+                    console.log('使用备用logo图标');
+                };
+            }
+        };
+        
+        checkAndCreateFolder('images');
+        checkAndCreateLogo();
+        
+        // 确保导航栏加载
+        console.log('尝试强制初始化导航栏');
+        // 检查common.js是否正确加载
+        if (typeof initComponents === 'function') {
+            console.log('common.js已加载，执行initComponents');
+            initComponents();
+        } else {
+            console.error('common.js未正确加载，手动初始化导航栏');
+            // 手动初始化导航栏
+            const navbarContainer = document.querySelector('[data-component="navbar"]');
+            if (navbarContainer) {
+                const pathPrefix = window.location.protocol === 'file:' ? '' : '/';
+                navbarContainer.innerHTML = `
+                <div class="navbar">
+                    <a href="${pathPrefix}index.html" class="navbar-logo">
+                        <img src="${pathPrefix}images/logo.png" alt="Logo" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI0MCIgZmlsbD0iIzFlODhlNSIvPjxwYXRoIGQ9Ik0zMCA3MEg3ME02NSAzMEw0NSA3ME0zNSAzMEw1NSA3MCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSI0IiBmaWxsPSJub25lIi8+PC9zdmc+';">
+                        <span>Pano全栈式综合能源管理平台</span>
+                    </a>
+                    <div class="navbar-links">
+                        <a href="${pathPrefix}index.html" class="navbar-link">监控中心</a>
+                        <a href="${pathPrefix}device-manage.html" class="navbar-link">运维管理</a>
+                        <a href="${pathPrefix}data-analysis.html" class="navbar-link">数据分析</a>
+                        <a href="${pathPrefix}statistics-compare.html" class="navbar-link active">统计对比</a>
+                        <a href="${pathPrefix}admin.html" class="navbar-link">后台管理</a>
+                        <a href="${pathPrefix}personal.html" class="navbar-link">个人中心</a>
+                    </div>
+                </div>
+                `;
+            }
+        }
+    });
+    </script>
+
+    <script src="js/common.js"></script>
+    <script src="js/statistics-compare.js"></script>
+</body>
+</html> 

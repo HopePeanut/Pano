@@ -1,0 +1,1885 @@
+/* 站点详情页面样式 */
+
+/* 全局容器和布局优化 */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+body {
+    background-color: #f5f7fa;
+    font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 页头和导航栏样式 - 使用通用样式，与其他页面保持一致 */
+header {
+    flex-shrink: 0;
+    background-color: #fff;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.1);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    height: 60px;
+}
+
+/* 移除冲突的导航样式，使用common.js中定义的样式 */
+
+/* 策略触发样式优化 - 确保完全显示 */
+.strategy-trigger {
+    grid-column: 1 / span 2; /* 只跨两列，不跨三列 */
+    grid-row: 2;
+    overflow: visible; /* 允许内容溢出 */
+    z-index: 10; /* 提高层级，确保悬停状态在SOC上方 */
+}
+
+.strategy-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 4px;
+    width: 100%; /* 占满宽度 */
+}
+
+.strategy-list.horizontal {
+    display: flex;
+    flex-direction: row; /* 确保水平方向显示 */
+    flex-wrap: nowrap; /* 防止换行 */
+    gap: 8px;
+    margin-top: 2px;
+}
+
+.strategy-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 0;
+}
+
+.strategy-separator {
+    color: #ddd;
+    display: inline; /* 确保分隔符显示 */
+}
+
+.strategy-name {
+    font-size: 12px; /* 增大字体 */
+    white-space: nowrap;
+}
+
+.strategy-item.active .strategy-name {
+    color: #39B49A;
+    font-weight: 500;
+}
+
+.strategy-item .indicator {
+    width: 8px;
+    height: 8px;
+    min-width: 8px;
+}
+
+@media (min-width: 1200px) {
+    .strategy-separator {
+        display: inline; /* 在大屏幕上显示分隔符 */
+    }
+}
+
+/* SOC进度条样式 */
+.soc-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 2px;
+}
+
+.soc-bar {
+    flex: 1;
+    height: 8px;
+    background-color: #f0f0f0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.soc-fill {
+    height: 100%;
+    background: linear-gradient(to right, #39B49A, #4cd4bc);
+    border-radius: 4px;
+    transition: width 1.5s ease; /* 平滑过渡效果 */
+}
+
+.soc-text {
+    font-weight: 500;
+    color: #333;
+    min-width: 45px;
+    text-align: right;
+    transition: all 0.5s ease; /* 文字也有过渡效果 */
+}
+
+/* 视频监控状态指示器 */
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+}
+
+.status-indicator i {
+    font-size: 10px;
+}
+
+.status-indicator.online {
+    color: #39B49A;
+}
+
+.status-indicator.online i {
+    animation: blink 2s infinite;
+}
+
+.status-indicator.offline {
+    color: #e74c3c;
+}
+
+.status-indicator.offline i {
+    color: #e74c3c;
+}
+
+@keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0.3; }
+    100% { opacity: 1; }
+}
+
+/* 运行状态图标样式 */
+.status-value i {
+    margin-right: 6px;
+}
+
+/* 优化运行状态网格布局 */
+.status-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: auto auto;
+    gap: 6px;
+    width: 100%;
+}
+
+.status-grid-item {
+    padding: 6px;
+    background-color: #f9f9f9;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    min-width: 0; /* 允许内容缩小 */
+}
+
+/* 策略触发情况占两列，站级SOC单独一列 */
+.status-grid-item.strategy-trigger {
+    width: 100%;
+    min-width: 100%;
+    grid-column: 1 / span 2;
+    grid-row: 2;
+    min-height: 40px;
+    padding: 6px 8px;
+}
+
+.status-grid-item.soc-item {
+    grid-column: 3;
+    grid-row: 2;
+    padding: 6px 8px;
+    min-height: 40px;
+}
+
+.status-grid-item:hover {
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+}
+
+.status-grid-item:nth-child(5) {
+    grid-column: 3;
+    grid-row: 2;
+}
+
+.status-label {
+    font-size: 11px;
+    color: #666;
+}
+
+.status-value {
+    font-size: 13px;
+}
+
+/* 优化三栏布局，使内容更紧凑，减少留白 */
+.main-content.three-column {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+    gap: 15px;
+    padding: 15px;
+    height: calc(100vh - 140px);
+    overflow: hidden;
+    align-items: start;
+}
+
+/* 左侧栏面板分配 */
+.main-content.three-column .left-column {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow-y: auto;
+}
+
+.main-content.three-column .left-column .info-panel {
+    flex: 0 0 40%;
+    margin-bottom: 15px;
+    overflow-y: auto;
+}
+
+.main-content.three-column .left-column .strategy-panel {
+    flex: 0 0 30%;
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+.main-content.three-column .left-column .video-panel {
+    flex: 0 0 30%;
+    margin-bottom: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.video-panel .panel-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.video-container {
+    flex: 1;
+    min-height: 140px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f0f0f0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+/* 确保视频内容能够伸展 */
+.video-placeholder {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* 增强站点信息展示 */
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    padding: 5px;
+}
+
+.info-grid-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    background-color: #f8fbff;
+}
+
+.info-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #f0f7ff, #e6f0ff);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #1890ff;
+    font-size: 18px;
+    box-shadow: 0 2px 6px rgba(24, 144, 255, 0.15);
+    flex-shrink: 0;
+}
+
+/* 美化充放电信息展示 */
+.info-value.multi-line {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.info-sub-value {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    padding: 3px 0;
+}
+
+.info-sub-value i {
+    font-size: 14px;
+}
+
+/* 改进收益和停机率面板 */
+.income-panel, .downtime-panel {
+    flex: 1;
+    min-height: 250px;
+}
+
+.income-summary, .downtime-summary {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.income-item, .downtime-item {
+    text-align: center;
+    flex: 1;
+}
+
+.income-value, .downtime-value {
+    font-size: 22px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.income-label, .downtime-label {
+    font-size: 13px;
+    color: #666;
+}
+
+/* 美化告警区域 */
+.alert-panel {
+    flex: 1;
+    min-height: 300px;
+}
+
+.alert-summary {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 15px;
+    padding: 5px 0;
+}
+
+.alert-count-item {
+    text-align: center;
+}
+
+.alert-count {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto 8px;
+    font-size: 20px;
+    font-weight: 600;
+    color: white;
+}
+
+.alert-count.fault {
+    background-color: #f5222d;
+    box-shadow: 0 2px 8px rgba(245, 34, 45, 0.2);
+}
+
+.alert-count.alert {
+    background-color: #fa8c16;
+    box-shadow: 0 2px 8px rgba(250, 140, 22, 0.2);
+}
+
+.alert-count.prompt {
+    background-color: #1890ff;
+    box-shadow: 0 2px 8px rgba(24, 144, 255, 0.2);
+}
+
+.alert-label {
+    font-size: 14px;
+    color: #666;
+}
+
+.alert-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow-y: auto;
+    max-height: 250px;
+}
+
+.alert-item {
+    display: flex;
+    padding: 10px 12px;
+    border-radius: 6px;
+    background-color: #f9f9f9;
+    gap: 12px;
+    transition: transform 0.2s;
+}
+
+.alert-item:hover {
+    transform: translateX(5px);
+    background-color: #f0f7ff;
+}
+
+.alert-item.fault {
+    border-left: 4px solid #f5222d;
+}
+
+.alert-item.alert {
+    border-left: 4px solid #fa8c16;
+}
+
+.alert-item.prompt {
+    border-left: 4px solid #1890ff;
+}
+
+.alert-time {
+    font-size: 13px;
+    color: #888;
+    min-width: 45px;
+    display: flex;
+    align-items: center;
+}
+
+.alert-content {
+    flex: 1;
+}
+
+.alert-device {
+    font-weight: 500;
+    margin-bottom: 4px;
+    font-size: 14px;
+}
+
+.alert-message {
+    font-size: 13px;
+    color: #666;
+}
+
+/* 优化运行状态区 */
+.status-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: auto auto;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.status-grid-item {
+    background-color: #f8f8f8;
+    border-radius: 6px;
+    padding: 12px;
+    transition: all 0.2s ease;
+}
+
+.status-grid-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    background-color: #fff;
+}
+
+.status-label {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 8px;
+}
+
+.status-value {
+    font-size: 15px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.status-value.online {
+    color: #52c41a;
+}
+
+.status-value.offline {
+    color: #f5222d;
+}
+
+.status-value.charging {
+    color: #1890ff;
+}
+
+.status-value.discharging {
+    color: #fa8c16;
+}
+
+/* 响应式调整 */
+@media (max-width: 1200px) {
+    .main-content.three-column {
+        flex-direction: column;
+        height: auto;
+    }
+    
+    .main-content.three-column .left-column,
+    .main-content.three-column .middle-column,
+    .main-content.three-column .right-column {
+        width: 100%;
+        max-height: none;
+    }
+    
+    .scada-panel {
+        min-height: 300px;
+    }
+}
+
+/* 主内容区域样式优化 */
+main {
+    flex: 1;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow: hidden;
+}
+
+/* 紧凑型二栏布局 */
+.main-content.compact {
+    max-height: calc(100vh - 110px);
+    overflow: hidden;
+}
+
+.main-content.two-column.compact {
+    display: flex;
+    gap: 10px;
+    flex: 1;
+}
+
+.main-content.two-column.compact .left-column {
+    width: 35%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow-y: auto;
+}
+
+.main-content.two-column.compact .right-column {
+    width: 65%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow-y: auto;
+}
+
+/* 状态面板组合 */
+.status-panels {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* 收益情况样式 */
+.income-summary {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 15px;
+}
+
+.income-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.income-value {
+    font-size: 16px;
+    font-weight: 600;
+    color: #39B49A;
+    margin-bottom: 5px;
+}
+
+.income-label {
+    font-size: 12px;
+    color: #666;
+}
+
+/* 非计划停机率样式 */
+.downtime-summary {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 15px;
+}
+
+.downtime-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.downtime-value {
+    font-size: 16px;
+    font-weight: 600;
+    color: #f39c12;
+    margin-bottom: 5px;
+}
+
+.downtime-label {
+    font-size: 12px;
+    color: #666;
+}
+
+/* 告警情况样式 */
+.alert-summary {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 15px;
+}
+
+.alert-count-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.alert-count {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 5px;
+}
+
+.alert-time {
+    font-size: 12px;
+    color: #666;
+    margin-right: 10px;
+    white-space: nowrap;
+}
+
+.alert-content {
+    font-size: 13px;
+    color: #333;
+    flex: 1;
+}
+
+/* 模态框样式 */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.7);
+}
+
+.modal-content {
+    position: relative;
+    margin: 2% auto;
+    width: 90%;
+    max-width: 1200px;
+    background-color: #fff;
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+    max-height: 96vh;
+}
+
+.modal-header {
+    padding: 10px 12px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.close-btn {
+    font-size: 24px;
+    color: #666;
+    cursor: pointer;
+}
+
+.modal-body {
+    padding: 12px;
+    flex: 1;
+    overflow: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-scada-image {
+    max-width: 95%; /* 增加模态框中图片的最大宽度 */
+    max-height: 85vh; /* 增加模态框中图片的最大高度 */
+    object-fit: contain;
+    border: 1px solid #eee;
+}
+
+/* 进入后台按钮样式 */
+.admin-btn {
+    background-color: #555;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-left: 10px;
+}
+
+.admin-btn:hover {
+    background-color: #333;
+}
+
+/* 响应式调整 */
+@media (max-width: 1200px) {
+    .main-content {
+        flex-direction: column;
+    }
+    
+    .left-column, .middle-column, .right-column {
+        width: 100%;
+        max-height: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .site-status-bar {
+        flex-wrap: wrap;
+    }
+    
+    .status-item {
+        flex: 1 0 calc(50% - 15px);
+        margin-bottom: 10px;
+    }
+    
+    .site-switch {
+        flex-wrap: wrap;
+    }
+    
+    #siteSelector {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    
+    #switchSiteBtn, .admin-btn {
+        flex: 1;
+    }
+    
+    .chart-container {
+        height: 150px;
+        min-height: 150px;
+    }
+    
+    .sub-nav {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+/* 堆叠布局样式 */
+.main-content.stacked-layout {
+    flex-direction: column;
+}
+
+.main-content.stacked-layout .left-column,
+.main-content.stacked-layout .middle-column,
+.main-content.stacked-layout .right-column {
+    width: 100%;
+    max-height: none;
+}
+
+/* 面板高度自适应 */
+.info-panel, .strategy-panel, .realtime-panel, 
+.income-panel, .downtime-panel, .alert-panel {
+    height: auto;
+    min-height: 150px;
+}
+
+/* 二栏布局样式 */
+.main-content.two-column {
+    display: flex;
+    gap: 15px;
+}
+
+.main-content.two-column .left-column {
+    width: 35%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.main-content.two-column .right-column {
+    width: 65%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* SCADA图和数据面板容器样式 */
+.data-panels {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    height: 55%;
+}
+
+.data-panels > div {
+    flex: 1 0 calc(33.333% - 10px);
+    min-width: 250px;
+}
+
+/* 视频监控样式 */
+.video-panel {
+    flex: 1;
+    min-height: 200px;
+    margin-bottom: 0;
+}
+
+.video-container {
+    width: 100%;
+    height: 110px;
+    min-height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.video-feed {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.video-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #aaa;
+    background-color: #f9f9f9;
+    background-image: 
+        linear-gradient(45deg, #eee 25%, transparent 25%), 
+        linear-gradient(-45deg, #eee 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #eee 75%),
+        linear-gradient(-45deg, transparent 75%, #eee 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+}
+
+.video-placeholder i {
+    font-size: 30px;
+    margin-bottom: 5px;
+}
+
+.video-placeholder p {
+    margin: 5px 0;
+    font-size: 12px;
+}
+
+.video-btn {
+    background-color: #39B49A;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 12px;
+    margin-top: 10px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.video-btn:hover {
+    background-color: #2d9a83;
+}
+
+/* 响应式布局调整 */
+@media (max-width: 1200px) {
+    .main-content.two-column {
+        flex-direction: column;
+    }
+    
+    .main-content.two-column .left-column,
+    .main-content.two-column .right-column {
+        width: 100%;
+    }
+    
+    .data-panels {
+        flex-direction: column;
+    }
+    
+    .data-panels > div {
+        flex: 1;
+        width: 100%;
+    }
+}
+
+/* 页面顶部 - 面包屑导航和站点切换 */
+.page-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background-color: #fff;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    margin-bottom: 8px;
+}
+
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+}
+
+.breadcrumb a {
+    color: #555;
+    text-decoration: none;
+}
+
+.breadcrumb a:hover {
+    color: #39B49A;
+}
+
+.breadcrumb .separator {
+    margin: 0 8px;
+    color: #aaa;
+}
+
+.breadcrumb .current {
+    color: #39B49A;
+    font-weight: 500;
+}
+
+.site-switch {
+    display: flex;
+    align-items: center;
+}
+
+#siteSelector {
+    width: 200px;
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-right: 10px;
+    font-size: 14px;
+}
+
+#switchSiteBtn {
+    background-color: #39B49A;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#switchSiteBtn:hover {
+    background-color: #2d9a83;
+}
+
+/* 面板通用样式 */
+.info-panel, .strategy-panel, .scada-panel, .status-panel, .income-panel, .downtime-panel, .alert-panel, .video-panel {
+    margin-bottom: 15px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+}
+
+.panel-header {
+    padding: 10px 12px;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.panel-header h3 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    display: flex;
+    align-items: center;
+}
+
+.panel-header i {
+    margin-right: 6px;
+    color: #39B49A;
+}
+
+.panel-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    min-width: 100px;
+}
+
+.btn-group {
+    display: flex;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.time-btn {
+    background-color: #f5f5f5;
+    color: #666;
+    border: none;
+    border-right: 1px solid #ddd;
+    padding: 4px 8px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    min-width: 30px;
+}
+
+.time-btn:last-child {
+    border-right: none;
+}
+
+.time-btn.active {
+    background-color: #39B49A;
+    color: white;
+}
+
+/* 修复右侧的日期切换按钮问题 */
+.panel-actions .btn-group {
+    width: 100px;
+}
+
+.panel-actions .btn-group .time-btn {
+    flex: 1;
+    text-align: center;
+}
+
+/* 修复右上角的12%太小问题 */
+.compare.up {
+    color: #e74c3c;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* 修复右下角日周月切换不了问题 */
+.income-panel .panel-header,
+.downtime-panel .panel-header {
+    position: relative;
+}
+
+/* 修复红框中日周月的切换按钮 */
+.alert-more-btn {
+    background-color: rgba(57, 180, 154, 0.1);
+    color: #39B49A;
+    border: 1px solid rgba(57, 180, 154, 0.2);
+    border-radius: 4px;
+    padding: 4px 12px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.alert-more-btn:hover {
+    background-color: #39B49A;
+    color: white;
+    border-color: #39B49A;
+}
+
+/* 响应式设计 */
+@media (max-width: 1366px) {
+    .main-content.three-column {
+        grid-template-columns: 1fr 1.5fr 1fr;
+        gap: 12px;
+        padding: 12px;
+    }
+    
+    .panel-header {
+        padding: 10px 12px;
+    }
+    
+    .panel-body {
+        padding: 12px;
+    }
+    
+    .chart-container {
+        height: 200px;
+    }
+}
+
+/* 页面顶部 - 面包屑导航和站点信息 */
+.page-top {
+    margin: 15px 15px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* 面包屑导航容器 */
+.breadcrumb-container {
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    padding: 8px 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+}
+
+/* 面包屑导航 */
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    flex-wrap: wrap;
+}
+
+.breadcrumb a {
+    color: #666;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    transition: color 0.2s;
+}
+
+.breadcrumb a:hover {
+    color: #39B49A;
+}
+
+.breadcrumb .separator {
+    margin: 0 8px;
+    color: #e0e0e0;
+    display: flex;
+    align-items: center;
+}
+
+.breadcrumb .current {
+    color: #39B49A;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+}
+
+.breadcrumb i {
+    margin-right: 5px;
+}
+
+/* 当前站点信息 */
+.current-site-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: white;
+    padding: 10px 15px;
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+    margin-bottom: 5px;
+    font-size: 15px;
+}
+
+.site-info-main {
+    display: flex;
+    align-items: center;
+    flex: 1;
+}
+
+.current-site-info i {
+    color: #39B49A;
+    font-size: 18px;
+    margin-right: 8px;
+}
+
+.current-site-info span {
+    color: #666;
+    margin-right: 5px;
+}
+
+.current-site-info strong {
+    color: #333;
+    font-weight: 600;
+    margin-right: 15px;
+}
+
+.site-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* 站点搜索样式 */
+.site-search-container {
+    position: relative;
+    min-width: 220px;
+    max-width: 300px;
+}
+
+.site-search {
+    width: 100%;
+    padding: 6px 12px 6px 30px;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: #f8f9fa;
+    transition: background-color 0.2s, box-shadow 0.2s;
+}
+
+.site-search:focus {
+    background-color: white;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(57, 180, 154, 0.25);
+}
+
+.search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #666;
+}
+
+/* SCADA模态框特殊样式 */
+.modal-content.scada-modal {
+    width: 80%;
+    max-width: 1200px;
+}
+
+.fullscreen-scada-image {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* 页面顶部行式布局 */
+.page-top-row {
+    margin: 15px 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    background-color: white;
+    padding: 12px 15px;
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+}
+
+/* 面包屑导航容器 */
+.breadcrumb-container {
+    flex: 1;
+    min-width: 0; /* 解决flex子项溢出问题 */
+}
+
+/* 站点操作容器 */
+.site-actions-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    white-space: nowrap;
+}
+
+/* 站点信息主体 */
+.site-info-main {
+    display: flex;
+    align-items: center;
+}
+
+.site-info-main i {
+    color: #39B49A;
+    font-size: 18px;
+    margin-right: 8px;
+}
+
+.site-info-main span {
+    color: #666;
+    margin-right: 5px;
+}
+
+.site-info-main strong {
+    color: #333;
+    font-weight: 600;
+}
+
+/* 站点操作按钮区域 */
+.site-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* 站点选择模态框 */
+.modal-content.site-selector-modal {
+    width: 550px;
+    max-width: 90%;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.modal-content.site-selector-modal .modal-header {
+    background-color: #f8f9fa;
+    padding: 15px 20px;
+}
+
+.modal-content.site-selector-modal .modal-header h3 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #333;
+}
+
+.modal-content.site-selector-modal .modal-header h3 i {
+    color: #39B49A;
+}
+
+.site-search-modal {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.site-search-modal input {
+    width: 100%;
+    padding: 12px 15px 12px 45px;
+    border: 1px solid #e0e0e0;
+    border-radius: 25px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.site-search-modal input:focus {
+    border-color: #39B49A;
+    box-shadow: 0 0 0 2px rgba(57, 180, 154, 0.2);
+    outline: none;
+}
+
+.site-search-modal i {
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #39B49A;
+    font-size: 16px;
+}
+
+.site-list {
+    max-height: 400px;
+    overflow-y: auto;
+    margin: 0 -20px;
+    padding: 0 20px;
+}
+
+.site-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+
+.site-item:hover {
+    background-color: #f8f9fa;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.site-item:last-child {
+    border-bottom: none;
+}
+
+.site-item-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: rgba(57, 180, 154, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #39B49A;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.site-item-content {
+    flex: 1;
+    min-width: 0; /* 防止内容溢出 */
+}
+
+.site-item-name {
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.site-item-info {
+    display: flex;
+    gap: 15px;
+    font-size: 13px;
+    color: #666;
+}
+
+.site-item-info i {
+    margin-right: 4px;
+    font-size: 12px;
+}
+
+.site-capacity {
+    display: flex;
+    align-items: center;
+}
+
+.site-location {
+    display: flex;
+    align-items: center;
+}
+
+.no-results-message {
+    padding: 30px 20px;
+    text-align: center;
+    color: #666;
+    font-style: italic;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    margin: 15px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.no-results-message i {
+    font-size: 24px;
+    color: #ccc;
+}
+
+.no-results-message p {
+    margin: 0;
+}
+
+/* 响应式调整 */
+@media (max-width: 992px) {
+    .page-top-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .site-actions-container {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+    
+    .site-info-main {
+        margin-bottom: 10px;
+    }
+    
+    .site-actions {
+        width: 100%;
+    }
+    
+    .site-search-container {
+        flex: 1;
+    }
+    
+    .site-item-info {
+        flex-direction: column;
+        gap: 5px;
+    }
+}
+
+@media (max-width: 576px) {
+    .site-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .site-search-container {
+        width: 100%;
+    }
+    
+    .admin-btn {
+        width: 100%;
+        margin-top: 8px;
+    }
+}
+
+/* 现代图标样式 */
+.modern-icon {
+    background: linear-gradient(135deg, rgba(57, 180, 154, 0.1) 0%, rgba(57, 180, 154, 0.2) 100%);
+    box-shadow: 0 4px 10px rgba(57, 180, 154, 0.15);
+    transition: all 0.3s ease;
+    transform: translateY(0);
+}
+
+.modern-icon:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(57, 180, 154, 0.2);
+}
+
+.location-icon {
+    background: linear-gradient(135deg, rgba(79, 195, 247, 0.1) 0%, rgba(79, 195, 247, 0.2) 100%);
+    box-shadow: 0 4px 10px rgba(79, 195, 247, 0.15);
+}
+
+.location-icon i {
+    color: #42a5f5 !important;
+}
+
+.capacity-icon {
+    background: linear-gradient(135deg, rgba(255, 183, 77, 0.1) 0%, rgba(255, 183, 77, 0.2) 100%);
+    box-shadow: 0 4px 10px rgba(255, 183, 77, 0.15);
+}
+
+.capacity-icon i {
+    color: #ffb74d !important;
+}
+
+.calendar-icon {
+    background: linear-gradient(135deg, rgba(120, 144, 156, 0.1) 0%, rgba(120, 144, 156, 0.2) 100%);
+    box-shadow: 0 4px 10px rgba(120, 144, 156, 0.15);
+}
+
+.calendar-icon i {
+    color: #78909c !important;
+}
+
+.income-icon {
+    background: linear-gradient(135deg, rgba(38, 166, 154, 0.1) 0%, rgba(38, 166, 154, 0.2) 100%);
+    box-shadow: 0 4px 10px rgba(38, 166, 154, 0.15);
+}
+
+.income-icon i {
+    color: #26a69a !important;
+}
+
+.efficiency-icon {
+    background: linear-gradient(135deg, rgba(239, 83, 80, 0.1) 0%, rgba(239, 83, 80, 0.2) 100%);
+    box-shadow: 0 4px 10px rgba(239, 83, 80, 0.15);
+}
+
+.efficiency-icon i {
+    color: #ef5350 !important;
+}
+
+.battery-icon {
+    background: linear-gradient(135deg, rgba(156, 39, 176, 0.1) 0%, rgba(156, 39, 176, 0.2) 100%);
+    box-shadow: 0 4px 10px rgba(156, 39, 176, 0.15);
+}
+
+.battery-icon i {
+    color: #9c27b0 !important;
+}
+
+/* 收益分析样式 */
+.income-analysis {
+    margin-top: 20px;
+    border-top: 1px solid #f0f0f0;
+    padding-top: 15px;
+}
+
+.analysis-title {
+    font-size: 15px;
+    color: #333;
+    margin-bottom: 12px;
+    font-weight: 500;
+}
+
+.analysis-data {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px 20px;
+}
+
+.analysis-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.analysis-label {
+    font-size: 13px;
+    color: #666;
+}
+
+.analysis-value {
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.analysis-value .compare {
+    margin-left: 5px;
+    font-size: 12px;
+}
+
+/* 系统状态详情样式 */
+.system-status-details {
+    margin-top: 20px;
+    border-top: 1px solid #f0f0f0;
+    padding-top: 15px;
+}
+
+.details-title {
+    font-size: 15px;
+    color: #333;
+    margin-bottom: 12px;
+    font-weight: 500;
+}
+
+.status-details-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px 20px;
+}
+
+.status-detail-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.detail-label {
+    font-size: 13px;
+    color: #666;
+}
+
+.detail-value {
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+}
+
+/* 调整三栏的高度和显示方式 */
+.main-content.three-column .middle-column,
+.main-content.three-column .right-column {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    padding-right: 5px;
+}
+
+/* 确保左侧栏视频监控与中间SCADA底部对齐 */
+.main-content.three-column .middle-column .scada-panel {
+    flex: 1;
+    margin-bottom: 0;
+}
+
+.main-content.three-column .left-column .video-panel {
+    flex: 1;
+    margin-bottom: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 调整右侧面板样式 */
+.income-panel .panel-actions,
+.downtime-panel .panel-actions {
+    min-width: 100px;
+}
+
+/* 修复收益对比百分比字体 */
+.income-value .compare.up {
+    color: #e74c3c;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* 右侧标题 */
+.right-column h3 {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* 日期切换的错误提示信息 */
+.date-switch-error {
+    color: #e74c3c;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+/* 图表容器样式修复 */
+.chart-container {
+    width: 100%;
+    height: 200px;
+    margin: 10px 0;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+/* 策略图表特殊样式 */
+.strategy-chart {
+    height: 180px;
+    background-color: #f9f9f9;
+}
+
+/* 图表图例样式 */
+.chart-legend {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 10px;
+    font-size: 12px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.legend-color {
+    width: 12px;
+    height: 3px;
+    border-radius: 1px;
+}
+
+.legend-color.plan {
+    background-color: #39B49A;
+}
+
+.legend-color.actual {
+    background-color: #1890ff;
+}
+
+.legend-color.price {
+    background-color: #faad14;
+}
+
+.legend-text {
+    color: #666;
+}
+
+/* 恢复青色主题 */
+.info-grid-item {
+    background-color: #f0f7fa;
+    border: 1px solid #e0f2f1;
+    transition: all 0.3s ease;
+}
+
+.info-grid-item:hover {
+    background-color: #e0f7fa;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(57, 180, 154, 0.15);
+}
+
+.info-icon {
+    background: linear-gradient(135deg, #e0f7fa, #b2ebf2);
+    color: #00acc1;
+}
+
+/* 突出站点信息区域 */
+.info-panel {
+    border-left: 3px solid #39B49A;
+}
+
+.info-panel .panel-header h3 i {
+    color: #39B49A;
+}
+
+.info-value {
+    color: #333;
+    font-weight: 600;
+}
+
+/* 视频监控选择器样式 */
+.video-selector {
+    margin-top: 10px;
+    padding: 10px 0;
+    border-top: 1px solid #f0f0f0;
+}
+
+.video-selector-title {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 8px;
+}
+
+.video-selector-list {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.video-selector-btn {
+    background-color: #f0f0f0;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 10px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: #666;
+}
+
+.video-selector-btn:hover {
+    background-color: #e0e0e0;
+}
+
+.video-selector-btn.active {
+    background-color: #39B49A;
+    color: white;
+}
+
+/* SCADA图样式修复 */
+.scada-container {
+    padding: 15px;
+    height: calc(100% - 50px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f0f0f0;
+    border-radius: 0 0 8px 8px;
+}
+
+.scada-image {
+    max-width: 100%;
+    max-height: 100%;
+    display: block;
+    object-fit: contain;
+}
+
+/* 统一面板头部颜色 */
+.panel-header {
+    background-color: #f9f9f9;
+}
+
+.panel-header h3 i {
+    color: #39B49A;
+}
+
+/* 改进按钮样式 */
+.time-btn.active {
+    background-color: #39B49A;
+    color: white;
+}
+
+.alert-more-btn {
+    background-color: rgba(57, 180, 154, 0.1);
+    color: #39B49A;
+    border: 1px solid rgba(57, 180, 154, 0.2);
+} 

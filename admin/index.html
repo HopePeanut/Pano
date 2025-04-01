@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>储能管理系统</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.bootcdn.net/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css" rel="stylesheet">
+    <!-- ECharts -->
+    <link href="https://cdn.bootcdn.net/ajax/libs/echarts/5.1.2/echarts.min.css" rel="stylesheet">
+    <!-- 全局CSS -->
+    <link href="../css/style.css" rel="stylesheet">
+    <!-- 自定义CSS -->
+    <link href="css/admin.css" rel="stylesheet">
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <div data-component="navbar"></div>
+    
+    <!-- 主内容区域 -->
+    <div class="main-container">
+        <!-- 左侧导航 -->
+        <div class="sidebar">
+            <!-- 站点搜索 -->
+            <div class="site-search">
+                <div class="input-group">
+                    <input type="text" class="form-control" id="site-search-input" placeholder="搜索站点...">
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" type="button" id="site-search-btn">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 当前站点 -->
+            <div class="current-station">
+                <div class="current-station-label">当前站点：</div>
+                <div class="current-station-name">张家口储能电站</div>
+            </div>
+            
+            <!-- 系统导航 -->
+            <div class="system-nav">
+                <div class="nav-title">系统导航</div>
+                <div class="system-nav-list">
+                    <div class="system-nav-item active" data-system="ems">EMS</div>
+                    <div class="system-nav-item" data-system="ese1">1#储能系统</div>
+                    <div class="system-nav-item" data-system="ese2">2#储能系统</div>
+                    <div class="system-nav-item" data-system="ese3">3#储能系统</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 右侧内容区域 -->
+        <div class="content-container">
+            <!-- 面包屑导航 -->
+            <div class="breadcrumb-container">
+                <span class="breadcrumb">EMS > 监视</span>
+            </div>
+            
+            <!-- 设备导航 -->
+            <div class="device-nav" style="display: none;">
+                <div class="device-nav-item active" data-device="local">本地控制器</div>
+                <div class="device-nav-item" data-device="bms">BMS</div>
+                <div class="device-nav-item" data-device="pcs">PCS</div>
+                <div class="device-nav-item" data-device="thermal">热管理系统</div>
+                <div class="device-nav-item" data-device="fire">消防系统</div>
+                <div class="device-nav-item" data-device="enviro">动环监控</div>
+                <div class="device-nav-item" data-device="electrical">电气系统</div>
+            </div>
+            
+            <!-- 功能导航 -->
+            <div class="function-nav">
+                <div class="function-nav-item active" data-function="monitor">监视</div>
+                <div class="function-nav-item" data-function="control">控制</div>
+                <div class="function-nav-item" data-function="config">参数配置</div>
+            </div>
+            
+            <!-- 内容区域 -->
+            <div class="content-area">
+                <!-- 监视页面 -->
+                <div class="monitor-page">
+                    <!-- 重点数据区域 -->
+                    <div class="monitor-section">
+                        <div class="section-header">
+                            <span class="section-title">重点数据</span>
+                            <div class="section-tools">
+                                <span class="refresh-time key-data-refresh-time">最后更新: 00:00:00</span>
+                                <button class="btn btn-sm btn-outline-primary key-data-refresh">
+                                    <i class="bi bi-arrow-clockwise"></i> 刷新
+                                </button>
+                            </div>
+                        </div>
+                        <div class="section-content">
+                            <div class="key-data-list">
+                                <!-- 这里会由JavaScript动态填充内容 -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 状态点位区域 -->
+                    <div class="monitor-section">
+                        <div class="section-header">
+                            <span class="section-title">状态点位</span>
+                            <div class="section-tools">
+                                <span class="refresh-time status-points-refresh-time">最后更新: 00:00:00</span>
+                                <button class="btn btn-sm btn-outline-primary status-points-refresh">
+                                    <i class="bi bi-arrow-clockwise"></i> 刷新
+                                </button>
+                            </div>
+                        </div>
+                        <div class="section-content">
+                            <div class="status-points-list">
+                                <!-- 这里会由JavaScript动态填充内容 -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 遥测数据区域 -->
+                    <div class="monitor-section">
+                        <div class="section-header">
+                            <span class="section-title">遥测数据</span>
+                            <div class="section-tools">
+                                <span class="refresh-time telemetry-data-refresh-time">最后更新: 00:00:00</span>
+                                <button class="btn btn-sm btn-outline-primary telemetry-data-refresh">
+                                    <i class="bi bi-arrow-clockwise"></i> 刷新
+                                </button>
+                            </div>
+                        </div>
+                        <div class="section-content">
+                            <div class="telemetry-data-container">
+                                <table class="table table-striped table-bordered telemetry-data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>名称</th>
+                                            <th>值</th>
+                                            <th>单位</th>
+                                            <th>时间</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- 这里会由JavaScript动态填充内容 -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 告警点位区域 -->
+                    <div class="monitor-section">
+                        <div class="section-header">
+                            <span class="section-title">告警点位</span>
+                            <div class="section-tools">
+                                <span class="refresh-time alarm-points-refresh-time">最后更新: 00:00:00</span>
+                                <button class="btn btn-sm btn-outline-primary alarm-points-refresh">
+                                    <i class="bi bi-arrow-clockwise"></i> 刷新
+                                </button>
+                            </div>
+                        </div>
+                        <div class="section-content">
+                            <div class="alarm-points-list">
+                                <!-- 这里会由JavaScript动态填充内容 -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 控制页面 -->
+                <div class="control-page" style="display: none;">
+                    <div class="section-header">
+                        <span class="section-title">设备控制</span>
+                    </div>
+                    <div class="section-content">
+                        <div class="control-points-list">
+                            <!-- 这里会由JavaScript动态填充内容 -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 参数配置页面 -->
+                <div class="config-page" style="display: none;">
+                    <div class="section-header">
+                        <span class="section-title">参数配置</span>
+                        <div class="param-group-nav">
+                            <div class="param-group-item active" data-group="operation">运行参数</div>
+                            <div class="param-group-item" data-group="protection">保护参数</div>
+                        </div>
+                    </div>
+                    <div class="section-content">
+                        <table class="table table-striped table-bordered config-params-table">
+                            <thead>
+                                <tr>
+                                    <th>参数名称</th>
+                                    <th>参数值</th>
+                                    <th>取值范围</th>
+                                    <th>状态</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- 这里会由JavaScript动态填充内容 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 提示信息 -->
+    <div class="tooltip-message"></div>
+    
+    <!-- jQuery, Bootstrap JS 和 ECharts -->
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.6.0/js/bootstrap.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.1.2/echarts.min.js"></script>
+    
+    <!-- 通用JS -->
+    <script src="../js/common.js"></script>
+    
+    <!-- 自定义JS -->
+    <script src="js/monitor-data.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html> 

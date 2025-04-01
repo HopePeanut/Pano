@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人信息 - Pano综合能源管理平台</title>
+    <!-- Bootstrap图标 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <!-- 全局CSS -->
+    <link rel="stylesheet" href="css/maintenance-system.css">
+    <!-- 页面专用CSS -->
+    <link rel="stylesheet" href="css/components/personal-info.css">
+    <!-- 通用JS -->
+    <script src="js/common.js"></script>
+</head>
+<body>
+    <!-- 全局提示框 -->
+    <div id="tooltip" class="tooltip" style="display: none;">
+        <div class="tooltip-title">提示</div>
+        <div class="tooltip-message">操作成功</div>
+    </div>
+
+    <!-- 页头与导航 - 使用通用导航组件 -->
+    <header data-component="navbar">
+        <!-- 导航内容将由common.js动态插入 -->
+    </header>
+
+    <!-- 主内容区域 -->
+    <main>
+        <!-- 个人信息内容区域 -->
+        <div class="personal-info-container">
+            <!-- 个人信息标题 -->
+            <div class="personal-info-header">
+                <h2><i class="bi bi-person-circle"></i> 个人信息</h2>
+                <!-- 页内导航 -->
+                <div class="page-nav">
+                    <a href="#basic-info" class="nav-link">基本信息</a>
+                    <a href="#security" class="nav-link">账号安全</a>
+                    <a href="#binding" class="nav-link">账号绑定</a>
+                </div>
+            </div>
+
+            <!-- 个人信息内容 -->
+            <div class="personal-info-content">
+                <!-- 头像和姓名区域 -->
+                <div class="avatar-section">
+                    <div class="avatar-wrapper">
+                        <img src="images/avatar.jpg" alt="用户头像" class="avatar-image">
+                        <div class="avatar-edit" id="avatarEdit">
+                            <i class="bi bi-camera"></i>
+                            更换头像
+                        </div>
+                        <input type="file" id="avatarUpload" style="display: none;" accept="image/*">
+                    </div>
+                    <div class="avatar-info">
+                        <h3 class="avatar-name">张三</h3>
+                        <p class="avatar-role"><i class="bi bi-person-badge"></i> 运维管理员</p>
+                        <p class="company-info"><i class="bi bi-building"></i> 清安储能科技（重庆）有限公司</p>
+                        <div class="last-login">
+                            <i class="bi bi-clock-history"></i> 上次登录：2024-03-28 08:30 · 重庆
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 基本信息 -->
+                <div class="info-section" id="basic-info">
+                    <div class="info-section-header">
+                        <h3 class="info-section-title">基本信息</h3>
+                        <button class="edit-toggle" id="basicInfoEditToggle">
+                            <i class="bi bi-pencil"></i> 编辑
+                        </button>
+                    </div>
+                    <form id="basicInfoForm">
+                        <div class="form-grid">
+                            <div class="form-item">
+                                <label class="form-label required">姓名</label>
+                                <input type="text" class="form-input" id="realName" value="张三" disabled>
+                            </div>
+                            <div class="form-item">
+                                <label class="form-label">用户名</label>
+                                <input type="text" class="form-input" id="username" value="zhangsan" disabled>
+                                <span class="form-help-text">用户名不可修改</span>
+                            </div>
+                            <div class="form-item">
+                                <label class="form-label">职位</label>
+                                <input type="text" class="form-input" id="position" value="运维管理员" disabled>
+                            </div>
+                            <div class="form-item">
+                                <label class="form-label">所属部门</label>
+                                <input type="text" class="form-input" id="department" value="运维部" disabled>
+                            </div>
+                            <div class="form-item">
+                                <label class="form-label required">手机号码</label>
+                                <input type="tel" class="form-input" id="mobile" value="13800138000" disabled>
+                                <span class="input-verification" style="display: none;">
+                                    <button type="button" class="verification-btn">发送验证码</button>
+                                </span>
+                            </div>
+                            <div class="form-item">
+                                <label class="form-label required">邮箱</label>
+                                <input type="email" class="form-input" id="email" value="zhangsan@qaes.com.cn" disabled>
+                            </div>
+                            <div class="form-buttons" style="display: none;">
+                                <button type="button" class="btn btn-default" id="basicInfoCancelBtn">取消</button>
+                                <button type="submit" class="btn btn-primary" id="basicInfoSaveBtn">保存</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- 账号安全 -->
+                <div class="info-section" id="security">
+                    <div class="info-section-header">
+                        <h3 class="info-section-title">账号安全</h3>
+                        <button class="edit-toggle" id="securityEditToggle">
+                            <i class="bi bi-shield-lock"></i> 修改密码
+                        </button>
+                    </div>
+                    <form id="securityForm" style="display: none;">
+                        <div class="form-grid">
+                            <div class="form-item">
+                                <label class="form-label required">当前密码</label>
+                                <div class="password-input-wrapper">
+                                    <input type="password" class="form-input" id="currentPassword">
+                                    <i class="bi bi-eye-slash toggle-password" data-for="currentPassword"></i>
+                                </div>
+                            </div>
+                            <div class="form-item form-item-full"></div>
+                            <div class="form-item">
+                                <label class="form-label required">新密码</label>
+                                <div class="password-input-wrapper">
+                                    <input type="password" class="form-input" id="newPassword">
+                                    <i class="bi bi-eye-slash toggle-password" data-for="newPassword"></i>
+                                </div>
+                                <div class="password-strength" id="passwordStrength">
+                                    <div class="strength-meter">
+                                        <div class="strength-value" style="width: 0%"></div>
+                                    </div>
+                                    <div class="strength-text">密码强度：弱</div>
+                                </div>
+                                <span class="form-help-text">
+                                    密码应包含字母、数字和特殊字符，至少8位
+                                </span>
+                            </div>
+                            <div class="form-item">
+                                <label class="form-label required">确认新密码</label>
+                                <div class="password-input-wrapper">
+                                    <input type="password" class="form-input" id="confirmPassword">
+                                    <i class="bi bi-eye-slash toggle-password" data-for="confirmPassword"></i>
+                                </div>
+                            </div>
+                            <div class="form-buttons">
+                                <button type="button" class="btn btn-default" id="securityCancelBtn">取消</button>
+                                <button type="submit" class="btn btn-primary" id="securitySaveBtn">保存</button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- 安全信息摘要 - 仅在未编辑时显示 -->
+                    <div class="security-summary">
+                        <div class="security-item">
+                            <div class="security-item-title">
+                                <i class="bi bi-shield-lock"></i> 登录密码
+                            </div>
+                            <div class="security-item-desc">
+                                上次修改时间：2024-02-15
+                            </div>
+                        </div>
+                        <div class="security-item">
+                            <div class="security-item-title">
+                                <i class="bi bi-shield-check"></i> 账户保护
+                            </div>
+                            <div class="security-item-desc">
+                                已绑定手机和邮箱，开启了两步验证
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 账号绑定 -->
+                <div class="info-section" id="binding">
+                    <div class="info-section-header">
+                        <h3 class="info-section-title">账号绑定</h3>
+                    </div>
+                    <div class="binding-items">
+                        <!-- 微信绑定 -->
+                        <div class="binding-item">
+                            <div class="binding-item-icon wechat">
+                                <i class="bi bi-wechat"></i>
+                            </div>
+                            <div class="binding-item-info">
+                                <div class="binding-item-title">微信账号</div>
+                                <div class="binding-item-status">
+                                    <span class="binding-status-text bound">已绑定</span>
+                                    <span class="binding-account">Zhang****an</span>
+                                </div>
+                            </div>
+                            <div class="binding-item-action">
+                                <button class="binding-btn unbind" id="wechatUnbind">解除绑定</button>
+                            </div>
+                        </div>
+
+                        <!-- 邮箱绑定 -->
+                        <div class="binding-item">
+                            <div class="binding-item-icon email">
+                                <i class="bi bi-envelope"></i>
+                            </div>
+                            <div class="binding-item-info">
+                                <div class="binding-item-title">邮箱绑定</div>
+                                <div class="binding-item-status">
+                                    <span class="binding-status-text bound">已绑定</span>
+                                    <span class="binding-account">zhangsan@qaes.com.cn</span>
+                                </div>
+                            </div>
+                            <div class="binding-item-action">
+                                <button class="binding-btn modify">修改邮箱</button>
+                            </div>
+                        </div>
+
+                        <!-- 手机绑定 -->
+                        <div class="binding-item">
+                            <div class="binding-item-icon mobile">
+                                <i class="bi bi-phone"></i>
+                            </div>
+                            <div class="binding-item-info">
+                                <div class="binding-item-title">手机绑定</div>
+                                <div class="binding-item-status">
+                                    <span class="binding-status-text bound">已绑定</span>
+                                    <span class="binding-account">138****8000</span>
+                                </div>
+                            </div>
+                            <div class="binding-item-action">
+                                <button class="binding-btn modify">修改手机</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 返回顶部按钮 -->
+    <div class="back-to-top" id="backToTop">
+        <i class="bi bi-arrow-up"></i>
+    </div>
+
+    <!-- 页面脚本 -->
+    <script src="js/personal-info.js"></script>
+</body>
+</html>

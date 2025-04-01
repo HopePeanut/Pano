@@ -1,0 +1,333 @@
+/* 全局样式重置 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Microsoft YaHei', sans-serif;
+}
+
+body {
+    background-image: url('../首页.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #333;
+}
+
+/* 登录容器 */
+.login-container {
+    width: 90%;
+    max-width: 1200px;
+    max-height: 650px;
+    height: 80vh;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+.login-box {
+    display: flex;
+    height: 100%;
+}
+
+/* 左侧信息区域 */
+.login-left {
+    background-color: #39B49A;
+    color: white;
+    width: 45%;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.login-left .logo img {
+    height: 40px;
+    margin-bottom: 20px;
+}
+
+.login-left h1 {
+    font-size: 28px;
+    margin-bottom: 30px;
+    margin-top: 40px;
+}
+
+.platform-features {
+    flex-grow: 1;
+    padding: 20px 0;
+}
+
+.platform-features p {
+    margin-bottom: 15px;
+    font-size: 14px;
+    position: relative;
+    padding-left: 15px;
+    line-height: 1.6;
+}
+
+.platform-features p:before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background-color: rgba(255, 255, 255, 0.6);
+    position: absolute;
+    left: 0;
+    top: 7px;
+    border-radius: 50%;
+}
+
+.copyright {
+    font-size: 12px;
+    opacity: 0.7;
+    margin-top: 20px;
+}
+
+/* 右侧登录表单区域 */
+.login-right {
+    background-color: white;
+    width: 55%;
+    padding: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-form {
+    width: 100%;
+    max-width: 400px;
+}
+
+.login-form h2 {
+    font-size: 24px;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+.login-desc {
+    color: #999;
+    font-size: 14px;
+    margin-bottom: 30px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 14px;
+    color: #666;
+}
+
+.form-group input {
+    width: 100%;
+    height: 45px;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    padding: 0 15px;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+.form-group input:focus {
+    border-color: #39B49A;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(57, 180, 154, 0.1);
+}
+
+.toggle-password {
+    position: absolute;
+    right: 15px;
+    top: 37px;
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+    background-image: url('../images/eye-close.svg');
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+.remember-me {
+    display: flex;
+    align-items: center;
+    margin-bottom: 25px;
+    font-size: 14px;
+}
+
+.remember-me input {
+    margin-right: 8px;
+}
+
+.forgot-password {
+    margin-left: auto;
+    color: #39B49A;
+    text-decoration: none;
+}
+
+.login-btn {
+    width: 100%;
+    height: 45px;
+    background-color: #39B49A;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.login-btn:hover {
+    background-color: #2FA084;
+}
+
+.other-login {
+    margin-top: 25px;
+    text-align: center;
+}
+
+.other-login p {
+    color: #999;
+    font-size: 14px;
+    margin-bottom: 15px;
+    position: relative;
+}
+
+.other-login p:before,
+.other-login p:after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 35%;
+    height: 1px;
+    background-color: #eee;
+}
+
+.other-login p:before {
+    left: 0;
+}
+
+.other-login p:after {
+    right: 0;
+}
+
+.login-options {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.wechat-login,
+.mobile-login {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: block;
+    background-size: 24px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: #f5f5f5;
+}
+
+.wechat-login {
+    background-image: url('../images/wechat.png');
+}
+
+.mobile-login {
+    background-image: url('../images/mobile.png');
+}
+
+.register-link {
+    text-align: center;
+    font-size: 14px;
+    color: #666;
+}
+
+.register-link a {
+    color: #39B49A;
+    text-decoration: none;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .login-box {
+        flex-direction: column;
+    }
+    
+    .login-left,
+    .login-right {
+        width: 100%;
+    }
+    
+    .login-left {
+        padding: 30px;
+        height: auto;
+    }
+    
+    .login-right {
+        padding: 30px;
+    }
+}
+
+/* 动画效果 */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.login-form {
+    animation: fadeIn 0.8s ease-out;
+}
+
+.form-group input:focus + .toggle-password {
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+/* 提示框样式 */
+.login-tooltip {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    background-color: white;
+    border-left: 4px solid #39B49A;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    padding: 15px 20px;
+    border-radius: 4px;
+    z-index: 1000;
+    opacity: 0;
+    transform: translateX(50px);
+    transition: all 0.5s;
+    max-width: 300px;
+}
+
+.login-tooltip.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.login-tooltip.error {
+    border-left-color: #e74a3b;
+}
+
+.login-tooltip-title {
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.login-tooltip-message {
+    color: #666;
+    font-size: 14px;
+} 

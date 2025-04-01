@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设备监控 - 储能电站</title>
+    <link rel="stylesheet" href="css/device-monitor.css">
+    <link rel="stylesheet" href="css/maintenance-system.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.2/dist/echarts.min.js"></script>
+    <script src="js/common.js"></script>
+    <script src="js/device-monitor.js"></script>
+</head>
+<body>
+    <!-- 全局提示框 (仅在需要时显示，默认隐藏) -->
+    <div id="tooltip" class="tooltip" style="display: none;">
+        <div class="tooltip-title">提示</div>
+        <div class="tooltip-message">操作成功</div>
+    </div>
+
+    <!-- 页头与导航 - 使用通用导航组件 -->
+    <header data-component="navbar">
+        <!-- 导航内容将由common.js动态插入 -->
+    </header>
+
+    <!-- 主内容区域 -->
+    <main>
+        <!-- 页面顶部 - 面包屑导航和站点信息 -->
+        <div class="page-top-row">
+            <!-- 面包屑导航 -->
+            <div class="breadcrumb-container">
+                <nav aria-label="面包屑导航" class="breadcrumb">
+                    <a href="maintenance-system.html"><i class="bi bi-house-door"></i> 监控中心</a>
+                    <span class="separator"><i class="bi bi-chevron-right"></i></span>
+                    <a href="site-monitor.html"><i class="bi bi-grid-3x3"></i> 站点监控</a>
+                    <span class="separator"><i class="bi bi-chevron-right"></i></span>
+                    <a href="site-detail.html"><i class="bi bi-building"></i> <span id="breadcrumbSiteName">XXX站点</span></a>
+                    <span class="separator"><i class="bi bi-chevron-right"></i></span>
+                    <span class="current"><i class="bi bi-hdd-rack"></i> 设备监控</span>
+                </nav>
+            </div>
+            
+            <!-- 当前站点信息展示 -->
+            <div class="site-actions-container">
+                <div class="site-info-main">
+                    <i class="bi bi-geo-alt-fill"></i>
+                    <span>当前站点：</span>
+                    <strong id="currentSiteName">XXX站点</strong>
+                </div>
+                
+                <div class="site-actions">
+                    <div class="site-search-container">
+                        <input type="text" id="siteSearch" placeholder="搜索站点..." class="site-search">
+                        <i class="bi bi-search search-icon"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 主要内容区域 - 两栏布局 -->
+        <div class="device-monitor-content">
+            <!-- 左侧侧边栏 - 设备列表 -->
+            <section class="device-sidebar">
+                <div class="device-toggle-btn" id="toggleSidebar">
+                    <i class="bi bi-list"></i>
+                </div>
+                <h3 class="device-sidebar-title">设备列表</h3>
+                <ul class="device-tree" id="deviceTree">
+                    <!-- 设备树将由JS动态生成 -->
+                </ul>
+            </section>
+
+            <!-- 右侧内容区 - 设备详情 -->
+            <section class="device-content">
+                <!-- 设备内容将由JS根据选择的设备动态生成 -->
+                <div class="device-content-placeholder" id="deviceContentPlaceholder">
+                    <div class="empty-state">
+                        <i class="bi bi-hdd-rack"></i>
+                        <p>请从左侧选择设备查看详情</p>
+                    </div>
+                </div>
+                
+                <!-- 设备内容区域 - 将通过JS动态加载 -->
+                <div id="deviceContentArea" style="display: none;">
+                    <!-- 这里的内容将由JS生成 -->
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- 操作日志记录模态框 -->
+    <div class="modal" id="operationLogModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>操作日志</h3>
+                <button class="close-btn" id="closeLogModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="log-filter">
+                    <div class="filter-group">
+                        <label for="logDateFilter">日期范围：</label>
+                        <select id="logDateFilter">
+                            <option value="today">今天</option>
+                            <option value="yesterday">昨天</option>
+                            <option value="week" selected>最近一周</option>
+                            <option value="month">最近一个月</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="logTypeFilter">操作类型：</label>
+                        <select id="logTypeFilter">
+                            <option value="all" selected>全部</option>
+                            <option value="control">控制操作</option>
+                            <option value="config">参数配置</option>
+                        </select>
+                    </div>
+                </div>
+                <table class="log-table">
+                    <thead>
+                        <tr>
+                            <th>时间</th>
+                            <th>操作人</th>
+                            <th>操作类型</th>
+                            <th>操作内容</th>
+                            <th>操作结果</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logTableBody">
+                        <!-- 操作日志将由JS动态生成 -->
+                    </tbody>
+                </table>
+                <div class="pagination">
+                    <button class="pagination-btn" disabled>&lt;</button>
+                    <span class="pagination-info">第 1 页 / 共 3 页</span>
+                    <button class="pagination-btn">&gt;</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

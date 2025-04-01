@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>视频监控 - 清安储能管理系统</title>
+    <link rel="stylesheet" href="css/maintenance-system.css">
+    <link rel="stylesheet" href="css/video-monitor.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- 引入多选组件样式 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">
+    <!-- 先加载common.js，确保导航栏正确初始化 -->
+    <script src="js/common.js"></script>
+    <!-- 使用上传的图片预加载 -->
+    <style>
+        .temp-image {
+            display: none;
+            width: 0;
+            height: 0;
+            overflow: hidden;
+            position: absolute;
+        }
+        
+        /* 确保主内容区域能够滚动 */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+        
+        main {
+            flex: 1;
+            overflow-y: auto; /* 允许主内容区域垂直滚动 */
+            padding-bottom: 30px; /* 确保底部有足够的间距 */
+        }
+        
+        /* 多选下拉框样式 */
+        .multi-select-container {
+            width: 280px;
+            margin-right: -1px;
+        }
+        
+        .select2-container {
+            width: 100% !important;
+        }
+        
+        .select2-container--default .select2-selection--multiple {
+            border-radius: 4px 0 0 4px;
+            border-color: #ddd;
+        }
+        
+        .select2-container--default.select2-container--focus .select2-selection--multiple {
+            border-color: #39B49A;
+            outline: none;
+        }
+        
+        /* 多选筛选项样式调整 */
+        .filter-option input[type="checkbox"] {
+            display: none;
+        }
+        
+        .filter-option.active {
+            background-color: #39B49A;
+        }
+        
+        .filter-option.active span {
+            color: white;
+        }
+        
+        /* 筛选区域中的站点选择器 */
+        .filter-site-select {
+            width: 100%;
+            padding-right: 20px;
+        }
+        
+        .filter-site-select .select2-container {
+            width: 100% !important;
+            min-width: 300px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 临时储存图片引用 -->
+    <div class="temp-image">
+        <img src="temp_imgs/storage1.jpg" alt="储能站图片1" id="storage1">
+        <img src="temp_imgs/storage2.jpg" alt="储能站图片2" id="storage2">
+        <img src="temp_imgs/storage3.jpg" alt="储能站图片3" id="storage3">
+        <img src="temp_imgs/storage4.jpg" alt="储能站图片4" id="storage4">
+    </div>
+
+    <!-- 全局提示框 -->
+    <div id="tooltip" class="tooltip">
+        <div class="tooltip-title">提示</div>
+        <div class="tooltip-message">操作成功</div>
+    </div>
+
+    <!-- 头部导航 - 使用组件系统 -->
+    <header data-component="navbar">
+        <!-- 导航内容将由common.js动态插入 -->
+    </header>
+
+    <!-- 主内容区域 -->
+    <main>
+        <!-- 内容头部（面包屑和搜索） -->
+        <div class="content-header">
+            <div class="breadcrumb">
+                <span><i class="fas fa-home"></i> 首页</span>
+                <span class="separator">/</span>
+                <span>监控中心</span>
+                <span class="separator">/</span>
+                <span class="current">视频监控</span>
+            </div>
+            
+            <div class="search-box">
+                <input type="text" placeholder="输入关键词搜索..." id="videoSearchInput">
+                <button type="button" id="videoSearchBtn"><i class="fas fa-search"></i></button>
+            </div>
+        </div>
+        
+        <!-- 筛选条件区域 -->
+        <div class="filter-container">
+            <div class="filter-group">
+                <div class="filter-name">电站类型：</div>
+                <div class="filter-options" id="typeFilter">
+                    <label class="filter-option active" data-value="all">
+                        <input type="checkbox" name="siteType" value="all" checked>
+                        <span>全部</span>
+                    </label>
+                    <label class="filter-option" data-value="energy-storage">
+                        <input type="checkbox" name="siteType" value="energy-storage">
+                        <span>储能电站</span>
+                    </label>
+                    <label class="filter-option" data-value="charging-storage">
+                        <input type="checkbox" name="siteType" value="charging-storage">
+                        <span>充电桩配储</span>
+                    </label>
+                    <label class="filter-option" data-value="integrated">
+                        <input type="checkbox" name="siteType" value="integrated">
+                        <span>光储充一体</span>
+                    </label>
+                    <label class="filter-option" data-value="charging">
+                        <input type="checkbox" name="siteType" value="charging">
+                        <span>充电桩</span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="filter-group">
+                <div class="filter-name">摄像头状态：</div>
+                <div class="filter-options" id="statusFilter">
+                    <label class="filter-option active" data-value="all">
+                        <input type="radio" name="cameraStatus" value="all" checked>
+                        <span>全部</span>
+                    </label>
+                    <label class="filter-option" data-value="online">
+                        <input type="radio" name="cameraStatus" value="online">
+                        <span>在线</span>
+                    </label>
+                    <label class="filter-option" data-value="offline">
+                        <input type="radio" name="cameraStatus" value="offline">
+                        <span>离线</span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="filter-group">
+                <div class="filter-name">区域：</div>
+                <div class="filter-options" id="regionFilter">
+                    <label class="filter-option active" data-value="all">
+                        <input type="checkbox" name="region" value="all" checked>
+                        <span>全部</span>
+                    </label>
+                    <label class="filter-option" data-value="north">
+                        <input type="checkbox" name="region" value="north">
+                        <span>华北</span>
+                    </label>
+                    <label class="filter-option" data-value="east">
+                        <input type="checkbox" name="region" value="east">
+                        <span>华东</span>
+                    </label>
+                    <label class="filter-option" data-value="south">
+                        <input type="checkbox" name="region" value="south">
+                        <span>华南</span>
+                    </label>
+                    <label class="filter-option" data-value="west">
+                        <input type="checkbox" name="region" value="west">
+                        <span>西部</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- 站点选择 -->
+            <div class="filter-group">
+                <div class="filter-name">站点选择：</div>
+                <div class="filter-site-select">
+                    <select id="siteMultiSelect" multiple="multiple" placeholder="选择站点...">
+                        <option value="site1">清安储能站</option>
+                        <option value="site2">南海充电站</option>
+                        <option value="site3">东湖储能站</option>
+                        <option value="site4">西区光储充站</option>
+                        <option value="site5">北山充电桩配储</option>
+                        <option value="site6">清远储能站</option>
+                        <option value="site7">江北储能站</option>
+                        <option value="site8">东区充电站</option>
+                        <option value="site9">南湖光储充站</option>
+                        <option value="site10">西城充电桩配储</option>
+                        <option value="site11">重庆储能站</option>
+                        <option value="site12">北区充电站</option>
+                        <option value="site13">东湖光储充站</option>
+                        <option value="site14">南山充电桩配储</option>
+                        <option value="site15">中心储能站</option>
+                        <option value="site16">西南充电站</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 视频监控统计信息 -->
+        <div class="video-statistics">
+            <div class="stat-item" data-status="all">
+                <div class="stat-icon"><i class="fas fa-video"></i></div>
+                <div class="stat-value" id="totalCameras">30</div>
+                <div class="stat-label">摄像头总数</div>
+            </div>
+            <div class="stat-item" data-status="online">
+                <div class="stat-icon"><i class="fas fa-wifi"></i></div>
+                <div class="stat-value status-normal" id="onlineCameras">23</div>
+                <div class="stat-label">在线摄像头</div>
+            </div>
+            <div class="stat-item" data-status="offline">
+                <div class="stat-icon"><i class="fas fa-power-off"></i></div>
+                <div class="stat-value status-fault" id="offlineCameras">7</div>
+                <div class="stat-label">离线摄像头</div>
+            </div>
+            <div class="stat-item" data-status="sites">
+                <div class="stat-icon"><i class="fas fa-map-marker-alt"></i></div>
+                <div class="stat-value" id="totalSites">15/128</div>
+                <div class="stat-label">覆盖站点数</div>
+            </div>
+        </div>
+        
+        <!-- 视频监控卡片容器 -->
+        <div class="video-container" id="videoContainer">
+            <!-- 示例摄像头卡片 -->
+            <!-- 卡片1：在线状态 - 储能电站 -->
+            <div class="video-card" data-id="1">
+                <div class="video-feed">
+                    <img src="temp_imgs/storage1.jpg" alt="清安储能站1号摄像头">
+                    <div class="video-status online"><i class="fas fa-circle"></i> 在线</div>
+                </div>
+                <div class="video-info">
+                    <div class="video-title">清安储能站1号摄像头</div>
+                    <div class="video-location">清安储能站 - 主控室</div>
+                    <div class="video-meta">
+                        <div class="video-time"><i class="fas fa-clock"></i> 2023-08-15 14:30:22</div>
+                        <div class="video-type"><i class="fas fa-battery-three-quarters"></i> 储能电站</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 卡片2：在线状态 - 储能电站 -->
+            <div class="video-card" data-id="2">
+                <div class="video-feed">
+                    <img src="temp_imgs/storage2.jpg" alt="清安储能站2号摄像头">
+                    <div class="video-status online"><i class="fas fa-circle"></i> 在线</div>
+                </div>
+                <div class="video-info">
+                    <div class="video-title">清安储能站2号摄像头</div>
+                    <div class="video-location">清安储能站 - 设备区</div>
+                    <div class="video-meta">
+                        <div class="video-time"><i class="fas fa-clock"></i> 2023-08-15 14:28:45</div>
+                        <div class="video-type"><i class="fas fa-battery-three-quarters"></i> 储能电站</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 卡片3：离线状态 - 充电站 -->
+            <div class="video-card" data-id="3">
+                <div class="video-feed">
+                    <div class="video-placeholder">
+                        <i class="fas fa-video-slash"></i>
+                        <p>摄像头离线</p>
+                    </div>
+                    <div class="video-status offline"><i class="fas fa-circle"></i> 离线</div>
+                </div>
+                <div class="video-info">
+                    <div class="video-title">南海充电站1号摄像头</div>
+                    <div class="video-location">南海充电站 - 围墙外</div>
+                    <div class="video-meta">
+                        <div class="video-time"><i class="fas fa-clock"></i> 2023-08-15 10:15:33</div>
+                        <div class="video-type"><i class="fas fa-charging-station"></i> 充电桩</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 卡片4：在线状态 - 充电站 -->
+            <div class="video-card" data-id="4">
+                <div class="video-feed">
+                    <img src="temp_imgs/storage3.jpg" alt="南海充电站2号摄像头">
+                    <div class="video-status online"><i class="fas fa-circle"></i> 在线</div>
+                </div>
+                <div class="video-info">
+                    <div class="video-title">南海充电站2号摄像头</div>
+                    <div class="video-location">南海充电站 - 充电区</div>
+                    <div class="video-meta">
+                        <div class="video-time"><i class="fas fa-clock"></i> 2023-08-15 14:31:05</div>
+                        <div class="video-type"><i class="fas fa-charging-station"></i> 充电桩</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 卡片5：在线状态 - 储能电站 -->
+            <div class="video-card" data-id="5">
+                <div class="video-feed">
+                    <img src="temp_imgs/storage1.jpg" alt="东湖储能站1号摄像头">
+                    <div class="video-status online"><i class="fas fa-circle"></i> 在线</div>
+                </div>
+                <div class="video-info">
+                    <div class="video-title">东湖储能站1号摄像头</div>
+                    <div class="video-location">东湖储能站 - 电池仓</div>
+                    <div class="video-meta">
+                        <div class="video-time"><i class="fas fa-clock"></i> 2023-08-15 14:29:17</div>
+                        <div class="video-type"><i class="fas fa-battery-three-quarters"></i> 储能电站</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 卡片6：离线状态 - 储能电站 -->
+            <div class="video-card" data-id="6">
+                <div class="video-feed">
+                    <div class="video-placeholder">
+                        <i class="fas fa-video-slash"></i>
+                        <p>摄像头离线</p>
+                    </div>
+                    <div class="video-status offline"><i class="fas fa-circle"></i> 离线</div>
+                </div>
+                <div class="video-info">
+                    <div class="video-title">东湖储能站2号摄像头</div>
+                    <div class="video-location">东湖储能站 - 控制室</div>
+                    <div class="video-meta">
+                        <div class="video-time"><i class="fas fa-clock"></i> 2023-08-15 09:45:12</div>
+                        <div class="video-type"><i class="fas fa-battery-three-quarters"></i> 储能电站</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 卡片7：在线状态 - 光储充一体 -->
+            <div class="video-card" data-id="7">
+                <div class="video-feed">
+                    <img src="temp_imgs/storage4.jpg" alt="西区光储充站1号摄像头">
+                    <div class="video-status online"><i class="fas fa-circle"></i> 在线</div>
+                </div>
+                <div class="video-info">
+                    <div class="video-title">西区光储充站1号摄像头</div>
+                    <div class="video-location">西区光储充站 - 主入口</div>
+                    <div class="video-meta">
+                        <div class="video-time"><i class="fas fa-clock"></i> 2023-08-15 14:27:39</div>
+                        <div class="video-type"><i class="fas fa-solar-panel"></i> 光储充一体</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 卡片8：在线状态 - 光储充一体 -->
+            <div class="video-card" data-id="8">
+                <div class="video-feed">
+                    <img src="temp_imgs/storage2.jpg" alt="西区光储充站2号摄像头">
+                    <div class="video-status online"><i class="fas fa-circle"></i> 在线</div>
+                </div>
+                <div class="video-info">
+                    <div class="video-title">西区光储充站2号摄像头</div>
+                    <div class="video-location">西区光储充站 - 光伏区</div>
+                    <div class="video-meta">
+                        <div class="video-time"><i class="fas fa-clock"></i> 2023-08-15 14:26:52</div>
+                        <div class="video-type"><i class="fas fa-solar-panel"></i> 光储充一体</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 卡片9：离线状态 - 充电桩配储 -->
+            <div class="video-card" data-id="9">
+                <div class="video-feed">
+                    <div class="video-placeholder">
+                        <i class="fas fa-video-slash"></i>
+                        <p>摄像头离线</p>
+                    </div>
+                    <div class="video-status offline"><i class="fas fa-circle"></i> 离线</div>
+                </div>
+                <div class="video-info">
+                    <div class="video-title">北山充电桩配储1号摄像头</div>
+                    <div class="video-location">北山充电桩配储 - 充电区</div>
+                    <div class="video-meta">
+                        <div class="video-time"><i class="fas fa-clock"></i> 2023-08-15 11:20:47</div>
+                        <div class="video-type"><i class="fas fa-bolt"></i> 充电桩配储</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 卡片10：在线状态 - 充电桩配储 -->
+            <div class="video-card" data-id="10">
+                <div class="video-feed">
+                    <img src="temp_imgs/storage3.jpg" alt="北山充电桩配储2号摄像头">
+                    <div class="video-status online"><i class="fas fa-circle"></i> 在线</div>
+                </div>
+                <div class="video-info">
+                    <div class="video-title">北山充电桩配储2号摄像头</div>
+                    <div class="video-location">北山充电桩配储 - 储能区</div>
+                    <div class="video-meta">
+                        <div class="video-time"><i class="fas fa-clock"></i> 2023-08-15 14:30:59</div>
+                        <div class="video-type"><i class="fas fa-bolt"></i> 充电桩配储</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 卡片11：在线状态 - 储能电站 -->
+            <div class="video-card" data-id="11">
+                <div class="video-feed">
+                    <img src="temp_imgs/storage1.jpg" alt="清远储能站1号摄像头">
+                    <div class="video-status online"><i class="fas fa-circle"></i> 在线</div>
+                </div>
+                <div class="video-info">
+                    <div class="video-title">清远储能站1号摄像头</div>
+                    <div class="video-location">清远储能站 - 外围</div>
+                    <div class="video-meta">
+                        <div class="video-time"><i class="fas fa-clock"></i> 2023-08-15 14:28:33</div>
+                        <div class="video-type"><i class="fas fa-battery-three-quarters"></i> 储能电站</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 卡片12：离线状态 - 储能电站 -->
+            <div class="video-card" data-id="12">
+                <div class="video-feed">
+                    <div class="video-placeholder">
+                        <i class="fas fa-video-slash"></i>
+                        <p>摄像头离线</p>
+                    </div>
+                    <div class="video-status offline"><i class="fas fa-circle"></i> 离线</div>
+                </div>
+                <div class="video-info">
+                    <div class="video-title">清远储能站2号摄像头</div>
+                    <div class="video-location">清远储能站 - 电池区</div>
+                    <div class="video-meta">
+                        <div class="video-time"><i class="fas fa-clock"></i> 2023-08-15 08:15:26</div>
+                        <div class="video-type"><i class="fas fa-battery-three-quarters"></i> 储能电站</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 卡片13：在线状态 - 储能电站 -->
+            <div class="video-card" data-id="13">
+                <div class="video-feed">
+                    <img src="temp_imgs/storage2.jpg" alt="江北储能站1号摄像头">
+                    <div class="video-status online"><i class="fas fa-circle"></i> 在线</div>
+                </div>
+                <div class="video-info">
+                    <div class="video-title">江北储能站1号摄像头</div>
+                    <div class="video-location">江北储能站 - 主控室</div>
+                    <div class="video-meta">
+                        <div class="video-time"><i class="fas fa-clock"></i> 2023-08-15 14:22:10</div>
+                        <div class="video-type"><i class="fas fa-battery-three-quarters"></i> 储能电站</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 卡片14：在线状态 - 储能电站 -->
+            <div class="video-card" data-id="14">
+                <div class="video-feed">
+                    <img src="temp_imgs/storage1.jpg" alt="江北储能站2号摄像头">
+                    <div class="video-status online"><i class="fas fa-circle"></i> 在线</div>
+                </div>
+                <div class="video-info">
+                    <div class="video-title">江北储能站2号摄像头</div>
+                    <div class="video-location">江北储能站 - 电池仓</div>
+                    <div class="video-meta">
+                        <div class="video-time"><i class="fas fa-clock"></i> 2023-08-15 14:20:30</div>
+                        <div class="video-type"><i class="fas fa-battery-three-quarters"></i> 储能电站</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 卡片15：在线状态 - 充电桩 -->
+            <div class="video-card" data-id="15">
+                <div class="video-feed">
+                    <img src="temp_imgs/storage3.jpg" alt="东区充电站1号摄像头">
+                    <div class="video-status online"><i class="fas fa-circle"></i> 在线</div>
+                </div>
+                <div class="video-info">
+                    <div class="video-title">东区充电站1号摄像头</div>
+                    <div class="video-location">东区充电站 - 充电区</div>
+                    <div class="video-meta">
+                        <div class="video-time"><i class="fas fa-clock"></i> 2023-08-15 14:25:15</div>
+                        <div class="video-type"><i class="fas fa-charging-station"></i> 充电桩</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 卡片16：离线状态 - 光储充一体 -->
+            <div class="video-card" data-id="16">
+                <div class="video-feed">
+                    <div class="video-placeholder">
+                        <i class="fas fa-video-slash"></i>
+                        <p>摄像头离线</p>
+                    </div>
+                    <div class="video-status offline"><i class="fas fa-circle"></i> 离线</div>
+                </div>
+                <div class="video-info">
+                    <div class="video-title">南湖光储充站1号摄像头</div>
+                    <div class="video-location">南湖光储充站 - 光伏区</div>
+                    <div class="video-meta">
+                        <div class="video-time"><i class="fas fa-clock"></i> 2023-08-15 09:30:42</div>
+                        <div class="video-type"><i class="fas fa-solar-panel"></i> 光储充一体</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 卡片17：在线状态 - 光储充一体 -->
+            <div class="video-card" data-id="17">
+                <div class="video-feed">
+                    <img src="temp_imgs/storage4.jpg" alt="南湖光储充站2号摄像头">
+                    <div class="video-status online"><i class="fas fa-circle"></i> 在线</div>
+                </div>
+                <div class="video-info">
+                    <div class="video-title">南湖光储充站2号摄像头</div>
+                    <div class="video-location">南湖光储充站 - 充电区</div>
+                    <div class="video-meta">
+                        <div class="video-time"><i class="fas fa-clock"></i> 2023-08-15 14:18:22</div>
+                        <div class="video-type"><i class="fas fa-solar-panel"></i> 光储充一体</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 卡片18：在线状态 - 充电桩配储 -->
+            <div class="video-card" data-id="18">
+                <div class="video-feed">
+                    <img src="temp_imgs/storage2.jpg" alt="西城充电桩配储1号摄像头">
+                    <div class="video-status online"><i class="fas fa-circle"></i> 在线</div>
+                </div>
+                <div class="video-info">
+                    <div class="video-title">西城充电桩配储1号摄像头</div>
+                    <div class="video-location">西城充电桩配储 - 充电区</div>
+                    <div class="video-meta">
+                        <div class="video-time"><i class="fas fa-clock"></i> 2023-08-15 14:12:50</div>
+                        <div class="video-type"><i class="fas fa-bolt"></i> 充电桩配储</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 卡片19：在线状态 - 充电桩配储 -->
+            <div class="video-card" data-id="19">
+                <div class="video-feed">
+                    <img src="temp_imgs/storage3.jpg" alt="西城充电桩配储2号摄像头">
+                    <div class="video-status online"><i class="fas fa-circle"></i> 在线</div>
+                </div>
+                <div class="video-info">
+                    <div class="video-title">西城充电桩配储2号摄像头</div>
+                    <div class="video-location">西城充电桩配储 - 储能区</div>
+                    <div class="video-meta">
+                        <div class="video-time"><i class="fas fa-clock"></i> 2023-08-15 14:10:33</div>
+                        <div class="video-type"><i class="fas fa-bolt"></i> 充电桩配储</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 卡片20：离线状态 - 储能电站 -->
+            <div class="video-card" data-id="20">
+                <div class="video-feed">
+                    <div class="video-placeholder">
+                        <i class="fas fa-video-slash"></i>
+                        <p>摄像头离线</p>
+                    </div>
+                    <div class="video-status offline"><i class="fas fa-circle"></i> 离线</div>
+                </div>
+                <div class="video-info">
+                    <div class="video-title">重庆储能站1号摄像头</div>
+                    <div class="video-location">重庆储能站 - 主控室</div>
+                    <div class="video-meta">
+                        <div class="video-time"><i class="fas fa-clock"></i> 2023-08-15 07:45:11</div>
+                        <div class="video-type"><i class="fas fa-battery-three-quarters"></i> 储能电站</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 卡片21：在线状态 - 储能电站 -->
+            <div class="video-card" data-id="21">
+                <div class="video-feed">
+                    <img src="temp_imgs/storage1.jpg" alt="重庆储能站2号摄像头">
+                    <div class="video-status online"><i class="fas fa-circle"></i> 在线</div>
+                </div>
+                <div class="video-info">
+                    <div class="video-title">重庆储能站2号摄像头</div>
+                    <div class="video-location">重庆储能站 - 电池仓</div>
+                    <div class="video-meta">
+                        <div class="video-time"><i class="fas fa-clock"></i> 2023-08-15 14:05:27</div>
+                        <div class="video-type"><i class="fas fa-battery-three-quarters"></i> 储能电站</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 卡片22：在线状态 - 充电桩 -->
+            <div class="video-card" data-id="22">
+                <div class="video-feed">
+                    <img src="temp_imgs/storage2.jpg" alt="北区充电站1号摄像头">
+                    <div class="video-status online"><i class="fas fa-circle"></i> 在线</div>
+                </div>
+                <div class="video-info">
+                    <div class="video-title">北区充电站1号摄像头</div>
+                    <div class="video-location">北区充电站 - 充电区</div>
+                    <div class="video-meta">
+                        <div class="video-time"><i class="fas fa-clock"></i> 2023-08-15 14:01:12</div>
+                        <div class="video-type"><i class="fas fa-charging-station"></i> 充电桩</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 卡片23：离线状态 - 充电桩 -->
+            <div class="video-card" data-id="23">
+                <div class="video-feed">
+                    <div class="video-placeholder">
+                        <i class="fas fa-video-slash"></i>
+                        <p>摄像头离线</p>
+                    </div>
+                    <div class="video-status offline"><i class="fas fa-circle"></i> 离线</div>
+                </div>
+                <div class="video-info">
+                    <div class="video-title">北区充电站2号摄像头</div>
+                    <div class="video-location">北区充电站 - 控制室</div>
+                    <div class="video-meta">
+                        <div class="video-time"><i class="fas fa-clock"></i> 2023-08-15 08:55:33</div>
+                        <div class="video-type"><i class="fas fa-charging-station"></i> 充电桩</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 卡片24：在线状态 - 光储充一体 -->
+            <div class="video-card" data-id="24">
+                <div class="video-feed">
+                    <img src="temp_imgs/storage4.jpg" alt="东湖光储充站1号摄像头">
+                    <div class="video-status online"><i class="fas fa-circle"></i> 在线</div>
+                </div>
+                <div class="video-info">
+                    <div class="video-title">东湖光储充站1号摄像头</div>
+                    <div class="video-location">东湖光储充站 - 主入口</div>
+                    <div class="video-meta">
+                        <div class="video-time"><i class="fas fa-clock"></i> 2023-08-15 13:58:21</div>
+                        <div class="video-type"><i class="fas fa-solar-panel"></i> 光储充一体</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 卡片25：在线状态 - 光储充一体 -->
+            <div class="video-card" data-id="25">
+                <div class="video-feed">
+                    <img src="temp_imgs/storage3.jpg" alt="东湖光储充站2号摄像头">
+                    <div class="video-status online"><i class="fas fa-circle"></i> 在线</div>
+                </div>
+                <div class="video-info">
+                    <div class="video-title">东湖光储充站2号摄像头</div>
+                    <div class="video-location">东湖光储充站 - 光伏区</div>
+                    <div class="video-meta">
+                        <div class="video-time"><i class="fas fa-clock"></i> 2023-08-15 13:55:10</div>
+                        <div class="video-type"><i class="fas fa-solar-panel"></i> 光储充一体</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 卡片26：在线状态 - 充电桩配储 -->
+            <div class="video-card" data-id="26">
+                <div class="video-feed">
+                    <img src="temp_imgs/storage2.jpg" alt="南山充电桩配储1号摄像头">
+                    <div class="video-status online"><i class="fas fa-circle"></i> 在线</div>
+                </div>
+                <div class="video-info">
+                    <div class="video-title">南山充电桩配储1号摄像头</div>
+                    <div class="video-location">南山充电桩配储 - 充电区</div>
+                    <div class="video-meta">
+                        <div class="video-time"><i class="fas fa-clock"></i> 2023-08-15 13:50:42</div>
+                        <div class="video-type"><i class="fas fa-bolt"></i> 充电桩配储</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 卡片27：离线状态 - 充电桩配储 -->
+            <div class="video-card" data-id="27">
+                <div class="video-feed">
+                    <div class="video-placeholder">
+                        <i class="fas fa-video-slash"></i>
+                        <p>摄像头离线</p>
+                    </div>
+                    <div class="video-status offline"><i class="fas fa-circle"></i> 离线</div>
+                </div>
+                <div class="video-info">
+                    <div class="video-title">南山充电桩配储2号摄像头</div>
+                    <div class="video-location">南山充电桩配储 - 储能区</div>
+                    <div class="video-meta">
+                        <div class="video-time"><i class="fas fa-clock"></i> 2023-08-15 09:15:23</div>
+                        <div class="video-type"><i class="fas fa-bolt"></i> 充电桩配储</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 卡片28：在线状态 - 储能电站 -->
+            <div class="video-card" data-id="28">
+                <div class="video-feed">
+                    <img src="temp_imgs/storage1.jpg" alt="中心储能站1号摄像头">
+                    <div class="video-status online"><i class="fas fa-circle"></i> 在线</div>
+                </div>
+                <div class="video-info">
+                    <div class="video-title">中心储能站1号摄像头</div>
+                    <div class="video-location">中心储能站 - 主控室</div>
+                    <div class="video-meta">
+                        <div class="video-time"><i class="fas fa-clock"></i> 2023-08-15 13:45:33</div>
+                        <div class="video-type"><i class="fas fa-battery-three-quarters"></i> 储能电站</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 卡片29：在线状态 - 储能电站 -->
+            <div class="video-card" data-id="29">
+                <div class="video-feed">
+                    <img src="temp_imgs/storage2.jpg" alt="中心储能站2号摄像头">
+                    <div class="video-status online"><i class="fas fa-circle"></i> 在线</div>
+                </div>
+                <div class="video-info">
+                    <div class="video-title">中心储能站2号摄像头</div>
+                    <div class="video-location">中心储能站 - 电池仓</div>
+                    <div class="video-meta">
+                        <div class="video-time"><i class="fas fa-clock"></i> 2023-08-15 13:42:15</div>
+                        <div class="video-type"><i class="fas fa-battery-three-quarters"></i> 储能电站</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 卡片30：在线状态 - 充电桩 -->
+            <div class="video-card" data-id="30">
+                <div class="video-feed">
+                    <img src="temp_imgs/storage3.jpg" alt="西南充电站1号摄像头">
+                    <div class="video-status online"><i class="fas fa-circle"></i> 在线</div>
+                </div>
+                <div class="video-info">
+                    <div class="video-title">西南充电站1号摄像头</div>
+                    <div class="video-location">西南充电站 - 充电区</div>
+                    <div class="video-meta">
+                        <div class="video-time"><i class="fas fa-clock"></i> 2023-08-15 13:40:05</div>
+                        <div class="video-type"><i class="fas fa-charging-station"></i> 充电桩</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 分页控件 -->
+        <div class="pagination" id="pagination">
+            <button class="page-btn prev-btn" id="prevPage" disabled><i class="fas fa-angle-left"></i></button>
+            <div class="page-numbers" id="pageNumbers">
+                <span class="page-number active">1</span>
+            </div>
+            <button class="page-btn next-btn" id="nextPage" disabled><i class="fas fa-angle-right"></i></button>
+        </div>
+    </main>
+    
+    <!-- 视频全屏模态框 -->
+    <div class="modal" id="videoModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">站点视频监控</h3>
+                <span class="close-btn" id="closeModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="fullscreen-video-container">
+                    <div class="fullscreen-video" id="fullscreenVideo">
+                        <!-- 视频内容将在点击卡片时动态加载 -->
+                    </div>
+                    <div class="video-controls">
+                        <button class="control-btn" id="playBtn">
+                            <i class="fas fa-play"></i>
+                        </button>
+                        <button class="control-btn" id="pauseBtn">
+                            <i class="fas fa-pause"></i>
+                        </button>
+                        <button class="control-btn" id="muteBtn">
+                            <i class="fas fa-volume-mute"></i>
+                        </button>
+                        <button class="control-btn" id="fullscreenBtn">
+                            <i class="fas fa-expand"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 引入JavaScript库 -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="js/video-monitor.js"></script>
+    
+    <script>
+        // 初始化多选站点下拉框
+        $(document).ready(function() {
+            // 初始化筛选区域中的站点多选下拉框
+            $('#siteMultiSelect').select2({
+                placeholder: "选择站点...",
+                allowClear: true,
+                width: '100%',
+                language: {
+                    noResults: function() {
+                        return "没有找到匹配的站点";
+                    }
+                }
+            });
+            
+            // 当站点选择发生变化时更新视频列表
+            $('#siteMultiSelect').on('change', function() {
+                updateVideoList();
+            });
+            
+            // 处理多选筛选项
+            handleMultipleFilters();
+        });
+        
+        function handleMultipleFilters() {
+            // 处理电站类型多选
+            $('#typeFilter .filter-option').on('click', function() {
+                const $this = $(this);
+                const isAll = $this.attr('data-value') === 'all';
+                const $checkbox = $this.find('input[type="checkbox"]');
+                
+                // 处理"全部"选项的特殊逻辑
+                if (isAll) {
+                    // 如果点击"全部"，取消其他所有选项
+                    $('#typeFilter .filter-option').removeClass('active');
+                    $('#typeFilter input[type="checkbox"]').prop('checked', false);
+                    $this.addClass('active');
+                    $checkbox.prop('checked', true);
+                } else {
+                    // 如果当前点击的不是"全部"，取消"全部"的选中状态
+                    $('#typeFilter .filter-option[data-value="all"]').removeClass('active');
+                    $('#typeFilter .filter-option[data-value="all"] input').prop('checked', false);
+                    
+                    // 切换当前选项的状态，但不影响其他非"全部"选项
+                    $this.toggleClass('active');
+                    $checkbox.prop('checked', !$checkbox.prop('checked'));
+                    
+                    // 如果没有任何选项被选中，自动选中"全部"
+                    if ($('#typeFilter .filter-option.active').length === 0) {
+                        $('#typeFilter .filter-option[data-value="all"]').addClass('active');
+                        $('#typeFilter .filter-option[data-value="all"] input').prop('checked', true);
+                    }
+                }
+                
+                // 根据选中的筛选项更新视频列表
+                updateVideoList();
+            });
+            
+            // 处理区域多选，使用同样的逻辑
+            $('#regionFilter .filter-option').on('click', function() {
+                const $this = $(this);
+                const isAll = $this.attr('data-value') === 'all';
+                const $checkbox = $this.find('input[type="checkbox"]');
+                
+                if (isAll) {
+                    $('#regionFilter .filter-option').removeClass('active');
+                    $('#regionFilter input[type="checkbox"]').prop('checked', false);
+                    $this.addClass('active');
+                    $checkbox.prop('checked', true);
+                } else {
+                    $('#regionFilter .filter-option[data-value="all"]').removeClass('active');
+                    $('#regionFilter .filter-option[data-value="all"] input').prop('checked', false);
+                    
+                    // 切换当前选项，不影响其他选项
+                    $this.toggleClass('active');
+                    $checkbox.prop('checked', !$checkbox.prop('checked'));
+                    
+                    if ($('#regionFilter .filter-option.active').length === 0) {
+                        $('#regionFilter .filter-option[data-value="all"]').addClass('active');
+                        $('#regionFilter .filter-option[data-value="all"] input').prop('checked', true);
+                    }
+                }
+                
+                updateVideoList();
+            });
+        }
+        
+        function updateVideoList() {
+            // 这个函数应该根据选中的筛选条件更新视频列表
+            // 在实际项目中，这里可能需要发送AJAX请求获取数据
+            console.log('更新视频列表...');
+            
+            // 获取所有选中的电站类型
+            const selectedTypes = [];
+            $('#typeFilter .filter-option.active').each(function() {
+                selectedTypes.push($(this).attr('data-value'));
+            });
+            
+            // 获取所有选中的区域
+            const selectedRegions = [];
+            $('#regionFilter .filter-option.active').each(function() {
+                selectedRegions.push($(this).attr('data-value'));
+            });
+            
+            // 获取选中的摄像头状态
+            const selectedStatus = $('#statusFilter .filter-option.active').attr('data-value');
+            
+            // 获取选中的站点
+            const selectedSites = $('#siteMultiSelect').val() || [];
+            
+            console.log('选中的电站类型:', selectedTypes);
+            console.log('选中的区域:', selectedRegions);
+            console.log('选中的摄像头状态:', selectedStatus);
+            console.log('选中的站点:', selectedSites);
+            
+            // 在实际应用中，这里应该使用"或"关系来筛选视频
+            // 例如：显示所有符合任一选中类型OR任一选中区域OR任一选中站点的视频
+            
+            // 这里示例代码仅做打印，实际开发中需要根据项目需求进行实现
+            console.log('使用"或"关系筛选，显示符合任一条件的视频');
+        }
+    </script>
+</body>
+</html> 

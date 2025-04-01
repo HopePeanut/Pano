@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>消息通知 - Pano综合能源管理平台</title>
+    <!-- Bootstrap图标 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <!-- 全局CSS -->
+    <link rel="stylesheet" href="css/maintenance-system.css">
+    <!-- 页面专用CSS -->
+    <link rel="stylesheet" href="css/components/notifications.css">
+    <!-- 通用JS -->
+    <script src="js/common.js"></script>
+</head>
+<body>
+    <!-- 全局提示框 -->
+    <div id="tooltip" class="tooltip" style="display: none;">
+        <div class="tooltip-title">提示</div>
+        <div class="tooltip-message">操作成功</div>
+    </div>
+
+    <!-- 页头与导航 - 使用通用导航组件 -->
+    <header data-component="navbar">
+        <!-- 导航内容将由common.js动态插入 -->
+    </header>
+
+    <!-- 主内容区域 -->
+    <main>
+        <!-- 消息通知内容区域 -->
+        <div class="notifications-container">
+            <!-- 通知页面标题和操作按钮 -->
+            <div class="notifications-header">
+                <h2><i class="bi bi-bell"></i> 消息通知</h2>
+                <div class="notifications-actions">
+                    <div class="search-box">
+                        <input type="text" id="notificationSearch" placeholder="搜索消息...">
+                        <i class="bi bi-search"></i>
+                    </div>
+                    <button class="btn-mark-all" id="markAllBtn">
+                        <i class="bi bi-check-all"></i> 全部标为已读
+                    </button>
+                    <button class="btn-delete" id="deleteSelectedBtn">
+                        <i class="bi bi-trash"></i> 删除选中
+                    </button>
+                </div>
+            </div>
+
+            <!-- 通知类型选项卡 -->
+            <div class="notifications-tabs">
+                <div class="tab active" data-tab="all">
+                    全部 <span class="tab-count">12</span>
+                </div>
+                <div class="tab" data-tab="system">
+                    系统通知 <span class="tab-count">5</span>
+                </div>
+                <div class="tab" data-tab="work-order">
+                    工单通知 <span class="tab-count">7</span>
+                </div>
+                <div class="tab-actions">
+                    <label class="filter-option">
+                        <input type="checkbox" id="showUnreadOnly">
+                        <span>只看未读</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- 通知列表 -->
+            <div class="notification-list">
+                <!-- 系统通知示例 - 未读 -->
+                <div class="notification-item unread" data-id="1" data-type="system">
+                    <div class="select-box">
+                        <input type="checkbox" class="notification-checkbox">
+                    </div>
+                    <div class="notification-icon icon-system">
+                        <i class="bi bi-gear"></i>
+                    </div>
+                    <div class="notification-content">
+                        <div class="notification-header">
+                            <div class="notification-title">
+                                <span class="unread-marker"></span>
+                                系统维护通知
+                            </div>
+                            <div class="notification-time">2024-03-28 10:30</div>
+                        </div>
+                        <div class="notification-message">
+                            尊敬的用户，系统将于2024年4月1日凌晨2:00-4:00进行例行维护，期间部分功能可能无法正常使用。给您带来的不便敬请谅解。
+                        </div>
+                        <div class="notification-actions">
+                            <span class="notification-action mark-read-action">
+                                <i class="bi bi-envelope-open"></i> 标为已读
+                            </span>
+                            <span class="notification-action delete-action">
+                                <i class="bi bi-trash"></i> 删除
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 工单通知示例 - 未读 -->
+                <div class="notification-item unread" data-id="2" data-type="work-order">
+                    <div class="select-box">
+                        <input type="checkbox" class="notification-checkbox">
+                    </div>
+                    <div class="notification-icon icon-work-order">
+                        <i class="bi bi-clipboard-check"></i>
+                    </div>
+                    <div class="notification-content">
+                        <div class="notification-header">
+                            <div class="notification-title">
+                                <span class="unread-marker"></span>
+                                工单已分配
+                            </div>
+                            <div class="notification-time">2024-03-27 15:45</div>
+                        </div>
+                        <div class="notification-message">
+                            您有一个新的工单(WO-2024032701)已分配，请及时处理。工单内容：张家口储能电站PCS-03设备告警检查。
+                        </div>
+                        <div class="notification-actions">
+                            <span class="notification-action view-detail-action">
+                                <i class="bi bi-eye"></i> 查看详情
+                            </span>
+                            <span class="notification-action mark-read-action">
+                                <i class="bi bi-envelope-open"></i> 标为已读
+                            </span>
+                            <span class="notification-action delete-action">
+                                <i class="bi bi-trash"></i> 删除
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 系统通知示例 - 已读 -->
+                <div class="notification-item" data-id="3" data-type="system">
+                    <div class="select-box">
+                        <input type="checkbox" class="notification-checkbox">
+                    </div>
+                    <div class="notification-icon icon-system">
+                        <i class="bi bi-shield-check"></i>
+                    </div>
+                    <div class="notification-content">
+                        <div class="notification-header">
+                            <div class="notification-title">
+                                安全更新提醒
+                            </div>
+                            <div class="notification-time">2024-03-25 09:15</div>
+                        </div>
+                        <div class="notification-message">
+                            我们刚刚发布了一个重要的安全更新，建议您在下次登录时更改密码，以确保账户安全。
+                        </div>
+                        <div class="notification-actions">
+                            <span class="notification-action delete-action">
+                                <i class="bi bi-trash"></i> 删除
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 工单通知示例 - 已读 -->
+                <div class="notification-item" data-id="4" data-type="work-order">
+                    <div class="select-box">
+                        <input type="checkbox" class="notification-checkbox">
+                    </div>
+                    <div class="notification-icon icon-work-order">
+                        <i class="bi bi-clipboard-check"></i>
+                    </div>
+                    <div class="notification-content">
+                        <div class="notification-header">
+                            <div class="notification-title">
+                                工单状态更新
+                            </div>
+                            <div class="notification-time">2024-03-24 14:20</div>
+                        </div>
+                        <div class="notification-message">
+                            工单(WO-2024032001)已完成审核，状态已更新为"已完成"。感谢您的处理！
+                        </div>
+                        <div class="notification-actions">
+                            <span class="notification-action view-detail-action">
+                                <i class="bi bi-eye"></i> 查看详情
+                            </span>
+                            <span class="notification-action delete-action">
+                                <i class="bi bi-trash"></i> 删除
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 分页信息 -->
+            <div class="notification-status-bar">
+                <div class="select-all-option">
+                    <label>
+                        <input type="checkbox" id="selectAllNotifications">
+                        <span>全选</span>
+                    </label>
+                </div>
+                <div class="notifications-status">
+                    显示 1-4，共 12 条通知
+                </div>
+                <div class="pagination-controls">
+                    <button class="pagination-btn" disabled>
+                        <i class="bi bi-chevron-left"></i>
+                    </button>
+                    <span class="page-indicator">1/3</span>
+                    <button class="pagination-btn">
+                        <i class="bi bi-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 页面脚本 -->
+    <script src="js/notifications.js"></script>
+</body>
+</html> 

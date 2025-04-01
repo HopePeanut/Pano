@@ -1,0 +1,953 @@
+/* 设备监控页面样式 */
+:root {
+    /* 主题颜色变量 */
+    --primary-color: #1890ff;
+    --primary-hover: #40a9ff;
+    --primary-active: #096dd9;
+    --primary-light: #e6f7ff;
+    --success-color: #52c41a;
+    --warning-color: #faad14;
+    --error-color: #f5222d;
+    --heading-color: #1e293b;
+    --text-color: #4b5563;
+    --text-light: #6b7280;
+    --border-color: #e5e7eb;
+    --background-color: #f5f5f5;
+    --card-background: #ffffff;
+    --shadow-color: rgba(0, 0, 0, 0.05);
+    
+    /* 状态颜色 */
+    --online-color: #52c41a;
+    --offline-color: #d9d9d9;
+    --alarm-color: #f5222d;
+    --warning-color: #faad14;
+    
+    /* 电池相关颜色 */
+    --highest-voltage-color: #f5222d;  /* 红色 - 最高电压 */
+    --lowest-voltage-color: #2f54eb;   /* 蓝色 - 最低电压 */
+    --highest-temp-color: #fa8c16;     /* 橙色 - 最高温度 */
+    --lowest-temp-color: #722ed1;      /* 紫色 - 最低温度 */
+    
+    /* 尺寸变量 */
+    --header-height: 60px;
+    --sidebar-width: 280px;
+    --sidebar-collapsed-width: 60px;
+    --border-radius: 4px;
+    --transition-speed: 0.3s;
+}
+
+/* 页面基础布局 */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+    margin-top: 6px;
+    padding: 2px;
+    overflow-x: hidden;
+}
+
+/* 面包屑和站点信息栏 */
+.page-top-row {
+    margin-bottom: 2px;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--card-background);
+    border-radius: var(--border-radius);
+    box-shadow: 0 2px 8px var(--shadow-color);
+    padding: 2px 16px;
+}
+
+@media (min-width: 768px) {
+    .page-top-row {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+}
+
+.breadcrumb-container {
+    margin-bottom: 10px;
+}
+
+@media (min-width: 768px) {
+    .breadcrumb-container {
+        margin-bottom: 0;
+    }
+}
+
+.breadcrumb {
+    font-size: 14px;
+    color: var(--text-light);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.breadcrumb a {
+    color: var(--text-light);
+    text-decoration: none;
+    transition: color var(--transition-speed);
+}
+
+.breadcrumb a:hover {
+    color: var(--primary-color);
+}
+
+.breadcrumb .separator {
+    margin: 0 8px;
+    color: var(--text-light);
+}
+
+.breadcrumb .current {
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
+.site-actions-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+@media (min-width: 768px) {
+    .site-actions-container {
+        flex-direction: row;
+        align-items: center;
+    }
+}
+
+.site-info-main {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    margin-right: 20px;
+    margin-bottom: 10px;
+}
+
+@media (min-width: 768px) {
+    .site-info-main {
+        margin-bottom: 0;
+    }
+}
+
+.site-info-main i {
+    color: var(--primary-color);
+    margin-right: 6px;
+}
+
+.site-info-main strong {
+    color: var(--heading-color);
+    margin-left: 4px;
+}
+
+.site-actions {
+    display: flex;
+    align-items: center;
+}
+
+.site-search-container {
+    position: relative;
+}
+
+.site-search {
+    padding: 6px 12px 6px 36px;
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    font-size: 14px;
+    outline: none;
+    width: 220px;
+    transition: all var(--transition-speed);
+}
+
+.site-search:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+.search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-light);
+}
+
+/* 设备监控主内容区 */
+.device-monitor-content {
+    display: flex;
+    height: calc(100vh - var(--header-height) - 8px - 40px);
+    background-color: var(--card-background);
+    border-radius: var(--border-radius);
+    box-shadow: 0 2px 8px var(--shadow-color);
+    overflow: hidden;
+    margin-top: 0;
+}
+
+/* 左侧设备列表 */
+.device-sidebar {
+    width: var(--sidebar-width);
+    background-color: var(--card-background);
+    border-right: 1px solid var(--border-color);
+    transition: all var(--transition-speed);
+    position: relative;
+    overflow-y: auto;
+    padding: 8px 0;
+}
+
+.device-sidebar.collapsed {
+    width: var(--sidebar-collapsed-width);
+    overflow: hidden;
+}
+
+.device-sidebar.collapsed .device-sidebar-title,
+.device-sidebar.collapsed .device-tree-item span {
+    display: none;
+}
+
+.device-toggle-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 32px;
+    height: 32px;
+    background-color: var(--background-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-color);
+    transition: background-color var(--transition-speed);
+    z-index: 10;
+}
+
+.device-toggle-btn:hover {
+    background-color: var(--primary-light);
+    color: var(--primary-color);
+}
+
+.device-sidebar-title {
+    padding: 0 16px 8px;
+    margin: 0;
+    color: var(--heading-color);
+    border-bottom: 1px solid var(--border-color);
+    font-size: 16px;
+}
+
+.device-tree {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.device-tree-item {
+    position: relative;
+}
+
+.device-tree-parent {
+    display: flex;
+    align-items: center;
+    padding: 10px 16px;
+    cursor: pointer;
+    color: var(--text-color);
+    transition: background-color var(--transition-speed);
+}
+
+.device-tree-parent:hover {
+    background-color: var(--primary-light);
+}
+
+.device-tree-parent.active {
+    background-color: var(--primary-light);
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
+.device-tree-icon {
+    margin-right: 8px;
+}
+
+.device-tree-toggle {
+    margin-left: auto;
+    transition: transform var(--transition-speed);
+}
+
+.device-tree-toggle.open {
+    transform: rotate(90deg);
+}
+
+.device-tree-children {
+    list-style: none;
+    padding-left: 24px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height var(--transition-speed);
+}
+
+.device-tree-children.open {
+    max-height: 1000px;
+}
+
+.device-tree-child {
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    cursor: pointer;
+    color: var(--text-color);
+    transition: background-color var(--transition-speed);
+}
+
+.device-tree-child:hover {
+    background-color: var(--primary-light);
+}
+
+.device-tree-child.active {
+    background-color: var(--primary-light);
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
+/* 右侧设备内容区 */
+.device-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+}
+
+/* 设备内容区的占位内容 */
+.device-content-placeholder {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.empty-state {
+    text-align: center;
+    color: var(--text-light);
+}
+
+.empty-state i {
+    font-size: 48px;
+    opacity: 0.5;
+    margin-bottom: 16px;
+}
+
+.empty-state p {
+    margin: 0;
+    font-size: 16px;
+}
+
+/* 设备监视标签页 */
+.device-tabs {
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 20px;
+    display: flex;
+}
+
+.device-tab {
+    padding: 12px 20px;
+    cursor: pointer;
+    font-size: 15px;
+    border-bottom: 2px solid transparent;
+    transition: all var(--transition-speed);
+    color: var(--text-color);
+}
+
+.device-tab:hover {
+    color: var(--primary-color);
+}
+
+.device-tab.active {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+    font-weight: 500;
+}
+
+/* 设备内容区 - 信息卡片 */
+.info-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.info-card {
+    background-color: var(--card-background);
+    border-radius: var(--border-radius);
+    box-shadow: 0 2px 4px var(--shadow-color);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+}
+
+.info-card-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.info-card-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--primary-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+}
+
+.info-card-icon i {
+    font-size: 20px;
+    color: var(--primary-color);
+}
+
+.info-card-title {
+    color: var(--heading-color);
+    font-size: 16px;
+    font-weight: 500;
+    margin: 0;
+}
+
+.info-card-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--heading-color);
+    margin-top: auto;
+}
+
+.info-card-value.online {
+    color: var(--online-color);
+}
+
+.info-card-value.offline {
+    color: var(--offline-color);
+}
+
+.info-card-value.alarm {
+    color: var(--alarm-color);
+}
+
+/* 图表区域 */
+.chart-section {
+    margin-bottom: 24px;
+}
+
+.chart-section-title {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--heading-color);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.chart-section-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.chart-action-btn {
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 4px 8px;
+    font-size: 12px;
+    color: var(--text-color);
+    cursor: pointer;
+    transition: all var(--transition-speed);
+}
+
+.chart-action-btn:hover {
+    background-color: var(--primary-light);
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.chart-container {
+    background-color: var(--card-background);
+    border-radius: var(--border-radius);
+    box-shadow: 0 2px 4px var(--shadow-color);
+    height: 300px;
+    padding: 16px;
+}
+
+/* 数据表格区域 */
+.data-table-section {
+    margin-bottom: 24px;
+}
+
+.data-table-section-title {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--heading-color);
+    margin-bottom: 16px;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: var(--card-background);
+    border-radius: var(--border-radius);
+    box-shadow: 0 2px 4px var(--shadow-color);
+    overflow: hidden;
+}
+
+.data-table th,
+.data-table td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.data-table th {
+    font-weight: 500;
+    color: var(--heading-color);
+    background-color: #fafafa;
+}
+
+.data-table tbody tr:hover {
+    background-color: #fafafa;
+}
+
+.data-table td.online {
+    color: var(--online-color);
+}
+
+.data-table td.offline {
+    color: var(--offline-color);
+}
+
+.data-table td.alarm {
+    color: var(--alarm-color);
+}
+
+/* 控制区域 */
+.control-section {
+    margin-bottom: 24px;
+}
+
+.control-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+}
+
+.control-card {
+    background-color: var(--card-background);
+    border-radius: var(--border-radius);
+    box-shadow: 0 2px 4px var(--shadow-color);
+    padding: 16px;
+}
+
+.control-card-title {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--heading-color);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+}
+
+.control-card-title i {
+    margin-right: 8px;
+    color: var(--primary-color);
+}
+
+.control-form-group {
+    margin-bottom: 16px;
+}
+
+.control-form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text-color);
+    font-size: 14px;
+}
+
+.control-form-group .status {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: var(--border-radius);
+    background-color: #f5f5f5;
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.control-form-group .status.online {
+    background-color: #f6ffed;
+    color: var(--online-color);
+    border: 1px solid #b7eb8f;
+}
+
+.control-form-group .status.offline {
+    background-color: #f5f5f5;
+    color: var(--text-light);
+    border: 1px solid #d9d9d9;
+}
+
+.control-action-btns {
+    display: flex;
+    gap: 8px;
+}
+
+.control-btn {
+    padding: 8px 16px;
+    border-radius: var(--border-radius);
+    font-size: 14px;
+    cursor: pointer;
+    transition: all var(--transition-speed);
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+}
+
+.control-btn:hover {
+    background-color: var(--primary-hover);
+}
+
+.control-btn.disabled {
+    background-color: var(--offline-color);
+    cursor: not-allowed;
+}
+
+.control-btn.secondary {
+    background-color: white;
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+}
+
+.control-btn.secondary:hover {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+/* 参数配置区域 */
+.param-config-form {
+    background-color: var(--card-background);
+    border-radius: var(--border-radius);
+    box-shadow: 0 2px 4px var(--shadow-color);
+    padding: 16px;
+}
+
+.param-config-actions {
+    margin-top: 16px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+/* 电池簇可视化 */
+.battery-cluster-switcher {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 16px;
+    gap: 8px;
+}
+
+.cluster-switch-btn {
+    padding: 8px 16px;
+    border-radius: var(--border-radius);
+    font-size: 14px;
+    cursor: pointer;
+    background-color: white;
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    transition: all var(--transition-speed);
+}
+
+.cluster-switch-btn:hover {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.cluster-switch-btn.active {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.battery-cells-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+.battery-cell {
+    padding: 8px;
+    border-radius: var(--border-radius);
+    background-color: #f5f5f5;
+    text-align: center;
+    border: 1px solid var(--border-color);
+}
+
+.battery-cell-id {
+    font-size: 12px;
+    color: var(--text-light);
+    margin-bottom: 4px;
+}
+
+.battery-cell-value {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.battery-cell.highest-voltage {
+    background-color: #fff1f0;
+    border-color: var(--highest-voltage-color);
+}
+
+.battery-cell.lowest-voltage {
+    background-color: #f0f5ff;
+    border-color: var(--lowest-voltage-color);
+}
+
+.battery-cell.highest-temp {
+    background-color: #fff7e6;
+    border-color: var(--highest-temp-color);
+}
+
+.battery-cell.lowest-temp {
+    background-color: #f9f0ff;
+    border-color: var(--lowest-temp-color);
+}
+
+/* 电池单体柱状图图例 */
+.battery-chart-legend {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 8px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    font-size: 12px;
+}
+
+.legend-color {
+    width: 16px;
+    height: 8px;
+    margin-right: 4px;
+    display: inline-block;
+}
+
+.legend-color.highest-voltage {
+    background-color: var(--highest-voltage-color);
+}
+
+.legend-color.lowest-voltage {
+    background-color: var(--lowest-voltage-color);
+}
+
+.legend-color.highest-temp {
+    background-color: var(--highest-temp-color);
+}
+
+.legend-color.lowest-temp {
+    background-color: var(--lowest-temp-color);
+}
+
+/* 操作日志模态框 */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+.modal-content {
+    position: relative;
+    width: 80%;
+    max-width: 800px;
+    margin: 100px auto;
+    background-color: var(--card-background);
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.modal-header {
+    padding: 16px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: var(--heading-color);
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+    color: var(--text-light);
+}
+
+.modal-body {
+    padding: 16px;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.log-filter {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+}
+
+.filter-group label {
+    margin-right: 8px;
+}
+
+.log-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.log-table th,
+.log-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.log-table th {
+    background-color: #fafafa;
+    font-weight: 500;
+}
+
+.pagination {
+    margin-top: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}
+
+.pagination-btn {
+    background-color: white;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 4px 8px;
+    cursor: pointer;
+}
+
+.pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.pagination-info {
+    font-size: 14px;
+    color: var(--text-light);
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .device-sidebar {
+        position: fixed;
+        z-index: 100;
+        height: calc(100vh - var(--header-height) - 16px - 40px);
+        width: var(--sidebar-width);
+        transform: translateX(0);
+        transition: transform var(--transition-speed), width var(--transition-speed);
+        box-shadow: 2px 0 8px var(--shadow-color);
+    }
+    
+    .device-sidebar.collapsed {
+        transform: translateX(calc(-1 * var(--sidebar-width) + var(--sidebar-collapsed-width)));
+        width: var(--sidebar-width);
+    }
+    
+    .device-toggle-btn {
+        right: 10px;
+    }
+    
+    .device-sidebar.collapsed .device-toggle-btn {
+        right: -40px;
+        background-color: var(--primary-color);
+        color: white;
+    }
+    
+    .device-content {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    /* 确保在折叠状态下内容区能占据全宽 */
+    .device-sidebar.collapsed + .device-content {
+        width: 100%;
+    }
+
+    .info-card-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .control-cards {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* 确保设备树中的图标在折叠状态下正确显示 */
+.device-sidebar.collapsed .device-tree-parent,
+.device-sidebar.collapsed .device-tree-child {
+    justify-content: center;
+    padding: 10px 0;
+}
+
+.device-sidebar.collapsed .device-tree-icon {
+    margin-right: 0;
+    font-size: 18px;
+}
+
+.device-sidebar.collapsed .device-tree-toggle {
+    display: none;
+}
+
+.device-sidebar.collapsed .device-tree-children {
+    display: none;
+}
+
+/* 设备异常状态样式 */
+.status-alarm {
+    color: var(--alarm-color);
+    font-weight: 500;
+}
+
+.status-warn {
+    color: var(--warning-color);
+    font-weight: 500;
+}
+
+.status-normal {
+    color: var(--online-color);
+    font-weight: 500;
+} 

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pano全栈式综合能源管理平台 - 登录</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-box">
+            <div class="login-left">
+                <div class="logo">
+                    <img src="images/logo.png" alt="QAES Logo">
+                </div>
+                <h1>Pano全栈式综合能源管理平台</h1>
+                <div class="platform-features">
+                    <p>能源规划平台 - 智能测算，科学决策</p>
+                    <p>交付管理平台 - 在线测试，全程管控</p>
+                    <p>综合能源管理平台 - 实时监控，秒级数据</p>
+                    <p>智慧运维平台 - 主动安全，智能诊断</p>
+                    <p>数智运营平台 - 数据驱动，智慧运营</p>
+                </div>
+                <div class="copyright">
+                    © 2024 清安储能科技（重庆）有限公司. All rights reserved.
+                </div>
+            </div>
+            <div class="login-right">
+                <div class="login-form">
+                    <h2>欢迎登录</h2>
+                    <p class="login-desc">登录后体验全部功能</p>
+                    
+                    <div class="form-group">
+                        <label for="username">账号</label>
+                        <input type="text" id="username" placeholder="请输入用户名/手机号">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">密码</label>
+                        <input type="password" id="password" placeholder="请输入密码">
+                        <span class="toggle-password"></span>
+                    </div>
+                    
+                    <div class="remember-me">
+                        <input type="checkbox" id="remember">
+                        <label for="remember">记住账号</label>
+                        <a href="#" class="forgot-password" id="forgot-password">忘记密码?</a>
+                    </div>
+                    
+                    <button class="login-btn">登录</button>
+                    
+                    <div class="other-login">
+                        <p>其他登录方式</p>
+                        <div class="login-options">
+                            <a href="#" class="wechat-login" id="wechat-login"></a>
+                            <a href="#" class="mobile-login" id="mobile-login"></a>
+                        </div>
+                    </div>
+                    
+                    <div class="register-link">
+                        <span>还没有账号? </span>
+                        <a href="#" id="register-link">立即注册</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 提示框 -->
+    <div id="login-tooltip" class="login-tooltip">
+        <div class="login-tooltip-title">提示</div>
+        <div class="login-tooltip-message">操作成功!</div>
+    </div>
+
+    <script src="js/login.js"></script>
+</body>
+</html> 

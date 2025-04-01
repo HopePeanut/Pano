@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>清安储能-Pano综合能源管理平台</title>
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="header-left">
+            <div class="logo">
+                <img src="images/logo-color.png" alt="QAES Logo">
+            </div>
+            <div class="company-name">
+                <span>清安储能</span>
+                <span class="en-name">QING'AN ENERGY</span>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="user-info">
+                <div class="user-avatar">
+                    <img src="images/avatar.jpg" alt="User Avatar">
+                </div>
+                <span class="user-name">用户名</span>
+                <div class="user-dropdown">
+                    <a href="#" data-action="profile"><i class="fas fa-user-circle"></i> 个人中心</a>
+                    <a href="#" data-action="settings"><i class="fas fa-cog"></i> 系统设置</a>
+                    <a href="#" data-action="help"><i class="fas fa-question-circle"></i> 帮助中心</a>
+                </div>
+            </div>
+            <a href="#" class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> 退出登录</a>
+        </div>
+    </header>
+
+    <main>
+        <div class="dashboard-title">
+            <h1>Pano全栈式综合能源管理平台</h1>
+            <h2>集成化、智能化的能源管理解决方案</h2>
+        </div>
+
+        <div class="systems-container">
+            <!-- 能源规划系统 -->
+            <div class="system-card" data-system-id="energy-planning">
+                <div class="system-icon">
+                    <i class="fas fa-project-diagram"></i>
+                </div>
+                <div class="system-info">
+                    <h3>能源规划系统</h3>
+                    <p>提供全面的能源规划解决方案，帮助企业优化能源结构，降低成本，实现可持续发展。</p>
+                    <div class="system-features">
+                        <span>负荷预测</span>
+                        <span>经济分析</span>
+                        <span>规划优化</span>
+                    </div>
+                    <a href="#" class="enter-btn" data-system-id="energy-planning">进入系统</a>
+                </div>
+            </div>
+
+            <!-- 交付管理系统 -->
+            <div class="system-card" data-system-id="delivery-management">
+                <div class="system-icon">
+                    <i class="fas fa-truck-loading"></i>
+                </div>
+                <div class="system-info">
+                    <h3>交付管理系统</h3>
+                    <p>实时跟踪项目交付过程，提高交付效率和质量，确保客户满意度。</p>
+                    <div class="system-features">
+                        <span>进度追踪</span>
+                        <span>质量管控</span>
+                        <span>验收管理</span>
+                    </div>
+                    <a href="#" class="enter-btn" data-system-id="delivery-management">进入系统</a>
+                </div>
+            </div>
+
+            <!-- 综合能源管理系统 -->
+            <div class="system-card" data-system-id="energy-management">
+                <div class="system-icon">
+                    <i class="fas fa-solar-panel"></i>
+                </div>
+                <div class="system-info">
+                    <h3>综合能源管理系统</h3>
+                    <p>集成多能源形式，实现能源的智能调度、优化控制和高效利用。</p>
+                    <div class="system-features">
+                        <span>能源监控</span>
+                        <span>智能调度</span>
+                        <span>能效分析</span>
+                    </div>
+                    <a href="#" class="enter-btn" data-system-id="energy-management">进入系统</a>
+                </div>
+            </div>
+
+            <!-- 智慧运维系统 -->
+            <div class="system-card" data-system-id="smart-maintenance">
+                <div class="system-icon">
+                    <i class="fas fa-tools"></i>
+                </div>
+                <div class="system-info">
+                    <h3>智慧运维系统</h3>
+                    <p>通过智能监控和预测性维护，提前发现设备隐患，降低运维成本，延长设备寿命。</p>
+                    <div class="system-features">
+                        <span>设备监控</span>
+                        <span>故障预警</span>
+                        <span>智能维护</span>
+                    </div>
+                    <a href="#" class="enter-btn highlight" data-system-id="smart-maintenance">进入系统</a>
+                </div>
+            </div>
+
+            <!-- 数智运营系统 -->
+            <div class="system-card" data-system-id="intelligent-operation">
+                <div class="system-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="system-info">
+                    <h3>数智运营系统</h3>
+                    <p>基于大数据和人工智能技术，提供全面的运营决策支持和业务洞察。</p>
+                    <div class="system-features">
+                        <span>数据分析</span>
+                        <span>智能报表</span>
+                        <span>决策支持</span>
+                    </div>
+                    <a href="#" class="enter-btn" data-system-id="intelligent-operation">进入系统</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2024 清安储能科技（重庆）有限公司 版权所有</p>
+        <p>联系电话: 0571-88888888&nbsp;&nbsp;邮箱: Chenhuasheng@qaes.com.cn</p>
+    </footer>
+
+    <!-- 提示框 -->
+    <div class="tooltip" id="tooltip">
+        <div class="tooltip-title">提示</div>
+        <div class="tooltip-message">操作成功</div>
+    </div>
+
+    <script src="js/dashboard.js"></script>
+</body>
+</html> 

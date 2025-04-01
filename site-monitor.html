@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>站点监控 - Pano能源管理平台</title>
+    <!-- 引入字体图标 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!-- 引入自定义样式 -->
+    <link rel="stylesheet" href="css/maintenance-system.css">
+    <link rel="stylesheet" href="css/site-monitor.css">
+    <!-- 引入通用脚本 -->
+    <script src="js/common.js"></script>
+</head>
+<body>
+    <!-- 全局提示框 -->
+    <div id="tooltip" class="tooltip">
+        <div class="tooltip-title">提示</div>
+        <div class="tooltip-message">操作成功</div>
+    </div>
+
+    <!-- 头部导航 - 使用组件系统 -->
+    <header data-component="navbar">
+        <!-- 导航内容将由common.js动态插入 -->
+    </header>
+
+    <!-- 主内容区域 -->
+    <main>
+        <!-- 内容头部（面包屑和搜索） -->
+        <div class="content-header">
+            <div class="breadcrumb">
+                <span><i class="fas fa-home"></i> 监控中心</span>
+                <span class="separator">/</span>
+                <span class="current">站点监控</span>
+            </div>
+            
+            <div class="search-box">
+                <input type="text" placeholder="输入站点名称搜索..." id="siteSearchInput">
+                <button type="button" id="siteSearchBtn"><i class="fas fa-search"></i></button>
+            </div>
+        </div>
+        
+        <!-- 筛选条件区域 -->
+        <div class="filter-container">
+            <div class="filter-group">
+                <div class="filter-name">电站类型：</div>
+                <div class="filter-options" id="typeFilter">
+                    <label class="filter-option active" data-value="all">
+                        <input type="radio" name="siteType" value="all" checked>
+                        <span>全部</span>
+                    </label>
+                    <label class="filter-option" data-value="type1">
+                        <input type="radio" name="siteType" value="type1">
+                        <span>储能电站</span>
+                    </label>
+                    <label class="filter-option" data-value="type2">
+                        <input type="radio" name="siteType" value="type2">
+                        <span>充电桩配储</span>
+                    </label>
+                    <label class="filter-option" data-value="type3">
+                        <input type="radio" name="siteType" value="type3">
+                        <span>光储充一体</span>
+                    </label>
+                    <label class="filter-option" data-value="type4">
+                        <input type="radio" name="siteType" value="type4">
+                        <span>充电站</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 站点统计信息 -->
+        <div class="site-statistics">
+            <div class="stat-item" data-status="all">
+                <div class="stat-icon"><i class="fas fa-server"></i></div>
+                <div class="stat-value" id="totalSites">0</div>
+                <div class="stat-label">站点总数</div>
+            </div>
+            <div class="stat-item" data-status="normal">
+                <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="stat-value status-normal" id="normalSites">0</div>
+                <div class="stat-label">正常运行</div>
+            </div>
+            <div class="stat-item" data-status="warning">
+                <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                <div class="stat-value status-warning" id="warningSites">0</div>
+                <div class="stat-label">告警站点</div>
+            </div>
+            <div class="stat-item" data-status="fault">
+                <div class="stat-icon"><i class="fas fa-times-circle"></i></div>
+                <div class="stat-value status-fault" id="faultSites">0</div>
+                <div class="stat-label">故障站点</div>
+            </div>
+            <div class="stat-item" data-status="offline">
+                <div class="stat-icon"><i class="fas fa-power-off"></i></div>
+                <div class="stat-value status-offline" id="offlineSites">0</div>
+                <div class="stat-label">停运站点</div>
+            </div>
+        </div>
+        
+        <!-- 站点展示区域 -->
+        <div class="site-container" id="siteContainer">
+            <!-- 站点卡片将通过JavaScript动态生成 -->
+        </div>
+        
+        <!-- 分页控件 -->
+        <div class="pagination" id="pagination">
+            <button class="page-btn prev-btn" disabled><i class="fas fa-angle-left"></i></button>
+            <div class="page-numbers" id="pageNumbers">
+                <span class="page-number active">1</span>
+            </div>
+            <button class="page-btn next-btn" disabled><i class="fas fa-angle-right"></i></button>
+        </div>
+    </main>
+    
+    <!-- 引入JavaScript -->
+    <script src="js/site-monitor.js"></script>
+</body>
+</html>
