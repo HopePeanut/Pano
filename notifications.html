@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>消息通知 - 智慧运维系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- 引入导航栏模板JS -->
+    <script src="navbar-template.js"></script>
+    <style>
+        :root {
+            --primary-color: #49A18D;
+            --secondary-color: #3D8C7D;
+            --light-color: #F5F7F9;
+            --border-color: #E2E8F0;
+            --text-color: #333333;
+            --light-text: #FFFFFF;
+            --gray-text: #6C757D;
+            --radius: 8px;
+            --alert-red: #E74C3C;
+            --alert-yellow: #F39C12;
+            --alert-green: #2ECC71;
+            --alert-blue: #3498DB;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #FAFAFA;
+            color: var(--text-color);
+        }
+
+        .main-content {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* 面包屑导航 */
+        .breadcrumb {
+            display: flex;
+            padding: 10px 0;
+            margin-bottom: 20px;
+            list-style: none;
+            font-size: 0.9rem;
+        }
+
+        .breadcrumb-item {
+            color: var(--gray-text);
+        }
+
+        .breadcrumb-item + .breadcrumb-item::before {
+            content: "/";
+            padding: 0 8px;
+            color: var(--gray-text);
+        }
+
+        .breadcrumb-item.active {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        /* 页面标题 */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        /* 操作按钮 */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: var(--radius);
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--light-color);
+        }
+
+        /* 消息列表 */
+        .notification-list {
+            margin-top: 20px;
+        }
+
+        .notification-item {
+            display: flex;
+            padding: 16px;
+            background-color: white;
+            border-radius: var(--radius);
+            margin-bottom: 12px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            position: relative;
+            transition: all 0.2s ease;
+            border-left: 4px solid transparent;
+        }
+
+        /* 未读消息样式 */
+        .notification-item.unread {
+            background-color: #F0F7FF;
+            border-left-color: var(--primary-color);
+        }
+
+        .notification-item:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .notification-icon {
+            flex-shrink: 0;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+            color: white;
+        }
+
+        .notification-icon.alert {
+            background-color: var(--alert-red);
+        }
+
+        .notification-icon.info {
+            background-color: var(--alert-blue);
+        }
+
+        .notification-icon.warning {
+            background-color: var(--alert-yellow);
+        }
+
+        .notification-icon.success {
+            background-color: var(--alert-green);
+        }
+
+        .notification-content {
+            flex-grow: 1;
+        }
+
+        .notification-title {
+            font-weight: 500;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .notification-time {
+            font-size: 0.8rem;
+            color: var(--gray-text);
+            white-space: nowrap;
+            margin-left: 10px;
+        }
+
+        .notification-summary {
+            font-size: 0.9rem;
+            color: var(--gray-text);
+            line-height: 1.5;
+        }
+
+        .notification-actions {
+            display: flex;
+            margin-top: 10px;
+            gap: 10px;
+        }
+
+        .notification-action {
+            font-size: 0.8rem;
+            color: var(--primary-color);
+            cursor: pointer;
+            background: none;
+            border: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .notification-action i {
+            margin-right: 5px;
+        }
+
+        .notification-action:hover {
+            text-decoration: underline;
+        }
+
+        /* 消息设置区域 */
+        .settings-section {
+            margin-top: 30px;
+            background-color: white;
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .settings-title {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        .settings-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .setting-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .setting-label {
+            display: flex;
+            align-items: center;
+        }
+
+        .setting-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            color: white;
+            font-size: 0.8rem;
+        }
+
+        /* 开关样式 */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 20px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 20px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary-color);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+
+        /* 分页控件 */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            gap: 5px;
+        }
+
+        .pagination button {
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border-color);
+            background-color: white;
+            cursor: pointer;
+            border-radius: var(--radius);
+        }
+
+        .pagination button.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .pagination button:hover:not(.active) {
+            background-color: var(--light-color);
+        }
+
+        /* 消息详情弹窗 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: var(--radius);
+            max-width: 600px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+
+        .close {
+            color: var(--gray-text);
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            border-top: 1px solid var(--border-color);
+            padding-top: 15px;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .notification-item {
+                flex-direction: column;
+            }
+            
+            .notification-icon {
+                margin-bottom: 10px;
+            }
+            
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .action-buttons {
+                margin-top: 10px;
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏容器 -->
+    <div id="navbar-container"></div>
+
+    <!-- 主要内容 -->
+    <div class="main-content">
+        <!-- 面包屑导航 -->
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="dashboard.html">首页</a></li>
+            <li class="breadcrumb-item">个人中心</li>
+            <li class="breadcrumb-item active">消息通知</li>
+        </ol>
+
+        <!-- 页面标题和操作按钮 -->
+        <div class="page-header">
+            <h1 class="page-title">消息通知</h1>
+            <div class="action-buttons">
+                <button class="btn btn-outline" id="markAllRead"><i class="fas fa-check-double"></i> 全部标为已读</button>
+                <button class="btn btn-outline" id="deleteSelected"><i class="fas fa-trash"></i> 删除选中项</button>
+                <button class="btn btn-primary" id="refreshList"><i class="fas fa-sync-alt"></i> 刷新</button>
+            </div>
+        </div>
+
+        <!-- 消息列表 -->
+        <div class="notification-list" id="notificationList">
+            <!-- 通知项将通过JS动态生成 -->
+        </div>
+
+        <!-- 分页控件 -->
+        <div class="pagination" id="pagination">
+            <button><i class="fas fa-angle-left"></i></button>
+            <button class="active">1</button>
+            <button>2</button>
+            <button>3</button>
+            <button><i class="fas fa-angle-right"></i></button>
+        </div>
+
+        <!-- 消息设置部分 -->
+        <div class="settings-section">
+            <h2 class="settings-title">通知设置</h2>
+            <div class="settings-list">
+                <div class="setting-item">
+                    <div class="setting-label">
+                        <div class="setting-icon alert"><i class="fas fa-exclamation-triangle"></i></div>
+                        <span>告警通知</span>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-label">
+                        <div class="setting-icon info"><i class="fas fa-info-circle"></i></div>
+                        <span>系统公告</span>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-label">
+                        <div class="setting-icon warning"><i class="fas fa-clipboard-list"></i></div>
+                        <span>工单消息</span>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-label">
+                        <div class="setting-icon success"><i class="fas fa-tasks"></i></div>
+                        <span>任务完成提醒</span>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 消息详情弹窗 -->
+    <div id="notificationModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">消息标题</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- 消息详情内容 -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline close-modal">关闭</button>
+                <button class="btn btn-primary" id="modalAction">处理</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟通知数据
+        const notificationData = [
+            {
+                id: 1,
+                type: 'alert',
+                icon: 'fas fa-exclamation-triangle',
+                title: '设备告警',
+                summary: '成都高新区储能站1号变压器温度异常，当前温度85℃，超过警戒值。请及时检查并处理。',
+                time: '2025-04-09 14:12',
+                isRead: false,
+                detail: '成都高新区储能站1号变压器温度持续上升，当前温度已达85℃，超过设定的警戒值80℃。系统已自动降低负载，但建议立即派遣技术人员检查变压器冷却系统是否正常工作。<br><br>设备ID: TR-GX-0023<br>位置: 主控室东侧<br>开始时间: 2025-04-09 13:45<br>当前状态: 需要处理'
+            },
+            {
+                id: 2,
+                type: 'info',
+                icon: 'fas fa-info-circle',
+                title: '系统公告',
+                summary: '智慧运维系统将于2025年4月15日02:00-04:00进行版本升级，升级期间部分功能可能无法使用。',
+                time: '2025-04-08 10:30',
+                isRead: true,
+                detail: '尊敬的用户，<br><br>为提升系统性能和用户体验，我们计划于2025年4月15日02:00-04:00进行系统升级维护。升级内容包括：<br><br>1. 优化数据分析模块，提高大数据处理速度<br>2. 新增设备预测性维护功能<br>3. 增强安全防护机制<br>4. 修复已知问题<br><br>维护期间，系统监控功能将持续运行，但数据管理、配置修改等功能可能暂时无法使用。给您带来的不便，敬请谅解。<br><br>如有疑问，请联系系统管理员。'
+            },
+            {
+                id: 3,
+                type: 'warning',
+                icon: 'fas fa-clipboard-list',
+                title: '工单指派',
+                summary: '您有一个新的工单任务已指派，工单编号WO-20250407-089，请及时处理。',
+                time: '2025-04-07 16:45',
+                isRead: false,
+                detail: '工单详情：<br><br>工单编号: WO-20250407-089<br>工单类型: 设备维护<br>优先级: 中<br>站点: 北京朝阳储能站<br>设备: 2号储能单元<br><br>任务描述: 根据预防性维护计划，对2号储能单元进行季度检查，包括连接点紧固、绝缘测试、数据记录分析等。<br><br>要求完成时间: 2025-04-10 前<br><br>请点击"处理"按钮查看详细工单信息并开始任务。'
+            },
+            {
+                id: 4,
+                type: 'success',
+                icon: 'fas fa-check-circle',
+                title: '维护完成',
+                summary: '您提交的工单WO-20250401-045已完成验收，系统记录已更新。',
+                time: '2025-04-05 09:20',
+                isRead: true,
+                detail: '工单WO-20250401-045已完成验收：<br><br>任务: 上海浦东新区光伏阵列清洁与检查<br>执行人: 王工程师<br>完成时间: 2025-04-04 17:30<br>验收人: 系统管理员<br><br>验收意见: 清洁工作完成良好，设备运行正常，发电效率提升15.3%。所有检查点均符合标准要求。<br><br>该工单已归档，感谢您的工作！'
+            },
+            {
+                id: 5,
+                type: 'info',
+                icon: 'fas fa-bolt',
+                title: '电力需求响应',
+                summary: '明日14:00-16:00将进入高峰负荷期，系统建议启动需求响应策略，优化储能调度。',
+                time: '2025-04-04 15:00',
+                isRead: false,
+                detail: '根据电网调度中心预测，明日14:00-16:00将出现用电高峰，电网负荷预计将达到年内最高值。建议采取以下措施：<br><br>1. 提前在13:00前将储能系统充满<br>2. 高峰期间启动削峰策略，释放储能<br>3. 非关键负荷可适当错峰使用<br><br>系统已生成优化调度方案，可在"运行策略"中查看详情并一键应用。根据模拟计算，执行该方案可节约电费约12,500元。'
+            }
+        ];
+
+        // 在页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 渲染通知列表
+            renderNotifications();
+            
+            // 设置弹窗关闭事件
+            document.querySelector('.close').addEventListener('click', closeModal);
+            document.querySelector('.close-modal').addEventListener('click', closeModal);
+            
+            // 设置全部标为已读按钮
+            document.getElementById('markAllRead').addEventListener('click', markAllAsRead);
+            
+            // 设置刷新按钮
+            document.getElementById('refreshList').addEventListener('click', renderNotifications);
+            
+            // 当用户点击模态框外部时关闭模态框
+            window.addEventListener('click', function(event) {
+                const modal = document.getElementById('notificationModal');
+                if (event.target === modal) {
+                    closeModal();
+                }
+            });
+        });
+
+        // 渲染通知列表
+        function renderNotifications() {
+            const notificationList = document.getElementById('notificationList');
+            notificationList.innerHTML = '';
+            
+            notificationData.forEach(notification => {
+                const notificationElem = document.createElement('div');
+                notificationElem.className = `notification-item ${notification.isRead ? '' : 'unread'}`;
+                notificationElem.dataset.id = notification.id;
+                
+                notificationElem.innerHTML = `
+                    <div class="notification-icon ${notification.type}">
+                        <i class="${notification.icon}"></i>
+                    </div>
+                    <div class="notification-content">
+                        <div class="notification-title">
+                            ${notification.title}
+                            <span class="notification-time">${notification.time}</span>
+                        </div>
+                        <div class="notification-summary">${notification.summary}</div>
+                        <div class="notification-actions">
+                            <button class="notification-action view-detail">
+                                <i class="fas fa-eye"></i> 查看详情
+                            </button>
+                            <button class="notification-action mark-read" ${notification.isRead ? 'style="display:none;"' : ''}>
+                                <i class="fas fa-check"></i> 标记为已读
+                            </button>
+                            <button class="notification-action delete">
+                                <i class="fas fa-trash"></i> 删除
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                notificationList.appendChild(notificationElem);
+                
+                // 添加查看详情事件
+                notificationElem.querySelector('.view-detail').addEventListener('click', function() {
+                    openNotificationDetail(notification);
+                });
+                
+                // 添加标记为已读事件
+                const markReadBtn = notificationElem.querySelector('.mark-read');
+                if (markReadBtn) {
+                    markReadBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        markAsRead(notification.id);
+                    });
+                }
+                
+                // 添加删除事件
+                notificationElem.querySelector('.delete').addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    deleteNotification(notification.id);
+                });
+            });
+        }
+
+        // 打开通知详情
+        function openNotificationDetail(notification) {
+            // 标记为已读
+            if (!notification.isRead) {
+                markAsRead(notification.id);
+            }
+            
+            // 设置弹窗内容
+            document.getElementById('modalTitle').textContent = notification.title;
+            document.getElementById('modalBody').innerHTML = notification.detail;
+            
+            // 根据通知类型设置操作按钮
+            const actionButton = document.getElementById('modalAction');
+            if (notification.type === 'warning') {
+                actionButton.textContent = '处理工单';
+                actionButton.style.display = 'block';
+                actionButton.onclick = function() {
+                    // 这里可以添加跳转到工单处理页面的逻辑
+                    alert('将跳转到工单处理页面');
+                    closeModal();
+                };
+            } else if (notification.type === 'alert') {
+                actionButton.textContent = '查看设备';
+                actionButton.style.display = 'block';
+                actionButton.onclick = function() {
+                    // 这里可以添加跳转到设备详情页面的逻辑
+                    alert('将跳转到设备详情页面');
+                    closeModal();
+                };
+            } else {
+                actionButton.style.display = 'none';
+            }
+            
+            // 显示弹窗
+            document.getElementById('notificationModal').style.display = 'block';
+        }
+
+        // 关闭弹窗
+        function closeModal() {
+            document.getElementById('notificationModal').style.display = 'none';
+        }
+
+        // 标记单个通知为已读
+        function markAsRead(id) {
+            // 在实际应用中，这里应该发送请求到服务器
+            const notification = notificationData.find(n => n.id === id);
+            if (notification) {
+                notification.isRead = true;
+                
+                // 更新UI
+                const notificationElem = document.querySelector(`.notification-item[data-id="${id}"]`);
+                if (notificationElem) {
+                    notificationElem.classList.remove('unread');
+                    const markReadBtn = notificationElem.querySelector('.mark-read');
+                    if (markReadBtn) {
+                        markReadBtn.style.display = 'none';
+                    }
+                }
+            }
+        }
+
+        // 标记所有通知为已读
+        function markAllAsRead() {
+            // 在实际应用中，这里应该发送请求到服务器
+            notificationData.forEach(notification => {
+                notification.isRead = true;
+            });
+            
+            // 更新UI
+            renderNotifications();
+            alert('已将所有消息标记为已读');
+        }
+
+        // 删除通知
+        function deleteNotification(id) {
+            // 在实际应用中，这里应该发送请求到服务器
+            const index = notificationData.findIndex(n => n.id === id);
+            if (index !== -1) {
+                notificationData.splice(index, 1);
+                
+                // 更新UI
+                renderNotifications();
+            }
+        }
+    </script>
+</body>
+</html> 

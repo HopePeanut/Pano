@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>站点首页 - 智慧运维系统</title>
+    <!-- 引入 Font Awesome 图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 引入导航栏模板JS -->
+    <script src="navbar-template.js"></script>
+    <!-- 引入页面专属CSS -->
+    <link rel="stylesheet" href="site-homepage.css">
+</head>
+<body>
+    <!-- 导航栏容器 -->
+    <div id="navbar-container"></div>
+
+    <!-- 主内容区域 -->
+    <div class="main-content">
+        <!-- 页面头部 -->
+        <div class="page-header">
+            <div class="header-left">
+                <!-- 面包屑导航 -->
+                <div class="breadcrumb-container">
+                    <a href="dashboard.html">监控中心</a>
+                    <span>/</span>
+                    <a href="#" class="current-site-breadcrumb">站点名称加载中...</a>
+                </div>
+                <!-- 当前站点信息 -->
+                <div class="current-site-info">
+                    当前站点：<span id="current-site-name">加载中...</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <!-- 站点搜索与切换 -->
+                <div class="site-search-container">
+                    <input type="text" id="site-search-input" placeholder="输入站点名切换...">
+                    <button id="site-switch-btn" title="切换站点"><i class="fas fa-sync-alt"></i></button>
+                </div>
+                <!-- 设备监控跳转 -->
+                <button id="device-monitor-btn">
+                    <i class="fas fa-tachometer-alt"></i>
+                    设备详细监控
+                </button>
+            </div>
+        </div>
+
+        <!-- Grid 布局容器 -->
+        <div class="dashboard-grid">
+            <!-- 1. 运行情况总览 (顶部整行) -->
+            <div class="grid-item overall-status-panel">
+                <h2>运行总览</h2>
+                <p>加载中...</p>
+                <!-- 内容将在JS中动态填充 -->
+            </div>
+
+            <!-- 2. 站点信息 (左上) -->
+            <div class="grid-item site-info-panel">
+                <h2>站点信息</h2>
+                <p>加载中...</p>
+                <!-- 内容将在JS中动态填充 -->
+            </div>
+
+            <!-- 3. 运行概况 (左中) -->
+            <div class="grid-item operating-overview-panel">
+                <h2>运行概况</h2>
+                <p>加载中...</p>
+                <!-- 内容将在JS中动态填充 -->
+            </div>
+
+            <!-- 4. SCADA图 (中部核心) -->
+            <div class="grid-item scada-panel">
+                <h2>SCADA图</h2>
+                <p>加载中...</p>
+                <!-- 内容将在JS中动态填充 -->
+            </div>
+
+            <!-- 5. 视频监控 (右上) -->
+            <div class="grid-item video-monitor-panel">
+                <h2>视频监控</h2>
+                <p>加载中...</p>
+                <!-- 内容将在JS中动态填充 -->
+            </div>
+
+            <!-- 6. 非计划停机率 (右中) -->
+            <div class="grid-item downtime-rate-panel">
+                <h2>非计划停机率</h2>
+                <p>加载中...</p>
+                <!-- 内容将在JS中动态填充 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入页面专属JS -->
+    <script src="site-homepage.js"></script>
+</body>
+</html> 

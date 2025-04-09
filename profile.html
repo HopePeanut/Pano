@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人信息 - 智慧运维系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- 引入导航栏模板JS -->
+    <script src="navbar-template.js"></script>
+    <style>
+        :root {
+            --primary-color: #49A18D;
+            --secondary-color: #3D8C7D;
+            --light-color: #F5F7F9;
+            --border-color: #E2E8F0;
+            --text-color: #333333;
+            --light-text: #FFFFFF;
+            --gray-text: #6C757D;
+            --radius: 8px;
+            --alert-red: #E74C3C;
+            --alert-yellow: #F39C12;
+            --alert-green: #2ECC71;
+            --alert-blue: #3498DB;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #FAFAFA;
+            color: var(--text-color);
+        }
+
+        .main-content {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* 面包屑导航 */
+        .breadcrumb {
+            display: flex;
+            padding: 10px 0;
+            margin-bottom: 20px;
+            list-style: none;
+            font-size: 0.9rem;
+        }
+
+        .breadcrumb-item {
+            color: var(--gray-text);
+        }
+
+        .breadcrumb-item a {
+            color: var(--gray-text);
+            text-decoration: none;
+        }
+
+        .breadcrumb-item a:hover {
+            color: var(--primary-color);
+        }
+
+        .breadcrumb-item + .breadcrumb-item::before {
+            content: "/";
+            padding: 0 8px;
+            color: var(--gray-text);
+        }
+
+        .breadcrumb-item.active {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        /* 页面标题 */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        /* 按钮样式 */
+        .btn {
+            padding: 8px 16px;
+            border-radius: var(--radius);
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--light-color);
+        }
+
+        /* 侧边导航 */
+        .profile-container {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .profile-sidebar {
+            width: 250px;
+            flex-shrink: 0;
+        }
+
+        .nav-tabs {
+            list-style: none;
+            background-color: white;
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .nav-item {
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .nav-item:last-child {
+            border-bottom: none;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            color: var(--text-color);
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .nav-link i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+            color: var(--gray-text);
+        }
+
+        .nav-link:hover {
+            background-color: var(--light-color);
+        }
+
+        .nav-link.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .nav-link.active i {
+            color: white;
+        }
+
+        /* 内容区域 */
+        .profile-content {
+            flex-grow: 1;
+        }
+
+        .tab-content {
+            background-color: white;
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 500;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        /* 基本信息 */
+        .user-profile {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .avatar-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .avatar-wrapper {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 15px;
+            border: 3px solid var(--light-color);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .avatar {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .avatar-upload {
+            display: none;
+        }
+
+        .avatar-edit-btn {
+            background-color: var(--primary-color);
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .info-section {
+            flex-grow: 1;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            font-size: 0.9rem;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(73, 161, 141, 0.2);
+        }
+
+        .role-tag {
+            display: inline-block;
+            padding: 5px 10px;
+            background-color: var(--light-color);
+            color: var(--primary-color);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-right: 10px;
+        }
+
+        /* 安全设置样式 */
+        .security-section {
+            margin-bottom: 30px;
+        }
+
+        .password-form {
+            max-width: 500px;
+        }
+
+        .contact-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .contact-item {
+            flex: 1;
+            min-width: 250px;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+        }
+
+        .contact-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--light-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: var(--primary-color);
+        }
+
+        .contact-details {
+            flex-grow: 1;
+        }
+
+        .contact-label {
+            font-size: 0.8rem;
+            color: var(--gray-text);
+        }
+
+        .contact-value {
+            font-weight: 500;
+        }
+
+        .contact-action {
+            color: var(--primary-color);
+            font-size: 0.8rem;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+
+        .contact-action:hover {
+            text-decoration: underline;
+        }
+
+        /* 登录历史样式 */
+        .login-history {
+            margin-top: 20px;
+        }
+
+        .history-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .history-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--light-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: var(--primary-color);
+        }
+
+        .history-details {
+            flex-grow: 1;
+        }
+
+        .history-device {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .history-meta {
+            font-size: 0.8rem;
+            color: var(--gray-text);
+            display: flex;
+            margin-top: 5px;
+        }
+
+        .history-meta > span {
+            margin-right: 15px;
+        }
+
+        .history-status {
+            padding: 3px 8px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            background-color: var(--alert-green);
+            color: white;
+        }
+
+        /* 二次验证样式 */
+        .two-factor {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            margin-top: 20px;
+        }
+
+        .two-factor-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .two-factor-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--light-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: var(--primary-color);
+        }
+
+        /* 开关按钮样式 */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 20px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 20px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary-color);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+
+        /* 通知设置样式 */
+        .notification-settings {
+            margin-top: 20px;
+        }
+
+        .notification-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .notification-table th,
+        .notification-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .notification-table th {
+            font-weight: 500;
+            color: var(--gray-text);
+            font-size: 0.9rem;
+        }
+
+        .notification-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .notification-type {
+            display: flex;
+            align-items: center;
+        }
+
+        .notification-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            color: white;
+        }
+
+        .notification-icon.alert {
+            background-color: var(--alert-red);
+        }
+
+        .notification-icon.info {
+            background-color: var(--alert-blue);
+        }
+
+        .notification-icon.warning {
+            background-color: var(--alert-yellow);
+        }
+
+        .notification-icon.success {
+            background-color: var(--alert-green);
+        }
+
+        /* 启动页设置样式 */
+        .startup-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .startup-option {
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .startup-option:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .startup-option.active {
+            border-color: var(--primary-color);
+            background-color: rgba(73, 161, 141, 0.05);
+        }
+
+        .startup-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--light-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        .startup-title {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .startup-desc {
+            font-size: 0.8rem;
+            color: var(--gray-text);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .profile-container {
+                flex-direction: column;
+            }
+
+            .profile-sidebar {
+                width: 100%;
+            }
+
+            .user-profile {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .info-section {
+                width: 100%;
+            }
+
+            .contact-info {
+                flex-direction: column;
+            }
+
+            .contact-item {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏容器 -->
+    <div id="navbar-container"></div>
+
+    <!-- 主要内容 -->
+    <div class="main-content">
+        <!-- 面包屑导航 -->
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="dashboard.html">首页</a></li>
+            <li class="breadcrumb-item">个人中心</li>
+            <li class="breadcrumb-item active">个人信息</li>
+        </ol>
+
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <h1 class="page-title">个人信息</h1>
+        </div>
+
+        <!-- 个人信息主体 -->
+        <div class="profile-container">
+            <!-- 侧边导航 -->
+            <div class="profile-sidebar">
+                <ul class="nav-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#basic-info">
+                            <i class="fas fa-user"></i> 基本信息
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#security-settings">
+                            <i class="fas fa-shield-alt"></i> 账户安全
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#notification-settings">
+                            <i class="fas fa-bell"></i> 通知设置
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#startup-settings">
+                            <i class="fas fa-home"></i> 启动页设置
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 内容区域 -->
+            <div class="profile-content">
+                <div class="tab-content">
+                    <!-- 基本信息模块 -->
+                    <div id="basic-info" class="tab-pane active">
+                        <h2 class="section-title">基本信息</h2>
+                        <div class="user-profile">
+                            <div class="avatar-section">
+                                <div class="avatar-wrapper">
+                                    <img src="assets/images/avatar.jpg" alt="用户头像" class="avatar" id="userAvatar">
+                                    <label for="avatarUpload" class="avatar-edit-btn">
+                                        <i class="fas fa-camera"></i>
+                                    </label>
+                                    <input type="file" id="avatarUpload" class="avatar-upload" accept="image/*">
+                                </div>
+                                <span>点击图标修改头像</span>
+                            </div>
+                            <div class="info-section">
+                                <div class="form-group">
+                                    <label for="username" class="form-label">用户名</label>
+                                    <input type="text" id="username" class="form-control" value="陈彦祖">
+                                </div>
+                                <div class="form-group">
+                                    <label for="realname" class="form-label">真实姓名</label>
+                                    <input type="text" id="realname" class="form-control" value="陈彦祖">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">用户角色</label>
+                                    <div>
+                                        <span class="role-tag">超级管理员</span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="department" class="form-label">所属部门</label>
+                                    <input type="text" id="department" class="form-control" value="交付中心-售后运维部">
+                                </div>
+                                <button class="btn btn-primary">保存修改</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 账户安全模块 -->
+                    <div id="security-settings" class="tab-pane">
+                        <h2 class="section-title">账户安全</h2>
+                        
+                        <!-- 修改密码 -->
+                        <div class="security-section">
+                            <h3>修改密码</h3>
+                            <div class="password-form">
+                                <div class="form-group">
+                                    <label for="currentPassword" class="form-label">当前密码</label>
+                                    <input type="password" id="currentPassword" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label for="newPassword" class="form-label">新密码</label>
+                                    <input type="password" id="newPassword" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label for="confirmPassword" class="form-label">确认新密码</label>
+                                    <input type="password" id="confirmPassword" class="form-control">
+                                </div>
+                                <button class="btn btn-primary">修改密码</button>
+                            </div>
+                        </div>
+                        
+                        <!-- 联系方式 -->
+                        <div class="security-section">
+                            <h3>安全联系方式</h3>
+                            <div class="contact-info">
+                                <div class="contact-item">
+                                    <div class="contact-icon">
+                                        <i class="fas fa-mobile-alt"></i>
+                                    </div>
+                                    <div class="contact-details">
+                                        <div class="contact-label">手机号码</div>
+                                        <div class="contact-value">183****1234</div>
+                                        <div class="contact-action">修改</div>
+                                    </div>
+                                </div>
+                                <div class="contact-item">
+                                    <div class="contact-icon">
+                                        <i class="fas fa-envelope"></i>
+                                    </div>
+                                    <div class="contact-details">
+                                        <div class="contact-label">电子邮箱</div>
+                                        <div class="contact-value">chen****@qq.com</div>
+                                        <div class="contact-action">修改</div>
+                                    </div>
+                                </div>
+                                <div class="contact-item">
+                                    <div class="contact-icon">
+                                        <i class="fab fa-weixin"></i>
+                                    </div>
+                                    <div class="contact-details">
+                                        <div class="contact-label">微信账号</div>
+                                        <div class="contact-value">未绑定</div>
+                                        <div class="contact-action">立即绑定</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 二次验证 -->
+                        <div class="security-section">
+                            <h3>二次验证</h3>
+                            <div class="two-factor">
+                                <div class="two-factor-info">
+                                    <div class="two-factor-icon">
+                                        <i class="fas fa-key"></i>
+                                    </div>
+                                    <div>
+                                        <div style="font-weight: 500;">双重验证</div>
+                                        <div style="font-size: 0.9rem; color: var(--gray-text);">登录时需要额外的验证码确认身份（推荐开启）</div>
+                                    </div>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- 登录历史 -->
+                        <div class="security-section">
+                            <h3>登录历史</h3>
+                            <div class="login-history">
+                                <div class="history-item">
+                                    <div class="history-icon">
+                                        <i class="fas fa-laptop"></i>
+                                    </div>
+                                    <div class="history-details">
+                                        <div class="history-device">Windows 10 - Chrome浏览器</div>
+                                        <div class="history-meta">
+                                            <span><i class="fas fa-map-marker-alt"></i> 北京市</span>
+                                            <span><i class="fas fa-clock"></i> 2025-04-09 10:23</span>
+                                        </div>
+                                    </div>
+                                    <div class="history-status">当前登录</div>
+                                </div>
+                                <div class="history-item">
+                                    <div class="history-icon">
+                                        <i class="fas fa-mobile-alt"></i>
+                                    </div>
+                                    <div class="history-details">
+                                        <div class="history-device">iPhone 12 - Safari浏览器</div>
+                                        <div class="history-meta">
+                                            <span><i class="fas fa-map-marker-alt"></i> 北京市</span>
+                                            <span><i class="fas fa-clock"></i> 2025-04-08 16:45</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="history-item">
+                                    <div class="history-icon">
+                                        <i class="fas fa-laptop"></i>
+                                    </div>
+                                    <div class="history-details">
+                                        <div class="history-device">Windows 10 - Chrome浏览器</div>
+                                        <div class="history-meta">
+                                            <span><i class="fas fa-map-marker-alt"></i> 北京市</span>
+                                            <span><i class="fas fa-clock"></i> 2025-04-07 14:12</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="history-item">
+                                    <div class="history-icon">
+                                        <i class="fas fa-tablet-alt"></i>
+                                    </div>
+                                    <div class="history-details">
+                                        <div class="history-device">iPad - Safari浏览器</div>
+                                        <div class="history-meta">
+                                            <span><i class="fas fa-map-marker-alt"></i> 上海市</span>
+                                            <span><i class="fas fa-clock"></i> 2025-04-05 09:30</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="history-item">
+                                    <div class="history-icon">
+                                        <i class="fas fa-laptop"></i>
+                                    </div>
+                                    <div class="history-details">
+                                        <div class="history-device">Windows 10 - Chrome浏览器</div>
+                                        <div class="history-meta">
+                                            <span><i class="fas fa-map-marker-alt"></i> 北京市</span>
+                                            <span><i class="fas fa-clock"></i> 2025-04-04 11:05</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 通知设置模块 -->
+                    <div id="notification-settings" class="tab-pane">
+                        <h2 class="section-title">通知设置</h2>
+                        <p>设置您希望接收的通知类型和方式。这将帮助您及时获取重要信息，同时避免不必要的打扰。</p>
+                        
+                        <div class="notification-settings">
+                            <table class="notification-table">
+                                <thead>
+                                    <tr>
+                                        <th width="25%">通知类型</th>
+                                        <th width="15%">站内信</th>
+                                        <th width="15%">手机短信</th>
+                                        <th width="15%">手机电话</th>
+                                        <th width="15%">微信推送</th>
+                                        <th width="15%">电子邮件</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="notification-type">
+                                                <div class="notification-icon alert">
+                                                    <i class="fas fa-exclamation-triangle"></i>
+                                                </div>
+                                                <div>设备告警</div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" checked>
+                                                <span class="slider"></span>
+                                            </label>
+                                        </td>
+                                        <td>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" checked>
+                                                <span class="slider"></span>
+                                            </label>
+                                        </td>
+                                        <td>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" checked>
+                                                <span class="slider"></span>
+                                            </label>
+                                        </td>
+                                        <td>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" checked>
+                                                <span class="slider"></span>
+                                            </label>
+                                        </td>
+                                        <td>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox">
+                                                <span class="slider"></span>
+                                            </label>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="notification-type">
+                                                <div class="notification-icon warning">
+                                                    <i class="fas fa-clipboard-list"></i>
+                                                </div>
+                                                <div>工单消息</div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" checked>
+                                                <span class="slider"></span>
+                                            </label>
+                                        </td>
+                                        <td>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" checked>
+                                                <span class="slider"></span>
+                                            </label>
+                                        </td>
+                                        <td>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox">
+                                                <span class="slider"></span>
+                                            </label>
+                                        </td>
+                                        <td>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" checked>
+                                                <span class="slider"></span>
+                                            </label>
+                                        </td>
+                                        <td>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" checked>
+                                                <span class="slider"></span>
+                                            </label>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="notification-type">
+                                                <div class="notification-icon info">
+                                                    <i class="fas fa-info-circle"></i>
+                                                </div>
+                                                <div>系统公告</div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" checked>
+                                                <span class="slider"></span>
+                                            </label>
+                                        </td>
+                                        <td>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox">
+                                                <span class="slider"></span>
+                                            </label>
+                                        </td>
+                                        <td>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox">
+                                                <span class="slider"></span>
+                                            </label>
+                                        </td>
+                                        <td>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" checked>
+                                                <span class="slider"></span>
+                                            </label>
+                                        </td>
+                                        <td>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" checked>
+                                                <span class="slider"></span>
+                                            </label>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="notification-type">
+                                                <div class="notification-icon success">
+                                                    <i class="fas fa-chart-line"></i>
+                                                </div>
+                                                <div>运行报表</div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" checked>
+                                                <span class="slider"></span>
+                                            </label>
+                                        </td>
+                                        <td>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox">
+                                                <span class="slider"></span>
+                                            </label>
+                                        </td>
+                                        <td>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox">
+                                                <span class="slider"></span>
+                                            </label>
+                                        </td>
+                                        <td>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox">
+                                                <span class="slider"></span>
+                                            </label>
+                                        </td>
+                                        <td>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" checked>
+                                                <span class="slider"></span>
+                                            </label>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div style="margin-top: 20px;">
+                            <button class="btn btn-primary">保存设置</button>
+                        </div>
+                    </div>
+
+                    <!-- 启动页设置模块 -->
+                    <div id="startup-settings" class="tab-pane">
+                        <h2 class="section-title">启动页设置</h2>
+                        <p>设置登录系统后默认打开的页面，选择最适合您工作流程的起始页面。</p>
+                        
+                        <div class="startup-options">
+                            <div class="startup-option active">
+                                <div class="startup-icon">
+                                    <i class="fas fa-tachometer-alt"></i>
+                                </div>
+                                <div class="startup-title">站点监控</div>
+                                <div class="startup-desc">地图和卡片形式的站点总览</div>
+                            </div>
+                            <div class="startup-option">
+                                <div class="startup-icon">
+                                    <i class="fas fa-video"></i>
+                                </div>
+                                <div class="startup-title">视频监控</div>
+                                <div class="startup-desc">站点视频监控画面</div>
+                            </div>
+                            <div class="startup-option">
+                                <div class="startup-icon">
+                                    <i class="fas fa-clipboard-list"></i>
+                                </div>
+                                <div class="startup-title">工单系统</div>
+                                <div class="startup-desc">工单管理和处理界面</div>
+                            </div>
+                            <div class="startup-option">
+                                <div class="startup-icon">
+                                    <i class="fas fa-chart-bar"></i>
+                                </div>
+                                <div class="startup-title">数据分析</div>
+                                <div class="startup-desc">设备和站点运行数据分析</div>
+                            </div>
+                            <div class="startup-option">
+                                <div class="startup-icon">
+                                    <i class="fas fa-bell"></i>
+                                </div>
+                                <div class="startup-title">消息通知</div>
+                                <div class="startup-desc">系统通知和消息中心</div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 20px;">
+                            <button class="btn btn-primary">保存设置</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 在页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 侧边导航切换功能
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // 移除所有活动状态
+                    navLinks.forEach(item => item.classList.remove('active'));
+                    document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+                    
+                    // 设置当前活动状态
+                    this.classList.add('active');
+                    const targetId = this.getAttribute('href').substring(1);
+                    document.getElementById(targetId).classList.add('active');
+                });
+            });
+            
+            // 头像上传功能
+            const avatarUpload = document.getElementById('avatarUpload');
+            const userAvatar = document.getElementById('userAvatar');
+            
+            avatarUpload.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        userAvatar.src = event.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            // 启动页选择功能
+            const startupOptions = document.querySelectorAll('.startup-option');
+            startupOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    startupOptions.forEach(item => item.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

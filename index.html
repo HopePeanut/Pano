@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pano全栈式综合能源管理平台</title>
+    <style>
+        /* 全局样式 */
+        :root {
+            --primary-color: #49A18D; /* 清安绿 */
+            --secondary-color: #2C7873; /* 深绿色 */
+            --tertiary-color: #6FB3A8; /* 浅绿色 */
+            --light-color: #E0F5F0; /* 特浅绿色 */
+            --accent-color: #F39C12; /* 橙色作为点缀 */
+            --text-color: #333333;
+            --light-text: #FFFFFF;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'PingFang SC', '微软雅黑', sans-serif;
+        }
+        
+        body {
+            background-color: #F5F5F5;
+            color: var(--text-color);
+            min-height: 100vh;
+        }
+        
+        /* 头部样式 */
+        header {
+            background-color: var(--primary-color);
+            padding: 20px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo img {
+            height: 40px;
+            margin-right: 30px;
+        }
+        
+        .logo h1 {
+            color: var(--light-text);
+            font-size: 1.5rem;
+            font-weight: 500;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        /* 主区域样式 - 修改为自适应宽度 */
+        .main-content {
+            width: 90%; /* 改为百分比宽度 */
+            max-width: 1800px; /* 增加最大宽度上限 */
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        .hero-section {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        
+        .hero-section h2 {
+            font-size: 2.2rem;
+            color: var(--secondary-color);
+            margin-bottom: 15px;
+        }
+        
+        .hero-section p {
+            font-size: 1.1rem;
+            color: #666;
+            max-width: 1000px; /* 增加最大宽度 */
+            margin: 0 auto 30px;
+            line-height: 1.6;
+        }
+        
+        /* 系统入口区样式 */
+        .systems-section {
+            margin-bottom: 60px;
+        }
+        
+        .systems-section h3 {
+            text-align: center;
+            font-size: 1.8rem;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .systems-section h3::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background-color: var(--primary-color);
+        }
+        
+        .systems-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            margin: 0 auto;
+        }
+        
+        .system-card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            padding: 30px;
+            width: 200px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        
+        .system-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .system-card img {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 15px;
+        }
+        
+        .system-card h4 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .system-card p {
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        /* 平台特色区样式 */
+        .features-section {
+            background-color: var(--light-color);
+            padding: 50px 0;
+            margin: 0 -20px;
+        }
+        
+        .features-section h3 {
+            text-align: center;
+            font-size: 1.8rem;
+            color: var(--secondary-color);
+            margin-bottom: 40px;
+        }
+        
+        .features-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 90%; /* 改为百分比宽度 */
+            max-width: 1700px; /* 增加最大宽度上限 */
+            margin: 0 auto;
+            gap: 30px;
+        }
+        
+        .feature-item {
+            background-color: white;
+            border-radius: 10px;
+            padding: 25px;
+            width: calc(33.33% - 30px); /* 改为百分比宽度 */
+            min-width: 300px; /* 设置最小宽度 */
+            display: flex;
+            align-items: flex-start;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .feature-icon {
+            background-color: var(--tertiary-color);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        
+        .feature-icon img {
+            width: 25px;
+            height: 25px;
+        }
+        
+        .feature-text h4 {
+            color: var(--secondary-color);
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .feature-text p {
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        /* 页脚样式 */
+        footer {
+            background-color: var(--secondary-color);
+            color: var(--light-text);
+            padding: 30px 5%;
+            text-align: center;
+        }
+        
+        .footer-content {
+            width: 90%; /* 改为百分比宽度 */
+            max-width: 1800px; /* 增加最大宽度上限 */
+            margin: 0 auto;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+        
+        .footer-links a {
+            color: var(--light-text);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .footer-links a:hover {
+            color: var(--light-color);
+        }
+        
+        .copyright {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 1400px) {
+            .main-content {
+                width: 95%;
+            }
+            
+            .features-grid {
+                width: 95%;
+            }
+            
+            .feature-item {
+                width: calc(33.33% - 20px);
+            }
+        }
+        
+        /* 超大屏幕优化 */
+        @media (min-width: 1800px) {
+            .system-card {
+                width: 230px; /* 在超大屏幕上稍微放大卡片 */
+            }
+            
+            .feature-item {
+                padding: 30px;
+            }
+        }
+        
+        @media (max-width: 900px) {
+            .systems-grid {
+                gap: 20px;
+            }
+            
+            .system-card {
+                width: 180px;
+                padding: 20px;
+            }
+            
+            .features-grid {
+                gap: 20px;
+            }
+            
+            .feature-item {
+                width: calc(50% - 20px);
+                min-width: 280px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .logo h1 {
+                font-size: 1.2rem;
+            }
+            
+            .hero-section h2 {
+                font-size: 1.8rem;
+            }
+            
+            .systems-grid {
+                gap: 15px;
+            }
+            
+            .system-card {
+                width: 160px;
+                padding: 15px;
+            }
+            
+            .feature-item {
+                width: 100%;
+                max-width: 400px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .header-right {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .systems-grid {
+                gap: 10px;
+            }
+            
+            .system-card {
+                width: 130px;
+                padding: 15px 10px;
+            }
+            
+            .footer-links {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="assets/images/logo.png" alt="公司Logo">
+            <h1>Pano全栈式综合能源管理平台</h1>
+        </div>
+        <div class="header-right">
+            <div class="search-box">
+                <!-- 这里可以放搜索框 -->
+            </div>
+        </div>
+    </header>
+
+    <div class="main-content">
+        <section class="hero-section">
+            <h2>一站式综合能源管理解决方案</h2>
+            <p>Pano全栈式综合能源管理平台致力于为企业提供高效、智能的能源管理服务，通过数字化转型提升能源使用效率，降低运维成本，实现智慧能源管理的创新与突破。</p>
+        </section>
+
+        <section class="systems-section">
+            <h3>平台系统入口</h3>
+            <div class="systems-grid">
+                <a href="login.html?system=planning" class="system-card">
+                    <img src="assets/images/planning-icon.svg" alt="能源规划">
+                    <h4>能源规划系统</h4>
+                    <p>科学规划能源布局，优化能源结构</p>
+                </a>
+                <a href="login.html?system=delivery" class="system-card">
+                    <img src="assets/images/delivery-icon.svg" alt="交付管理">
+                    <h4>交付管理系统</h4>
+                    <p>高效管理交付调试过程，确保服务质量</p>
+                </a>
+                <a href="login.html?system=energy" class="system-card">
+                    <img src="assets/images/energy-icon.svg" alt="综合能源">
+                    <h4>远程监视系统</h4>
+                    <p>整合多种能源形式，7*24小时实时监控</p>
+                </a>
+                <a href="login.html?system=maintenance" class="system-card">
+                    <img src="assets/images/maintenance-icon.svg" alt="智慧运维">
+                    <h4>智慧运维系统</h4>
+                    <p>智能化设备监控与维护，降低运维成本</p>
+                </a>
+                <a href="login.html?system=operation" class="system-card">
+                    <img src="assets/images/operation-icon.svg" alt="数智运营">
+                    <h4>数智运营系统</h4>
+                    <p>数据驱动决策，优化运营效率</p>
+                </a>
+            </div>
+        </section>
+
+        <section class="features-section">
+            <h3>平台特色</h3>
+            <div class="features-grid">
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <img src="assets/images/integration-icon.svg" alt="集成">
+                    </div>
+                    <div class="feature-text">
+                        <h4>全面集成</h4>
+                        <p>整合经济测算、项目交付、售后运维和运营全生命周期，提供一站式能源管理解决方案。</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <img src="assets/images/intelligence-icon.svg" alt="智能">
+                    </div>
+                    <div class="feature-text">
+                        <h4>智能分析</h4>
+                        <p>基于AI算法的智能分析系统，对能源数据进行深度挖掘，提供优化建议。</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <img src="assets/images/realtime-icon.svg" alt="实时">
+                    </div>
+                    <div class="feature-text">
+                        <h4>实时监控</h4>
+                        <p>7×24小时设备状态监控，及时发现潜在问题，提前预警并处理。</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <img src="assets/images/efficiency-icon.svg" alt="效率">
+                    </div>
+                    <div class="feature-text">
+                        <h4>高效协同</h4>
+                        <p>打破信息孤岛，实现各部门之间的高效协同，提升工作效率和决策速度。</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <img src="assets/images/cloud-icon.svg" alt="云端">
+                    </div>
+                    <div class="feature-text">
+                        <h4>云端部署</h4>
+                        <p>基于云计算技术，支持灵活部署，随时随地访问系统，满足移动办公需求。</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <img src="assets/images/security-icon.svg" alt="安全">
+                    </div>
+                    <div class="feature-text">
+                        <h4>数据安全</h4>
+                        <p>多重安全防护机制，确保数据传输和存储安全，防止信息泄露和系统攻击。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="#">关于我们</a>
+                <a href="#">联系方式</a>
+                <a href="#">服务条款</a>
+                <a href="#">隐私政策</a>
+                <a href="#">帮助中心</a>
+            </div>
+            <div class="copyright">
+                &copy; 2025 清安储能技术（重庆）有限公司 版权所有
+            </div>
+        </div>
+    </footer>
+</body>
+</html> 

@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智慧运维系统 - 登录</title>
+    <style>
+        /* 全局样式 */
+        :root {
+            --primary-color: #49A18D;
+            /* 清安绿 */
+            --secondary-color: #2C7873;
+            /* 深绿色 */
+            --tertiary-color: #6FB3A8;
+            /* 浅绿色 */
+            --light-color: #E0F5F0;
+            /* 特浅绿色 */
+            --accent-color: #F39C12;
+            /* 橙色作为点缀 */
+            --text-color: #333333;
+            --light-text: #FFFFFF;
+            --error-color: #E74C3C;
+        }
+
+        /* 定义动画关键帧 */
+        @keyframes cardFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes gradientAnimation {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'PingFang SC', '微软雅黑', sans-serif;
+        }
+
+        body,
+        html {
+            height: 100%;
+            background-color: #F5F5F5;
+            color: var(--text-color);
+            overflow: hidden;
+        }
+
+        /* 登录页面布局 - 修改为居中卡片式布局 */
+        .login-container {
+            position: relative;
+            height: 100vh;
+            /* 改为清新简洁的浅色背景 */
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 添加背景图案纹理 */
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 25% 25%, rgba(73, 161, 141, 0.03) 1%, transparent 5%),
+                radial-gradient(circle at 75% 75%, rgba(73, 161, 141, 0.03) 1%, transparent 5%);
+            background-size: 60px 60px;
+            z-index: 1;
+        }
+
+        /* 添加装饰性元素 */
+        .login-container::after {
+            content: '';
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: linear-gradient(135deg, rgba(73, 161, 141, 0.05) 0%, rgba(44, 120, 115, 0.05) 100%);
+            border-radius: 50%;
+            top: -250px;
+            right: -250px;
+            z-index: 0;
+        }
+
+        /* 登录卡片容器 - 优化高度设置 */
+        .login-card {
+            display: flex;
+            width: 80%;
+            max-width: 1000px;
+            min-height: 520px; /* 减小最小高度 */
+            max-height: 90vh; /* 增加最大高度比例 */
+            background-color: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 
+                0 15px 30px rgba(0, 0, 0, 0.1),
+                0 5px 15px rgba(73, 161, 141, 0.1);
+            position: relative;
+            z-index: 2;
+            animation: cardFadeIn 0.6s ease-out forwards;
+        }
+
+        /* 修改左侧背景 - 调整内边距 */
+        .login-info {
+            width: 45%;
+            background: var(--primary-color);
+            background-image: linear-gradient(165deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: var(--light-text);
+            padding: 30px; /* 减小内边距 */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 添加简洁的几何装饰 */
+        .login-info::before {
+            content: '';
+            position: absolute;
+            width: 350px;
+            height: 350px;
+            border-radius: 50%;
+            background: radial-gradient(rgba(255, 255, 255, 0.15), transparent 70%);
+            top: -175px;
+            left: -100px;
+            z-index: 0;
+        }
+
+        .login-info::after {
+            content: '';
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: radial-gradient(rgba(255, 255, 255, 0.1), transparent 70%);
+            bottom: -50px;
+            right: -50px;
+            z-index: 0;
+        }
+
+        .info-header, .info-features, .back-to-home {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 左侧信息区域头部样式 */
+        .info-header {
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 优化系统标题样式 */
+        .system-title {
+            font-size: 2rem; /* 减小标题字体大小 */
+            margin-bottom: 10px; /* 减小底部间距 */
+            position: relative;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .system-title::after {
+            content: '';
+            position: absolute;
+            width: 50px;
+            height: 3px;
+            background-color: rgba(255, 255, 255, 0.6);
+            bottom: -7px;
+            left: 0;
+        }
+
+        /* 增强系统描述文字 */
+        .system-description {
+            font-size: 1.05rem;
+            opacity: 0.9;
+            line-height: 1.6;
+            max-width: 600px;
+        }
+
+        .info-features {
+            margin-top: auto;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.15);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .feature-icon img {
+            width: 20px;
+            height: 20px;
+        }
+
+        .feature-item:hover .feature-icon {
+            background-color: rgba(255, 255, 255, 0.25);
+            transform: translateY(-3px);
+        }
+
+        .feature-text h4 {
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+
+        .feature-text p {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .back-to-home {
+            margin-top: 30px;
+            display: inline-block;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            border-bottom: 1px solid transparent;
+            padding-bottom: 2px;
+        }
+
+        .back-to-home:hover {
+            color: white;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+        }
+
+        /* 右侧登录表单区域 */
+        .login-form-container {
+            width: 55%;
+            background-color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px 40px; /* 减小内边距 */
+            transition: all 0.3s ease;
+        }
+
+        /* 修改logo样式 */
+        .logo {
+            margin-bottom: 25px; /* 减小下方间距 */
+            text-align: center;
+        }
+
+        .logo img {
+            height: 50px; /* 调整logo大小 */
+            margin-bottom: 0;
+        }
+
+        /* 隐藏系统名称文本 */
+        .logo h2 {
+            display: none; /* 隐藏系统名称，只显示logo */
+        }
+
+        /* 登录表单 */
+        .login-form {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 表单标题 */
+        .form-title {
+            font-size: 1.5rem; /* 减小标题大小 */
+            margin-bottom: 20px; /* 减小底部间距 */
+            text-align: center;
+            font-weight: 500;
+            position: relative;
+        }
+
+        .form-title::after {
+            content: '';
+            position: absolute;
+            width: 50px;
+            height: 3px;
+            background-color: var(--secondary-color);
+            bottom: -7px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        /* 标签页美化 */
+        .tabs {
+            display: flex;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #f0f0f0;
+            width: 100%;
+        }
+
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 12px 10px;
+            cursor: pointer;
+            color: #777;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            position: relative;
+        }
+
+        .tab.active {
+            color: var(--primary-color);
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: var(--primary-color);
+        }
+
+        .tab:hover {
+            color: var(--primary-color);
+        }
+
+        /* 表单组间距 */
+        .form-group {
+            margin-bottom: 15px; /* 减小表单组间距 */
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-size: 0.9rem;
+        }
+
+        /* 表单元素优化 */
+        .form-group input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            background-color: #f9f9f9;
+        }
+
+        .form-group input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(73, 161, 141, 0.1);
+            background-color: white;
+        }
+
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            font-size: 0.85rem;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+        }
+
+        .remember-me input {
+            margin-right: 5px;
+        }
+
+        .forgot-password {
+            color: var(--secondary-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .forgot-password:hover {
+            text-decoration: underline;
+        }
+
+        /* 优化按钮样式 */
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            letter-spacing: 1px;
+            margin-top: 15px;
+            box-shadow: 0 4px 10px rgba(73, 161, 141, 0.2);
+        }
+
+        .submit-btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(73, 161, 141, 0.25);
+        }
+
+        /* 分隔线样式 */
+        .or-divider {
+            display: flex;
+            align-items: center;
+            margin: 15px 0; /* 减小间距 */
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        .or-divider:before,
+        .or-divider:after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background-color: #eee;
+        }
+
+        .or-divider:before {
+            margin-right: 10px;
+        }
+
+        .or-divider:after {
+            margin-left: 10px;
+        }
+
+        /* 第三方登录区域 */
+        .alt-login {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 5px; /* 减小上方间距 */
+        }
+
+        /* 第三方登录按钮优化 */
+        .alt-login-btn {
+            width: 50px;
+            height: 50px;
+            border: 1px solid #f0f0f0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background-color: white;
+        }
+
+        .alt-login-btn:hover {
+            background-color: #f9f9f9;
+            border-color: #e0e0e0;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .alt-login-btn img {
+            width: 25px;
+            height: 25px;
+        }
+
+        /* 修改底部服务条款区域 */
+        .login-footer {
+            margin-top: 20px; /* 减小上方间距 */
+            text-align: center;
+            font-size: 0.85rem;
+            color: #888;
+        }
+
+        /* 手机登录表单样式 */
+        #phone-form {
+            display: none;
+        }
+
+        /* 验证码输入框样式 */
+        .code-input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .code-input-group input {
+            flex: 1;
+        }
+
+        .get-code-btn {
+            padding: 0 15px;
+            background-color: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            color: #555;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .get-code-btn:hover {
+            background-color: #e5e5e5;
+        }
+
+        /* 改进响应式设计 */
+        @media (max-width: 900px) {
+            .login-card {
+                flex-direction: column;
+                width: 90%;
+                min-height: auto;
+                max-height: 95vh; /* 增加在小屏幕上的最大高度 */
+                overflow-y: auto;
+            }
+            
+            .login-info {
+                width: 100%;
+                padding: 25px; /* 减小内边距 */
+                min-height: 180px; /* 减小最小高度 */
+            }
+            
+            .login-form-container {
+                width: 100%;
+                padding: 25px 20px;
+            }
+            
+            .info-features {
+                display: none;
+            }
+        }
+
+        /* 针对更小屏幕的额外优化 */
+        @media (max-height: 700px) {
+            .login-card {
+                min-height: auto;
+                max-height: 98vh;
+            }
+            
+            .logo img {
+                height: 40px; /* 更小的logo */
+            }
+            
+            .form-title {
+                font-size: 1.4rem;
+                margin-bottom: 15px;
+            }
+            
+            .login-info {
+                padding: 20px;
+            }
+            
+            .system-title {
+                font-size: 1.8rem;
+            }
+            
+            .system-description {
+                font-size: 0.95rem;
+            }
+        }
+
+        /* 小屏幕设计 */
+        @media (max-width: 480px) {
+            .login-info {
+                padding: 20px;
+            }
+            
+            .system-title {
+                font-size: 1.5rem;
+            }
+            
+            .form-title {
+                font-size: 1.3rem;
+            }
+            
+            .login-form-container {
+                padding: 20px 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <!-- 左侧信息展示区 -->
+            <div class="login-info">
+                <div class="info-header">
+                    <h1 class="system-title">智慧运维系统</h1>
+                    <p class="system-description">智能化设备监控与维护平台，让运维工作更简单高效</p>
+                </div>
+
+                <div class="info-features">
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <img src="assets/images/monitor-icon.svg" alt="监控">
+                        </div>
+                        <div class="feature-text">
+                            <h4>设备状态实时监控</h4>
+                            <p>24小时不间断监控设备运行状态，提前发现潜在问题</p>
+                        </div>
+                    </div>
+
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <img src="assets/images/alert-icon.svg" alt="告警">
+                        </div>
+                        <div class="feature-text">
+                            <h4>智能告警管理</h4>
+                            <p>多级告警策略，及时推送通知，快速响应处理</p>
+                        </div>
+                    </div>
+
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <img src="assets/images/report-icon.svg" alt="报表">
+                        </div>
+                        <div class="feature-text">
+                            <h4>运维报表分析</h4>
+                            <p>自动生成运维报表，数据驱动决策优化</p>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="index.html" class="back-to-home">返回 Pano 平台首页</a>
+            </div>
+
+            <!-- 右侧登录表单区 -->
+            <div class="login-form-container">
+                <div class="logo">
+                    <img src="assets/images/logo-color.png" alt="Logo">
+                    <h2>Pano 智慧运维系统</h2>
+                </div>
+
+                <div class="login-form">
+                    <h3 class="form-title">用户登录</h3>
+
+                    <div class="tabs">
+                        <div class="tab active" onclick="switchTab('account')">账号密码登录</div>
+                        <div class="tab" onclick="switchTab('phone')">手机验证登录</div>
+                    </div>
+
+                    <!-- 账号密码登录表单 -->
+                    <div id="account-form">
+                        <div class="form-group">
+                            <label for="username">用户名/邮箱</label>
+                            <input type="text" id="username" placeholder="请输入用户名或邮箱">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="password">密码</label>
+                            <input type="password" id="password" placeholder="请输入密码">
+                        </div>
+
+                        <div class="form-options">
+                            <div class="remember-me">
+                                <input type="checkbox" id="remember">
+                                <label for="remember">记住账号</label>
+                            </div>
+                            <a href="#" class="forgot-password">忘记密码?</a>
+                        </div>
+
+                        <button class="submit-btn" onclick="login('account')">登 录</button>
+                    </div>
+
+                    <!-- 手机验证登录表单 -->
+                    <div id="phone-form">
+                        <div class="form-group">
+                            <label for="phone">手机号码</label>
+                            <input type="tel" id="phone" placeholder="请输入手机号码">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="verification-code">验证码</label>
+                            <div class="code-input-group">
+                                <input type="text" id="verification-code" placeholder="请输入验证码">
+                                <button class="get-code-btn" onclick="getCode()">获取验证码</button>
+                            </div>
+                        </div>
+
+                        <div class="form-options">
+                            <div class="remember-me">
+                                <input type="checkbox" id="remember-phone">
+                                <label for="remember-phone">记住账号</label>
+                            </div>
+                        </div>
+
+                        <button class="submit-btn" onclick="login('phone')">登 录</button>
+                    </div>
+
+                    <div class="or-divider">其他登录方式</div>
+
+                    <div class="alt-login">
+                        <div class="alt-login-btn">
+                            <img src="assets/images/wechat-icon.svg" alt="微信">
+                        </div>
+                        <div class="alt-login-btn">
+                            <img src="assets/images/dingtalk-icon.svg" alt="钉钉">
+                        </div>
+                        <div class="alt-login-btn">
+                            <img src="assets/images/qrcode-icon.svg" alt="扫码">
+                        </div>
+                    </div>
+
+                    <div class="login-footer">
+                        登录即表示您同意我们的 <a href="#">服务条款</a> 和 <a href="#">隐私政策</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 切换登录方式标签
+        function switchTab(tab) {
+            // 更新标签样式
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // 显示对应的表单
+            if (tab === 'account') {
+                document.getElementById('account-form').style.display = 'block';
+                document.getElementById('phone-form').style.display = 'none';
+            } else {
+                document.getElementById('account-form').style.display = 'none';
+                document.getElementById('phone-form').style.display = 'block';
+            }
+        }
+
+        // 获取验证码函数
+        function getCode() {
+            const phoneInput = document.getElementById('phone');
+            const phoneNumber = phoneInput.value.trim();
+
+            if (!phoneNumber) {
+                alert('请输入手机号码');
+                return;
+            }
+
+            // 模拟发送验证码
+            const codeBtn = document.querySelector('.get-code-btn');
+            let countdown = 60;
+
+            codeBtn.disabled = true;
+            codeBtn.innerText = `${countdown}秒后重新获取`;
+
+            const timer = setInterval(() => {
+                countdown--;
+                codeBtn.innerText = `${countdown}秒后重新获取`;
+
+                if (countdown <= 0) {
+                    clearInterval(timer);
+                    codeBtn.disabled = false;
+                    codeBtn.innerText = '获取验证码';
+                }
+            }, 1000);
+
+            // 实际项目中这里需要调用后端API发送验证码
+            console.log(`向 ${phoneNumber} 发送验证码`);
+        }
+
+        // 登录函数
+        function login(type) {
+            if (type === 'account') {
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+
+                if (!username || !password) {
+                    alert('请输入用户名和密码');
+                    return;
+                }
+
+                // 实际项目中这里需要调用后端API进行用户验证
+                console.log('账号密码登录:', {
+                    username,
+                    password
+                });
+
+                // 保存用户信息到localStorage (仅用于演示)
+                localStorage.setItem('currentUser', username);
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('loginTime', new Date().toString());
+                
+                // 获取当前的系统参数
+                const urlParams = new URLSearchParams(window.location.search);
+                const system = urlParams.get('system') || 'maintenance';
+                
+                // 模拟登录成功跳转
+                // alert('登录成功，即将进入智慧运维系统');
+                // 跳转到dashboard.html
+                setTimeout(function() {
+                    window.location.href = 'dashboard.html';
+                }, 500);
+
+            } else if (type === 'phone') {
+                const phone = document.getElementById('phone').value;
+                const code = document.getElementById('verification-code').value;
+
+                if (!phone || !code) {
+                    alert('请输入手机号和验证码');
+                    return;
+                }
+
+                // 实际项目中这里需要调用后端API进行验证码验证
+                console.log('手机验证登录:', {
+                    phone,
+                    code
+                });
+
+                // 保存用户信息到localStorage (仅用于演示)
+                localStorage.setItem('currentUser', '手机用户_' + phone.substring(phone.length-4));
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('loginTime', new Date().toString());
+                
+                // 获取当前的系统参数
+                const urlParams = new URLSearchParams(window.location.search);
+                const system = urlParams.get('system') || 'maintenance';
+                
+                // 模拟登录成功跳转
+                alert('登录成功，即将进入智慧运维系统');
+                // 跳转到dashboard.html
+                setTimeout(function() {
+                    window.location.href = 'dashboard.html';
+                }, 500);
+            }
+        }
+
+        // 从URL获取系统信息并更新页面
+        window.onload = function () {
+                // 获取URL参数
+                const urlParams = new URLSearchParams(window.location.search);
+                const system = urlParams.get('system');
+
+                // 根据系统参数更新页面内容
+                let systemName = '智慧运维系统';
+                let systemDesc = '数字化管理运维，提升运维效率';
+                let logoText = 'Pano 智慧运维系统';
+
+                // 定义各系统特性内容
+                let features = [
+                    // 默认(智慧运维)特性
+                        {
+                            icon: 'monitor-icon.svg',
+                            title: '设备状态实时监控',
+                            desc: '24小时不间断监控设备运行状态，一键远程控制设备'
+                        },
+                        {
+                            icon: 'alert-icon.svg',
+                            title: '智能告警管理',
+                            desc: '多级告警策略，及时推送通知，快速响应处理'
+                        },
+                        {
+                            icon: 'report-icon.svg',
+                            title: '运维看板分析',
+                            desc: '数据驱动决策优化，全面掌握运维状态'
+                        }
+                    
+                ];
+
+                // 为各系统设置内容
+                switch (system) {
+                    case 'planning':
+                        systemName = '能源规划系统';
+                        systemDesc = '科学规划能源布局，优化能源结构部署';
+                        logoText = 'Pano 能源规划系统';
+                        features = [{
+                                icon: 'planning-icon.svg', // 创建新的图标或使用现有图标
+                                title: '智能选址分析',
+                                desc: '基于地理信息和负荷分析，智能推荐最优能源站点布局'
+                            },
+                            {
+                                icon: 'intelligence-icon.svg',
+                                title: '多方案对比',
+                                desc: '支持多种规划方案模拟对比，从经济性和可靠性综合评估'
+                            },
+                            {
+                                icon: 'efficiency-icon.svg',
+                                title: '投资收益预测',
+                                desc: '精准计算投资回报周期，辅助投资决策'
+                            }
+                        ];
+                        break;
+                    case 'delivery':
+                        systemName = '交付管理系统';
+                        systemDesc = '高效管理能源交付过程，确保服务质量';
+                        logoText = 'Pano 交付管理系统';
+                        features = [{
+                                icon: 'delivery-icon.svg',
+                                title: '项目进度跟踪',
+                                desc: '实时监控项目里程碑完成情况，确保按时交付'
+                            },
+                            {
+                                icon: 'realtime-icon.svg',
+                                title: '在线标准化调试',
+                                desc: '标准化测试流程，提高交付效率'
+                            },
+                            {
+                                icon: 'security-icon.svg',
+                                title: '质量控制管理',
+                                desc: '全流程调试检查点设置，确保交付质量达标'
+                            }
+                        ];
+                        break;
+                    case 'energy':
+                        systemName = '远程监视系统';
+                        systemDesc = '整合多种能源形式，7*24小时实时监控';
+                        logoText = 'Pano 远程监视系统';
+                        features = [{
+                                icon: 'energy-icon.svg',
+                                title: '接入多种能源形式',
+                                desc: '协调储能系统、充电桩、光伏等多种能源形式，实现综合能效最大化'
+                            },
+                            {
+                                icon: 'monitor-icon.svg',
+                                title: 'Web及APP远程监视',
+                                desc: '实时监控设备运行状态，及时发现异常情况'
+                            },
+                            {
+                                icon: 'report-icon.svg',
+                                title: '统计分析数据',
+                                desc: '自动生成能源使用报表，支持精细化管理'
+                            }
+                        ];
+                        break;
+                    case 'operation':
+                        systemName = '数智运营系统';
+                        systemDesc = '数据驱动决策，优化运营效率和管理质量';
+                        logoText = 'Pano 数智运营系统';
+                        features = [{
+                                icon: 'operation-icon.svg',
+                                title: '运营数据分析',
+                                desc: '多维度数据挖掘分析，发现运营优化机会'
+                            },
+                            {
+                                icon: 'intelligence-icon.svg',
+                                title: '智能决策支持',
+                                desc: '基于数据模型的决策推荐，辅助管理层决策'
+                            },
+                            {
+                                icon: 'integration-icon.svg',
+                                title: '绩效评估管理',
+                                desc: '自动生成运营绩效报告，支持精细化管理'
+                            }
+                        ];
+                        break;
+                }
+
+                // 更新页面内容
+                document.querySelector('.system-title').innerText = systemName;
+                document.querySelector('.system-description').innerText = systemDesc;
+                document.querySelector('.logo h2').innerText = logoText;
+                document.title = `${systemName} - 登录`;
+
+                // 更新特性内容
+                const featureItems = document.querySelectorAll('.info-features .feature-item');
+                for (let i = 0; i < Math.min(featureItems.length, features.length); i++) {
+                    const feature = features[i];
+                    const item = featureItems[i];
+
+                    if (feature && item) { // 添加检查确保feature和item都存在
+                        // 更新图标
+                        const iconImg = item.querySelector('.feature-icon img');
+                        if (iconImg && feature.icon) { // 添加额外的检查
+                            iconImg.src = `assets/images/${feature.icon}`;
+                            iconImg.alt = feature.title || '';
+                        }
+
+                        // 更新标题和描述
+                        const titleEl = item.querySelector('.feature-text h4');
+                        const descEl = item.querySelector('.feature-text p');
+
+                        if (titleEl) titleEl.innerText = feature.title || '';
+                        if (descEl) descEl.innerText = feature.desc || '';
+                    }
+                }
+            }
+    </script>
+</body>
+
+</html>

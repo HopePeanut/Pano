@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="60" viewBox="0 0 100 60">
+  <rect x="5" y="5" width="90" height="50" rx="5" ry="5" fill="#49A18D" />
+  <text x="50" y="35" font-family="Arial" font-size="20" text-anchor="middle" fill="#FFFFFF">PANO</text>
+  <path d="M20 42 L80 42" stroke="#FFFFFF" stroke-width="1" />
+  <text x="50" y="55" font-family="Arial" font-size="8" text-anchor="middle" fill="#FFFFFF">智慧能源管理平台</text>
+</svg> 

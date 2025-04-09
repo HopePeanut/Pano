@@ -1,0 +1,3810 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智慧运维系统 - 首页</title>
+    <!-- 引入高德地图API -->
+    <script type="text/javascript"
+        src="https://webapi.amap.com/maps?v=2.0&key=82d018675c18540fbe5d3eb2ba1c2b93&securityJsCode=fe718e66f1eec99306d822d5ae03b084">
+    </script>
+    <!-- 添加Font Awesome图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 添加导航栏模板JS文件引用 -->
+    <script src="navbar-template.js"></script>
+    <style>
+        /* 全局样式 */
+        :root {
+            --primary-color: #49A18D;
+            /* 清安绿 */
+            --secondary-color: #2C7873;
+            /* 深绿色 */
+            --tertiary-color: #6FB3A8;
+            /* 浅绿色 */
+            --light-color: #E0F5F0;
+            /* 特浅绿色 */
+            --accent-color: #F39C12;
+            /* 橙色作为点缀 */
+            --text-color: #333333;
+            --light-text: #FFFFFF;
+            --border-color: #E0E0E0;
+            --bg-color: #F5F5F5;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'PingFang SC', '微软雅黑', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 主内容区样式 */
+        .main-content {
+            flex: 1;
+            padding: 0;
+            max-width: 100%;
+            margin: 0 auto;
+            width: 100%;
+            position: relative;
+        }
+
+        /* 页面标题栏 */
+        .page-header {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 10px 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            right: 15px;
+            z-index: 10;
+            margin-bottom: 0;
+        }
+
+        .page-title {
+            font-size: 1.3rem;
+            color: var(--secondary-color);
+            font-weight: 500;
+        }
+
+        .view-toggle {
+            display: flex;
+            background-color: white;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .toggle-btn {
+            padding: 8px 15px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        /* 视图容器 */
+        .view-container {
+            background-color: white;
+            border-radius: 0;
+            padding: 0;
+            box-shadow: none;
+            height: calc(100vh - 60px);
+            min-height: 500px;
+        }
+
+        /* 地图视图 */
+        .map-view {
+            width: 100%;
+            height: 100%;
+            background-color: var(--light-color);
+            border-radius: 0;
+        }
+
+        /* 高德地图容器样式 */
+        #map-container {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* 卡片视图 */
+        .card-view {
+            width: 100%;
+            height: 100%;
+            display: none;
+            overflow-y: auto;
+            padding: 20px;
+            position: relative;
+        }
+
+        .card-view-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            gap: 10px;
+            flex-wrap: nowrap;
+        }
+
+        .card-view-controls {
+            display: none;
+        }
+
+        .sort-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sort-controls select {
+            padding: 6px 10px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            background-color: white;
+            cursor: pointer;
+        }
+
+        .refresh-btn {
+            width: 36px;
+            height: 36px;
+            background: white;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .refresh-btn:hover {
+            background-color: var(--light-color);
+        }
+
+        .pagination {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .pagination button {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            background-color: var(--primary-color);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .pagination button:hover:not(:disabled) {
+            background-color: var(--secondary-color);
+        }
+
+        .pagination button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .site-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .site-card {
+            background-color: var(--light-color);
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .site-card:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transform: translateY(-3px);
+        }
+
+        .site-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .site-status {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-normal {
+            background-color: #2ECC71;
+        }
+
+        .status-warning {
+            background-color: #F39C12;
+        }
+
+        .status-alarm {
+            background-color: #E74C3C;
+        }
+
+        .site-info {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .site-info p {
+            margin-bottom: 5px;
+            display: flex;
+        }
+
+        .info-label {
+            width: 70px;
+            color: #888;
+        }
+
+        .site-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .site-btn {
+            flex: 1;
+            padding: 8px 0;
+            border: none;
+            border-radius: 4px;
+            background-color: var(--primary-color);
+            color: white;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .site-btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .site-btn.secondary {
+            background-color: white;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .site-btn.secondary:hover {
+            background-color: var(--light-color);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .navbar-container {
+                flex-direction: column;
+                height: auto;
+                padding: 10px;
+            }
+
+            .navbar-logo {
+                margin-bottom: 10px;
+            }
+
+            .navbar-menu {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .menu-item {
+                width: 100%;
+            }
+
+            .menu-item>a {
+                width: 100%;
+                padding: 10px;
+            }
+
+            .submenu {
+                position: static;
+                width: 100%;
+                box-shadow: none;
+            }
+
+            .navbar-user {
+                margin-top: 10px;
+            }
+
+            .site-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .page-header {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+
+            .view-toggle {
+                width: 100%;
+            }
+
+            .toggle-btn {
+                flex: 1;
+                text-align: center;
+            }
+
+            .card-view {
+                padding-top: 120px;
+                /* 为折叠的标题栏预留更多空间 */
+            }
+
+            .card-view-header {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .card-view-controls, .pagination {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+
+        /* 时间显示样式 */
+        .time-display {
+            position: absolute;
+            top: 70px; /* 调整到视图切换按钮的位置 */
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 6px;
+            padding: 10px 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+            font-size: 14px;
+        }
+
+        /* 地图控制按钮样式 - 修改位置到右上角 */
+        .map-controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 20;
+        }
+
+        /* 添加按钮组容器 */
+        .gis-buttons-container {
+            position: absolute;
+            right: 20px;
+            top: 120px; /* 放在地图切换按钮下方 */
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 10;
+        }
+
+        /* 修改全屏按钮样式以保持一致 */
+        .fullscreen-btn {
+            position: absolute;
+            right: 20px;
+            top: 215px; /* 放在按钮组下方 */
+            width: 36px;
+            height: 36px;
+            background: white;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            z-index: 11;
+        }
+
+        .gis-control-btn {
+            width: 36px;
+            height: 36px;
+            background: white;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+        }
+
+        /* 卡片搜索框样式增强 */
+        .search-box button {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            cursor: pointer;
+            padding: 6px 8px;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .search-box button:hover {
+            background-color: var(--light-color);
+        }
+
+        /* 站点信息窗口样式 */
+        .site-info-window {
+            position: absolute;
+            display: none;
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            min-width: 250px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+        }
+
+        .site-info-header {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+
+        .site-info-name {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .site-info-weather {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .site-info-tag {
+            display: inline-block;
+            background: var(--light-color);
+            color: var(--primary-color);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .site-info-content {
+            font-size: 13px;
+        }
+
+        .site-info-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .site-info-label {
+            color: #666;
+        }
+
+        .site-info-value {
+            font-weight: 500;
+        }
+
+        /* 搜索和筛选控件样式 */
+        .map-controls-container {
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+        }
+
+        .control-button {
+            width: 36px;
+            height: 36px;
+            background: white;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+        }
+
+        .control-button i {
+            font-size: 18px;
+            color: #555;
+        }
+
+        .search-panel, .filter-panel {
+            position: absolute;
+            left: 20px;
+            top: 66px;
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            width: 280px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            display: none;
+            z-index: 11;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        .filter-option {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .filter-option input {
+            margin-right: 8px;
+        }
+
+        /* 水波动态站点样式 - 减小中心圆大小 */
+        .pulsing-marker {
+            width: 12px; /* 减小中心圆大小 */
+            height: 12px; /* 减小中心圆大小 */
+            border-radius: 50%;
+            position: relative;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .pulse-inner, .pulse-outer {
+            position: absolute;
+            border-radius: 50%;
+            border-style: solid;
+            border-width: 2px;
+            box-sizing: border-box;
+        }
+
+        .pulse-inner {
+            width: 100%;
+            height: 100%;
+            left: 0;
+            top: 0;
+            opacity: 0.6;
+            animation: pulse 1.5s ease-out infinite;
+        }
+
+        .pulse-outer {
+            width: 140%;
+            height: 140%;
+            left: -20%;
+            top: -20%;
+            opacity: 0.3;
+            animation: pulse 2s ease-out infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(0.8);
+                opacity: 0.8;
+            }
+            70% {
+                transform: scale(1.5);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1.8);
+                opacity: 0;
+            }
+        }
+
+        /* 地图图例样式 */
+        .map-legend {
+            position: absolute;
+            left: 20px;
+            bottom: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 6px;
+            padding: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        /* 顶部关键数据卡片样式 */
+        .key-data-cards {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            z-index: 10;
+        }
+
+        .data-card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            padding: 15px 20px;
+            min-width: 180px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .data-card-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .data-card-label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* 站点状态指示器样式 */
+        .card-status-indicator {
+            position: absolute; /* 更改为绝对定位 */
+            top: 15px;
+            right: 15px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+        }
+
+        .card-status-normal {
+            background-color: #2ECC71;
+        }
+
+        .card-status-warning {
+            background-color: #F39C12;
+        }
+
+        .card-status-alarm {
+            background-color: #E74C3C;
+        }
+
+        .site-tag {
+            display: inline-block;
+            background: var(--primary-color);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin: 8px 0;
+        }
+        
+        .site-weather {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            color: #666;
+        }
+        
+        .site-info p {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+        
+        .info-label {
+            color: #666;
+        }
+        
+        .info-value {
+            font-weight: 500;
+        }
+        
+        .gis-refresh-btn {
+            position: absolute;
+            right: 20px;
+            top: 170px; /* 放在全屏按钮下方 */
+            z-index: 11;
+        }
+
+        /* 添加搜索框样式 */
+        .search-box {
+            display: flex;
+            align-items: center;
+            background-color: white;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            padding: 3px;
+            width: 200px;
+            flex-shrink: 0;
+        }
+
+        .search-box input {
+            flex: 1;
+            border: none;
+            padding: 6px 8px;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .search-box button {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            cursor: pointer;
+            padding: 6px 8px;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .search-box button:hover {
+            background-color: var(--light-color);
+        }
+
+        /* 卡片视图中的时间显示 */
+        .card-time-display {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 4px;
+            padding: 8px 12px;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        /* 卡片视图中的视图切换按钮 */
+        .card-view-toggle {
+            margin-left: auto;
+        }
+
+        /* 移除卡片视图控件部分 */
+        .card-view-controls {
+            display: none;
+        }
+
+        /* 修改搜索框样式适应布局 */
+        .search-box {
+            display: flex;
+            align-items: center;
+            background-color: white;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            padding: 3px;
+            width: 200px;
+            flex-shrink: 0;
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 1200px) {
+            .card-view-header {
+                flex-wrap: wrap;
+            }
+            
+            .view-toggle {
+                margin-left: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .card-view-header {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+            
+            .search-box, .sort-controls, .pagination, .card-time-display, .view-toggle {
+                width: 100%;
+            }
+            
+            .view-toggle {
+                display: flex;
+            }
+            
+            .toggle-btn {
+                flex: 1;
+            }
+        }
+
+        /* 添加到现有CSS样式中 */
+        .map-view-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 10;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            margin-top: -10px; /* 添加负边距，使其更靠近标题 */
+        }
+        
+        .card-status-indicator {
+            position: relative; /* 改为相对定位，不再是绝对定位 */
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            margin-left: auto; /* 将其推到右侧 */
+        }
+
+        /* 添加到style标签中，在已有样式的末尾 */
+        /* AI助手样式 */
+        .ai-assistant-container {
+            position: fixed;
+            right: 60px;
+            bottom: 20px;
+            z-index: 1000;
+            font-family: 'PingFang SC', '微软雅黑', sans-serif;
+        }
+
+        .ai-assistant-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1001;
+        }
+
+        .ai-assistant-icon i {
+            font-size: 28px;
+        }
+
+        .ai-assistant-icon:hover {
+            transform: scale(1.05);
+            background-color: var(--secondary-color);
+        }
+
+        .ai-notification {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 18px;
+            height: 18px;
+            background-color: #E74C3C;
+            border-radius: 50%;
+            color: white;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .ai-notification.active {
+            opacity: 1;
+        }
+
+        .ai-assistant-dialog {
+            position: absolute;
+            bottom: 75px;
+            right: 0;
+            width: 350px;
+            height: 500px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transform: translateY(20px);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .ai-assistant-dialog.active {
+            transform: translateY(0);
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .ai-dialog-header {
+            padding: 15px;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ai-dialog-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+        }
+
+        .ai-dialog-controls {
+            display: flex;
+            gap: 5px;
+        }
+
+        .ai-dialog-controls button {
+            width: 24px;
+            height: 24px;
+            border: none;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .ai-dialog-controls button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .ai-dialog-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            background-color: #F8F8F8;
+        }
+
+        .ai-messages {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .ai-message {
+            display: flex;
+            gap: 10px;
+            max-width: 85%;
+        }
+
+        .ai-message-user {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .ai-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .ai-message-user .ai-avatar {
+            background-color: #95a5a6;
+        }
+
+        .ai-message-content {
+            background-color: white;
+            padding: 10px 15px;
+            border-radius: 18px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .ai-message-user .ai-message-content {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .ai-message-content p {
+            margin: 0;
+            line-height: 1.4;
+        }
+
+        .ai-message-content .ai-chart {
+            margin-top: 10px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #eee;
+        }
+
+        .ai-dialog-footer {
+            padding: 10px 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .ai-input-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        .ai-input-container input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .ai-input-container input:focus {
+            border-color: var(--primary-color);
+        }
+
+        .ai-input-container button {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .ai-input-container button:hover {
+            background-color: var(--secondary-color);
+        }
+
+        /* AI快速操作按钮 */
+        .ai-quick-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 0 15px 10px;
+        }
+
+        .ai-action-btn {
+            background-color: #f1f9f7;
+            border: 1px solid #e0f5f0;
+            color: var(--primary-color);
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .ai-action-btn:hover {
+            background-color: var(--light-color);
+            transform: translateY(-2px);
+        }
+
+        /* 添加趋势图表样式 */
+        .trend-chart {
+            width: 100%;
+            height: 150px;
+            margin-top: 10px;
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        /* 添加操作建议按钮样式 */
+        .action-suggestion {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .suggestion-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .suggestion-btn:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        /* 动画效果 */
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        /* 响应式布局 */
+        @media (max-width: 768px) {
+            .ai-assistant-dialog {
+                width: calc(100% - 40px);
+                height: 60vh;
+                bottom: 80px;
+            }
+        }
+        
+        /* 在style标签中添加更多AI助手的动画效果 */
+        /* 添加AI助手动画效果 */
+        .ai-assistant-icon.with-typing::after {
+            content: "";
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 20px;
+            height: 20px;
+            background-color: #2ECC71;
+            border: 2px solid white;
+            border-radius: 50%;
+            animation: blink 1.5s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+        
+        .ai-message-typing {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 10px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            width: fit-content;
+        }
+        
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            animation: typingAnimation 1.5s infinite ease-in-out;
+        }
+        
+        .typing-dot:nth-child(1) {
+            animation-delay: 0s;
+        }
+        
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.3s;
+        }
+        
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.6s;
+        }
+        
+        @keyframes typingAnimation {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-8px);
+            }
+        }
+        
+        /* 消息进入动画 */
+        @keyframes messageIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .ai-message {
+            animation: messageIn 0.3s ease-out forwards;
+        }
+        
+        /* 按钮悬停效果增强 */
+        .suggestion-btn i {
+            transition: transform 0.3s ease;
+        }
+        
+        .suggestion-btn:hover i {
+            transform: scale(1.2);
+        }
+        
+        /* 消息内容图表区域样式优化 */
+        .chart-container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .chart-container:hover {
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+        }
+        
+        /* 紧急告警样式增强 */
+        .urgent-alert {
+            border-left: 4px solid #E74C3C;
+            background-color: rgba(231, 76, 60, 0.05);
+            padding: 10px;
+            border-radius: 0 8px 8px 0;
+            margin: 10px 0;
+        }
+        
+        /* 预测告警样式增强 */
+        .prediction-alert {
+            border-left: 4px solid #F39C12;
+            background-color: rgba(243, 156, 18, 0.05);
+            padding: 10px;
+            border-radius: 0 8px 8px 0;
+            margin: 10px 0;
+        }
+        
+        /* 建议消息样式增强 */
+        .recommendation-message {
+            border-left: 4px solid #49A18D;
+            background-color: rgba(73, 161, 141, 0.05);
+            padding: 10px;
+            border-radius: 0 8px 8px 0;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 导航栏容器 - 将由navbar-template.js动态填充 -->
+    <div id="navbar-container"></div>
+
+    <div class="app-container">
+        <!-- 主内容区，移除原来的地图控制按钮，改为卡片视图中的控制器 -->
+        <div class="main-content">
+            <!-- 视图容器 -->
+            <div class="view-container">
+                <!-- 地图视图 -->
+                <div class="map-view" id="map-view">
+                    <!-- 高德地图容器 -->
+                    <div id="map-container"></div>
+                </div>
+
+                <!-- 卡片视图 -->
+                <div class="card-view" id="card-view">
+                    <div class="card-view-header">
+                        <!-- 按指定顺序排列所有控件：站点搜索、站点排序、刷新按钮、换页功能、当前时间显示、视图切换按钮 -->
+                        <div class="search-box">
+                            <input type="text" id="card-search-input" placeholder="搜索站点..." />
+                            <button onclick="searchSiteCards()"><i class="fas fa-search"></i></button>
+                        </div>
+                        <div class="sort-controls">
+                            <label>排序: </label>
+                            <select id="sort-select" onchange="sortSiteCards()">
+                                <option value="stopRate">按非计划停机率</option>
+                                <option value="status">按故障优先</option>
+                                <option value="runDays">按安全运行天数</option>
+                            </select>
+                        </div>
+                        <div class="refresh-btn" onclick="refreshCardView()">
+                            <i class="fas fa-sync-alt"></i>
+                        </div>
+                        <div class="pagination">
+                            <button id="prev-page" onclick="changePage(-1)" disabled>上一页</button>
+                            <span id="page-info">第 1 页，共 1 页</span>
+                            <button id="next-page" onclick="changePage(1)">下一页</button>
+                        </div>
+                        <div class="card-time-display" id="card-time-display"></div>
+                        <div class="view-toggle card-view-toggle">
+                            <button class="toggle-btn" onclick="switchView('map')">GIS地图视角</button>
+                            <button class="toggle-btn active" onclick="switchView('card')">站点卡片视角</button>
+                        </div>
+                    </div>
+                    <div class="site-cards" id="site-cards-container">
+                        <!-- 动态生成站点卡片 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI助手组件 -->
+    <div class="ai-assistant-container">
+        <!-- AI助手图标 -->
+        <div class="ai-assistant-icon" id="ai-assistant-icon">
+            <i class="fas fa-robot"></i>
+            <span class="ai-notification" id="ai-notification"></span>
+        </div>
+        
+        <!-- AI助手对话框 -->
+        <div class="ai-assistant-dialog" id="ai-assistant-dialog">
+            <div class="ai-dialog-header">
+                <div class="ai-dialog-title">
+                    <i class="fas fa-robot"></i>
+                    <span>智能运维助手</span>
+                </div>
+                <div class="ai-dialog-controls">
+                    <button class="ai-dialog-minimize" id="ai-dialog-minimize">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                    <button class="ai-dialog-close" id="ai-dialog-close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="ai-dialog-body" id="ai-dialog-body">
+                <!-- 对话内容区域 -->
+                <div class="ai-messages" id="ai-messages">
+                    <!-- 初始欢迎消息 -->
+                    <div class="ai-message ai-message-bot">
+                        <div class="ai-avatar">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="ai-message-content">
+                            <p>你好！我是智能运维助手，我可以帮助你监控站点、预测故障和优化运维。有什么可以帮助你的吗？</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="ai-quick-actions" id="ai-quick-actions">
+                <button class="ai-action-btn" data-action="status">站点状态总览</button>
+                <button class="ai-action-btn" data-action="alerts">告警分析</button>
+                <button class="ai-action-btn" data-action="prediction">故障预测</button>
+                <button class="ai-action-btn" data-action="recommendations">运维建议</button>
+            </div>
+            <div class="ai-dialog-footer">
+                <div class="ai-input-container">
+                    <input type="text" id="ai-input" placeholder="输入你的问题..." />
+                    <button id="ai-send-btn">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 声明地图变量
+        let map;
+
+        // 创建水波动态样式的站点标记
+        function createPulsingMarker(lnglat, color, status) {
+            const markerContent = document.createElement('div');
+            markerContent.className = 'pulsing-marker';
+            markerContent.style.backgroundColor = color;
+            
+            // 添加内层动画圆
+            const innerPulse = document.createElement('div');
+            innerPulse.className = 'pulse-inner';
+            innerPulse.style.borderColor = color;
+            markerContent.appendChild(innerPulse);
+            
+            // 添加外层动画圆
+            const outerPulse = document.createElement('div');
+            outerPulse.className = 'pulse-outer';
+            outerPulse.style.borderColor = color;
+            markerContent.appendChild(outerPulse);
+            
+            // 创建标记并返回
+            return new AMap.Marker({
+                position: lnglat,
+                content: markerContent,
+                zIndex: 10,
+                // 添加自定义数据，用于后续交互
+                extData: {
+                    status: status
+                }
+            });
+        }
+
+        // 初始化高德地图
+        function initMap() {
+            // 创建地图实例
+            map = new AMap.Map('map-container', {
+                zoom: 4, // 调整为全国范围
+                center: [105.0, 35.0], // 中国地理中心
+                viewMode: '3D',
+                mapStyle: 'amap://styles/whitesmoke',
+                pitch: 0 // 平面视图
+            });
+            
+            // 添加工具条控件
+            map.plugin(['AMap.ToolBar'], function() {
+                map.addControl(new AMap.ToolBar({
+                    position: 'RB' // 右下角
+                }));
+            });
+            
+            // 添加比例尺控件
+            map.plugin(['AMap.Scale'], function() {
+                map.addControl(new AMap.Scale({
+                    position: 'LB' // 左下角
+                }));
+            });
+            
+            // 添加站点数据（模拟10个站点）
+            addSiteMarkers();
+            
+            // 添加地图图例
+            addMapLegend();
+            
+            // 添加顶部关键数据卡片
+            addKeyDataCards();
+            
+            // 添加时间显示
+            addTimeDisplay();
+            
+            // 添加视图切换按钮 - 新增
+            addMapViewToggleButton();
+            
+            // 添加全屏按钮
+            addFullscreenButton();
+            
+            // 添加站点搜索和筛选功能
+            addSearchAndFilterControls();
+            
+            // 添加GIS刷新按钮
+            addGISRefreshButton();
+            
+            // 启用点聚合功能
+            enableMarkerCluster();
+        }
+
+        // 添加新函数来创建地图视图切换按钮
+        function addMapViewToggleButton() {
+            // 创建视图切换容器
+            const toggleContainer = document.createElement('div');
+            toggleContainer.className = 'view-toggle map-view-toggle';
+            toggleContainer.style.position = 'absolute';
+            toggleContainer.style.top = '20px';
+            toggleContainer.style.right = '20px';
+            toggleContainer.style.zIndex = '10';
+            
+            // 设置按钮HTML
+            toggleContainer.innerHTML = `
+                <button class="toggle-btn active" onclick="switchView('map')">GIS地图视角</button>
+                <button class="toggle-btn" onclick="switchView('card')">站点卡片视角</button>
+            `;
+            
+            // 添加到地图容器
+            document.getElementById('map-container').appendChild(toggleContainer);
+        }
+
+        // 模拟站点数据
+        const siteData = [
+            { name: "重庆南岸区能源站", position: [106.57, 29.52], status: "normal", runDays: 267, offlineDevices: false, offlineCount: 0, totalDevices: 12, type: "储能电站", weather: { temp: 28, humidity: 65, icon: "sunny" } },
+            { name: "成都高新区能源站", position: [104.06, 30.67], status: "warning", runDays: 125, offlineDevices: true, offlineCount: 2, totalDevices: 18, type: "充电桩", weather: { temp: 26, humidity: 70, icon: "cloudy" } },
+            { name: "贵阳清镇能源站", position: [106.47, 26.55], status: "alarm", runDays: 78, offlineDevices: true, offlineCount: 4, totalDevices: 15, type: "光储充一体", weather: { temp: 22, humidity: 85, icon: "rainy" } },
+            { name: "重庆江北能源站", position: [106.63, 29.58], status: "normal", runDays: 302, offlineDevices: false, offlineCount: 0, totalDevices: 20, type: "储能电站", weather: { temp: 27, humidity: 62, icon: "sunny" } },
+            { name: "北京朝阳能源站", position: [116.48, 39.92], status: "normal", runDays: 189, offlineDevices: false, offlineCount: 0, totalDevices: 16, type: "充电桩配储", weather: { temp: 25, humidity: 45, icon: "sunny" } },
+            { name: "上海浦东能源站", position: [121.59, 31.22], status: "warning", runDays: 221, offlineDevices: true, offlineCount: 1, totalDevices: 14, type: "光储充一体", weather: { temp: 30, humidity: 75, icon: "cloudy" } },
+            { name: "西安高新能源站", position: [108.88, 34.22], status: "normal", runDays: 156, offlineDevices: false, offlineCount: 0, totalDevices: 10, type: "充电桩", weather: { temp: 26, humidity: 40, icon: "sunny" } },
+            { name: "武汉东湖能源站", position: [114.40, 30.51], status: "alarm", runDays: 98, offlineDevices: true, offlineCount: 3, totalDevices: 22, type: "光储充一体", weather: { temp: 32, humidity: 80, icon: "thunderstorm" } },
+            { name: "广州天河能源站", position: [113.33, 23.13], status: "normal", runDays: 245, offlineDevices: false, offlineCount: 0, totalDevices: 15, type: "充电桩配储", weather: { temp: 33, humidity: 90, icon: "cloudy" } },
+            { name: "深圳南山能源站", position: [113.93, 22.53], status: "warning", runDays: 178, offlineDevices: true, offlineCount: 2, totalDevices: 25, type: "储能电站", weather: { temp: 31, humidity: 85, icon: "rainy" } },
+            { name: "南京鼓楼能源站", position: [118.79, 32.06], status: "normal", runDays: 212, offlineDevices: false, offlineCount: 0, totalDevices: 18, type: "充电桩配储", weather: { temp: 28, humidity: 70, icon: "sunny" } },
+            { name: "杭州西湖能源站", position: [120.13, 30.26], status: "warning", runDays: 167, offlineDevices: true, offlineCount: 1, totalDevices: 20, type: "光伏站", weather: { temp: 29, humidity: 75, icon: "cloudy" } },
+            { name: "长沙岳麓能源站", position: [112.94, 28.21], status: "normal", runDays: 198, offlineDevices: false, offlineCount: 0, totalDevices: 16, type: "储能电站", weather: { temp: 30, humidity: 65, icon: "sunny" } },
+            { name: "郑州金水能源站", position: [113.66, 34.76], status: "alarm", runDays: 88, offlineDevices: true, offlineCount: 5, totalDevices: 24, type: "光储充一体", weather: { temp: 27, humidity: 60, icon: "rainy" } },
+            { name: "济南历下能源站", position: [117.03, 36.66], status: "normal", runDays: 235, offlineDevices: false, offlineCount: 0, totalDevices: 14, type: "充电桩", weather: { temp: 25, humidity: 50, icon: "sunny" } },
+            { name: "天津和平能源站", position: [117.21, 39.12], status: "warning", runDays: 145, offlineDevices: true, offlineCount: 2, totalDevices: 22, type: "储能电站", weather: { temp: 26, humidity: 55, icon: "cloudy" } },
+            { name: "合肥蜀山能源站", position: [117.27, 31.86], status: "normal", runDays: 176, offlineDevices: false, offlineCount: 0, totalDevices: 15, type: "光伏站", weather: { temp: 28, humidity: 65, icon: "sunny" } },
+            { name: "青岛市南能源站", position: [120.38, 36.07], status: "alarm", runDays: 110, offlineDevices: true, offlineCount: 3, totalDevices: 20, type: "风光储一体站", weather: { temp: 24, humidity: 80, icon: "thunderstorm" } },
+            { name: "昆明盘龙能源站", position: [102.83, 25.04], status: "normal", runDays: 222, offlineDevices: false, offlineCount: 0, totalDevices: 17, type: "充电桩配储", weather: { temp: 22, humidity: 70, icon: "sunny" } },
+            { name: "海口秀英能源站", position: [110.26, 20.04], status: "warning", runDays: 165, offlineDevices: true, offlineCount: 1, totalDevices: 19, type: "光储充一体", weather: { temp: 32, humidity: 85, icon: "cloudy" } },
+            // 增加10个新站点，达到30个
+            { name: "沈阳和平能源站", position: [123.41, 41.79], status: "normal", runDays: 203, offlineDevices: false, offlineCount: 0, totalDevices: 18, type: "充电桩配储", weather: { temp: 21, humidity: 55, icon: "sunny" } },
+            { name: "大连西岗能源站", position: [121.61, 38.91], status: "warning", runDays: 132, offlineDevices: true, offlineCount: 2, totalDevices: 16, type: "储能电站", weather: { temp: 23, humidity: 75, icon: "cloudy" } },
+            { name: "哈尔滨南岗能源站", position: [126.66, 45.75], status: "alarm", runDays: 95, offlineDevices: true, offlineCount: 4, totalDevices: 22, type: "光储充一体", weather: { temp: 18, humidity: 60, icon: "rainy" } },
+            { name: "长春南关能源站", position: [125.34, 43.88], status: "normal", runDays: 187, offlineDevices: false, offlineCount: 0, totalDevices: 14, type: "充电桩", weather: { temp: 20, humidity: 58, icon: "sunny" } },
+            { name: "兰州城关能源站", position: [103.84, 36.05], status: "warning", runDays: 154, offlineDevices: true, offlineCount: 1, totalDevices: 17, type: "光伏站", weather: { temp: 25, humidity: 40, icon: "cloudy" } },
+            { name: "石家庄桥西能源站", position: [114.50, 38.03], status: "normal", runDays: 201, offlineDevices: false, offlineCount: 0, totalDevices: 19, type: "储能电站", weather: { temp: 27, humidity: 62, icon: "sunny" } },
+            { name: "太原小店能源站", position: [112.56, 37.87], status: "alarm", runDays: 79, offlineDevices: true, offlineCount: 3, totalDevices: 15, type: "风光储一体站", weather: { temp: 24, humidity: 52, icon: "thunderstorm" } },
+            { name: "福州鼓楼能源站", position: [119.30, 26.08], status: "normal", runDays: 230, offlineDevices: false, offlineCount: 0, totalDevices: 16, type: "充电桩配储", weather: { temp: 29, humidity: 80, icon: "sunny" } },
+            { name: "南昌东湖能源站", position: [115.89, 28.68], status: "warning", runDays: 168, offlineDevices: true, offlineCount: 2, totalDevices: 20, type: "储能电站", weather: { temp: 31, humidity: 75, icon: "cloudy" } },
+            { name: "乌鲁木齐天山能源站", position: [87.62, 43.79], status: "alarm", runDays: 105, offlineDevices: true, offlineCount: 5, totalDevices: 18, type: "光储充一体", weather: { temp: 19, humidity: 35, icon: "rainy" } }
+        ];
+
+        // 添加站点标记
+        function addSiteMarkers() {
+            const markers = [];
+            
+            siteData.forEach(site => {
+                // 根据站点状态确定颜色
+                let color;
+                switch(site.status) {
+                    case "normal":
+                        color = "#2ECC71"; // 绿色
+                        break;
+                    case "warning":
+                        color = "#F39C12"; // 黄色
+                        break;
+                    case "alarm":
+                        color = "#E74C3C"; // 红色
+                        break;
+                }
+                
+                // 创建带水波动画的标记
+                const marker = createPulsingMarker(site.position, color, site.status);
+                
+                // 添加鼠标悬停事件
+                marker.on('mouseover', function(e) {
+                    // 清除任何现有的隐藏定时器
+                    window.clearTimeout(window.siteInfoTimer);
+                    showSiteInfo(e, site);
+                });
+                
+                // 添加双击事件
+                marker.on('dblclick', function() {
+                    // 跳转到站点首页
+                    window.location.href = 'site-homepage.html';
+                    // 如果需要传递站点信息，可以在URL中添加参数
+                    // window.location.href = 'site-homepage.html?siteName=' + encodeURIComponent(site.name);
+                });
+
+                marker.on('mouseout', function() {
+                    // 延时隐藏信息窗口
+                    window.siteInfoTimer = setTimeout(hideSiteInfo, 1000);
+                });
+                
+                // 添加点击事件
+                marker.on('click', function() {
+                    // 放大地图并居中到该站点
+                    map.setZoomAndCenter(13, site.position);
+                });
+                
+                markers.push(marker);
+            });
+            
+            // 将标记添加到地图
+            map.add(markers);
+            
+            // 保存标记以便后续操作
+            window.siteMarkers = markers;
+        }
+
+        // 切换视图函数
+        function switchView(viewType) {
+            const mapView = document.getElementById('map-view');
+            const cardView = document.getElementById('card-view');
+            const mapBtn = document.querySelector('.card-view-toggle .toggle-btn:nth-child(1)');
+            const cardBtn = document.querySelector('.card-view-toggle .toggle-btn:nth-child(2)');
+
+            if (viewType === 'map') {
+                mapView.style.display = 'block';
+                cardView.style.display = 'none';
+                mapBtn.classList.add('active');
+                cardBtn.classList.remove('active');
+                // 停止卡片视图时间更新
+                if (window.cardTimeInterval) {
+                    clearInterval(window.cardTimeInterval);
+                }
+                
+                // 确保地图正确加载
+                if (map) {
+                    // 延迟一点点时间确保DOM已更新
+                    setTimeout(() => {
+                        map.resize();
+                    }, 100);
+                }
+            } else {
+                mapView.style.display = 'none';
+                cardView.style.display = 'block';
+                mapBtn.classList.remove('active');
+                cardBtn.classList.add('active');
+                
+                // 切换到卡片视图时，加载卡片数据
+                loadSiteCards();
+                
+                // 更新卡片视图时间显示
+                updateCardTime();
+                
+                // 启动卡片视图时间更新
+                if (window.cardTimeInterval) {
+                    clearInterval(window.cardTimeInterval);
+                }
+                window.cardTimeInterval = setInterval(updateCardTime, 1000);
+            }
+            
+            // 保存当前视图类型到本地存储，实现记忆功能
+            localStorage.setItem('currentViewType', viewType);
+        }
+
+        // 页面加载时的处理函数
+        document.addEventListener('DOMContentLoaded', function () {
+            // 获取之前保存的视图类型
+            const savedViewType = localStorage.getItem('currentViewType');
+            
+            // 检查登录状态和获取用户信息
+            checkLoginStatus();
+
+            // 初始化地图
+            initMap();
+            
+            // 恢复之前保存的筛选状态
+            restoreFilterState();
+
+            // 设置视图模式
+            const urlParams = new URLSearchParams(window.location.search);
+            const viewType = urlParams.get('view') || savedViewType || 'map';
+
+            switchView(viewType);
+            
+            // 添加自定义样式
+            addStyles();
+            
+            // 添加卡片搜索框事件监听
+            const cardSearchInput = document.getElementById('card-search-input');
+            const cardSearchButton = document.querySelector('.search-box button');
+            
+            if (cardSearchInput) {
+                cardSearchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        searchSiteCards();
+                    }
+                });
+            }
+            
+            if (cardSearchButton) {
+                cardSearchButton.addEventListener('click', function() {
+                    searchSiteCards();
+                });
+            }
+            
+            // 如果当前是卡片视图，立即更新时间显示
+            if (viewType === 'card') {
+                updateCardTime();
+            }
+        });
+
+        // 检查登录状态并获取用户信息
+        function checkLoginStatus() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+            const currentUser = localStorage.getItem('currentUser');
+
+            // 如果已登录，则显示用户名
+            if (isLoggedIn === 'true' && currentUser) {
+                const userNameElement = document.querySelector('.user-name');
+                if (userNameElement) {
+                    userNameElement.textContent = currentUser;
+                }
+
+                console.log('已登录用户: ' + currentUser);
+                console.log('登录时间: ' + localStorage.getItem('loginTime'));
+            } else {
+                // 未登录时可以选择重定向到登录页面
+                // 这里仅作为示例，不强制跳转
+                console.log('用户未登录');
+            }
+        }
+
+        // 登出函数
+        function logout() {
+            // 清除登录信息
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('loginTime');
+
+            // 重定向到登录页面
+            window.location.href = 'login.html';
+        }
+
+        // 添加地图图例
+        function addMapLegend() {
+            const legendContainer = document.createElement('div');
+            legendContainer.className = 'map-legend';
+            
+            // 创建图例内容
+            const legendContent = `
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #2ECC71;"></div>
+                    <span>正常站点</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #F39C12;"></div>
+                    <span>告警站点</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #E74C3C;"></div>
+                    <span>故障站点</span>
+                </div>
+            `;
+            
+            legendContainer.innerHTML = legendContent;
+            document.getElementById('map-container').appendChild(legendContainer);
+        }
+
+        // 添加顶部关键数据卡片
+        function addKeyDataCards() {
+            const cardsContainer = document.createElement('div');
+            cardsContainer.className = 'key-data-cards';
+            
+            // 计算各种指标
+            const totalSites = siteData.length;
+            const avgRunDays = Math.round(siteData.reduce((sum, site) => sum + site.runDays, 0) / totalSites);
+            const unplannedStopRate = "0.35%"; // 模拟数据
+            
+            // 创建卡片内容
+            const cardsContent = `
+                <div class="data-card">
+                    <div class="data-card-value">${totalSites}</div>
+                    <div class="data-card-label">站点总数</div>
+                </div>
+                <div class="data-card">
+                    <div class="data-card-value">${avgRunDays}</div>
+                    <div class="data-card-label">安全运行天数</div>
+                </div>
+                <div class="data-card">
+                    <div class="data-card-value">${unplannedStopRate}</div>
+                    <div class="data-card-label">今日非计划停机率</div>
+                </div>
+            `;
+            
+            cardsContainer.innerHTML = cardsContent;
+            document.getElementById('map-container').appendChild(cardsContainer);
+        }
+
+        // 添加时间显示
+        function addTimeDisplay() {
+            const timeContainer = document.createElement('div');
+            timeContainer.className = 'time-display';
+            document.getElementById('map-container').appendChild(timeContainer);
+            
+            // 更新时间函数
+            function updateTime() {
+                const now = new Date();
+                const timeStr = now.toLocaleString('zh-CN', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: false
+                });
+                timeContainer.textContent = timeStr;
+            }
+            
+            // 初始化并设置定时更新
+            updateTime();
+            setInterval(updateTime, 1000); // 改为1秒刷新一次
+        }
+
+        // 添加全屏按钮
+        function addFullscreenButton() {
+            const fullscreenBtn = document.createElement('div');
+            fullscreenBtn.className = 'fullscreen-btn gis-control-btn';
+            fullscreenBtn.innerHTML = '<i class="fas fa-expand-arrows-alt"></i>';
+            
+            fullscreenBtn.addEventListener('click', function() {
+                const mapContainer = document.getElementById('map-container');
+                
+                if (!document.fullscreenElement) {
+                    // 进入全屏
+                    if (mapContainer.requestFullscreen) {
+                        mapContainer.requestFullscreen();
+                    } else if (mapContainer.mozRequestFullScreen) {
+                        mapContainer.mozRequestFullScreen();
+                    } else if (mapContainer.webkitRequestFullscreen) {
+                        mapContainer.webkitRequestFullscreen();
+                    } else if (mapContainer.msRequestFullscreen) {
+                        mapContainer.msRequestFullscreen();
+                    }
+                    fullscreenBtn.innerHTML = '<i class="fas fa-compress-arrows-alt"></i>';
+                } else {
+                    // 退出全屏
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    } else if (document.mozCancelFullScreen) {
+                        document.mozCancelFullScreen();
+                    } else if (document.webkitExitFullscreen) {
+                        document.webkitExitFullscreen();
+                    } else if (document.msExitFullscreen) {
+                        document.msExitFullscreen();
+                    }
+                    fullscreenBtn.innerHTML = '<i class="fas fa-expand-arrows-alt"></i>';
+                }
+            });
+            
+            document.getElementById('map-container').appendChild(fullscreenBtn);
+        }
+
+        // 显示站点信息窗口
+        function showSiteInfo(e, site) {
+            let infoWindow = document.getElementById('site-info-window');
+            
+            if (!infoWindow) {
+                infoWindow = document.createElement('div');
+                infoWindow.id = 'site-info-window';
+                infoWindow.className = 'site-info-window';
+                document.getElementById('map-container').appendChild(infoWindow);
+                
+                // 给信息窗口添加鼠标悬停和离开事件
+                infoWindow.addEventListener('mouseover', function() {
+                    // 当鼠标在信息窗口上时，清除任何现有的隐藏定时器
+                    window.clearTimeout(window.siteInfoTimer);
+                });
+                
+                infoWindow.addEventListener('mouseout', function() {
+                    // 当鼠标离开信息窗口时，设置定时器隐藏窗口
+                    window.siteInfoTimer = setTimeout(hideSiteInfo, 300);
+                });
+            }
+            // 获取停机数据（模拟）
+            const stopHours = Math.round(Math.random() * 2 * 10) / 10; // 0-2小时，保留一位小数
+            const stopRate = (Math.round(Math.random() * 5 * 10) / 10) + "%"; // 0-5%，保留一位小数
+            
+            // 获取状态文本
+            let statusText = '';
+            let statusClass = '';
+            switch(site.status) {
+                case 'normal':
+                    statusText = '运行正常';
+                    statusClass = 'status-normal';
+                    break;
+                case 'warning':
+                    statusText = '设备警告';
+                    statusClass = 'status-warning';
+                    break;
+                case 'alarm':
+                    statusText = '设备故障';
+                    statusClass = 'status-alarm';
+                    break;
+            }
+            
+            // 获取天气图标
+            const weatherIcon = getWeatherIcon(site.weather.icon);
+            
+            // 设置信息窗口内容
+            infoWindow.innerHTML = `
+                <div class="site-info-header">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+                        <div class="site-info-name">${site.name}</div>
+                        <div style="width:12px; height:12px; border-radius:50%;" class="${statusClass}"></div>
+                    </div>
+                    <div class="site-info-weather">
+                        ${weatherIcon}
+                        <span>${site.weather.temp}°C / 湿度${site.weather.humidity}%</span>
+                    </div>
+                    <div class="site-info-tag">${site.type}</div>
+                </div>
+                <div class="site-info-content">
+                    <div class="site-info-item">
+                        <span class="site-info-label">站点状态:</span>
+                        <span class="site-info-value">${statusText}</span>
+                    </div>
+                    <div class="site-info-item">
+                        <span class="site-info-label">是否存在离线设备:</span>
+                        <span class="site-info-value">${site.offlineDevices ? '是 (' + site.offlineCount + '/' + site.totalDevices + ')' : '否'}</span>
+                    </div>
+                    <div class="site-info-item">
+                        <span class="site-info-label">安全运行天数:</span>
+                        <span class="site-info-value">${site.runDays}天</span>
+                    </div>
+                    <div class="site-info-item">
+                        <span class="site-info-label">今日非计划停机时长:</span>
+                        <span class="site-info-value">${stopHours}小时</span>
+                    </div>
+                    <div class="site-info-item">
+                        <span class="site-info-label">累计非计划停机率:</span>
+                        <span class="site-info-value">${stopRate}</span>
+                    </div>
+                </div>
+            `;
+            
+            // 计算信息窗口位置（鼠标位置或标记位置）
+            const x = e.pixel.x + 50;
+            const y = e.pixel.y - 50; // 稍微向上偏移
+            
+            infoWindow.style.left = x + 'px';
+            infoWindow.style.top = y + 'px';
+            infoWindow.style.display = 'block';
+            
+            // 清除任何现有的隐藏定时器
+            window.clearTimeout(window.siteInfoTimer);
+        }
+
+        // 获取天气图标
+        function getWeatherIcon(iconType) {
+            // 根据天气类型返回对应的Font Awesome图标
+            switch(iconType) {
+                case 'sunny':
+                    return '<i class="fas fa-sun" style="color: #F39C12; font-size: 18px; margin-right: 8px;"></i>';
+                case 'cloudy':
+                    return '<i class="fas fa-cloud" style="color: #95A5A6; font-size: 18px; margin-right: 8px;"></i>';
+                case 'rainy':
+                    return '<i class="fas fa-cloud-rain" style="color: #3498DB; font-size: 18px; margin-right: 8px;"></i>';
+                case 'thunderstorm':
+                    return '<i class="fas fa-bolt" style="color: #F1C40F; font-size: 18px; margin-right: 8px;"></i>';
+                case 'snowy':
+                    return '<i class="fas fa-snowflake" style="color: #3498DB; font-size: 18px; margin-right: 8px;"></i>';
+                default:
+                    return '<i class="fas fa-cloud-sun" style="color: #F39C12; font-size: 18px; margin-right: 8px;"></i>';
+            }
+        }
+
+        // 隐藏站点信息窗口
+        function hideSiteInfo() {
+            const infoWindow = document.getElementById('site-info-window');
+            if (infoWindow) {
+                infoWindow.style.display = 'none';
+            }
+        }
+
+        // 应用筛选
+        function applyFilters() {
+            // 获取筛选选项状态
+            const showNormal = document.getElementById('filter-normal').checked;
+            const showWarning = document.getElementById('filter-warning').checked;
+            const showAlarm = document.getElementById('filter-alarm').checked;
+            const showOffline = document.getElementById('filter-offline').checked;
+            
+            // 遍历所有站点标记，根据筛选条件显示或隐藏
+            window.siteMarkers.forEach((marker, index) => {
+                const site = siteData[index];
+                let visible = true;
+                
+                // 根据站点状态筛选
+                if (site.status === "normal" && !showNormal) {
+                    visible = false;
+                } else if (site.status === "warning" && !showWarning) {
+                    visible = false;
+                } else if (site.status === "alarm" && !showAlarm) {
+                    visible = false;
+                }
+                
+                // 根据是否包含离线设备筛选
+                if (!showOffline && site.offlineDevices) {
+                    visible = false;
+                }
+                
+                // 设置标记可见性
+                if (visible) {
+                    marker.show();
+                } else {
+                    marker.hide();
+                }
+            });
+            
+            // 隐藏筛选面板
+            // document.querySelector('.filter-panel').style.display = 'none';
+            
+            // 保存筛选状态
+            saveFilterState();
+            
+            // 如果当前是卡片视图，也更新卡片
+            const cardView = document.getElementById('card-view');
+            if (cardView.style.display === 'block') {
+                loadSiteCards();
+            }
+        }
+
+        // 保存筛选状态
+        function saveFilterState() {
+            const filterState = {
+                normal: document.getElementById('filter-normal').checked,
+                warning: document.getElementById('filter-warning').checked,
+                alarm: document.getElementById('filter-alarm').checked,
+                offline: document.getElementById('filter-offline').checked
+            };
+            localStorage.setItem('filterState', JSON.stringify(filterState));
+        }
+
+        // 恢复筛选状态
+        function restoreFilterState() {
+            const savedState = localStorage.getItem('filterState');
+            if (savedState) {
+                const filterState = JSON.parse(savedState);
+                document.getElementById('filter-normal').checked = filterState.normal;
+                document.getElementById('filter-warning').checked = filterState.warning;
+                document.getElementById('filter-alarm').checked = filterState.alarm;
+                document.getElementById('filter-offline').checked = filterState.offline;
+                
+                // 应用恢复的筛选条件
+                applyFilters();
+            }
+        }
+
+        // 添加站点搜索和筛选功能
+        function addSearchAndFilterControls() {
+            // 创建控件容器
+            const controlsContainer = document.createElement('div');
+            controlsContainer.className = 'map-controls-container';
+            
+            // 创建搜索按钮
+            const searchButton = document.createElement('div');
+            searchButton.className = 'control-button';
+            searchButton.innerHTML = '<i class="fas fa-search"></i>';
+            searchButton.title = '站点搜索';
+            
+            // 创建筛选按钮
+            const filterButton = document.createElement('div');
+            filterButton.className = 'control-button';
+            filterButton.innerHTML = '<i class="fas fa-filter"></i>';
+            filterButton.title = '站点筛选';
+            
+            // 将按钮添加到容器
+            controlsContainer.appendChild(searchButton);
+            controlsContainer.appendChild(filterButton);
+            
+            // 创建搜索面板
+            const searchPanel = document.createElement('div');
+            searchPanel.className = 'search-panel';
+            searchPanel.innerHTML = `
+                <h3 style="margin-bottom:10px;">站点搜索</h3>
+                <input type="text" class="search-input" placeholder="输入站点名称" id="site-search-input">
+                <div id="search-results" style="max-height:300px; overflow-y:auto;">
+                    <div style="color:#888; font-size:13px;">请输入关键词搜索站点</div>
+                </div>
+            `;
+            
+            // 创建筛选面板 - 修改为勾选后自动筛选并隐藏面板，移除按钮
+            const filterPanel = document.createElement('div');
+            filterPanel.className = 'filter-panel';
+            filterPanel.innerHTML = `
+                <h3 style="margin-bottom:10px;">站点筛选</h3>
+                <div class="filter-option">
+                    <input type="checkbox" id="filter-normal" checked>
+                    <label for="filter-normal">正常站点</label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="filter-warning" checked>
+                    <label for="filter-warning">告警站点</label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="filter-alarm" checked>
+                    <label for="filter-alarm">故障站点</label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="filter-offline" checked>
+                    <label for="filter-offline">存在离线设备</label>
+                </div>
+            `;
+            
+            // 将面板添加到地图容器
+            document.getElementById('map-container').appendChild(controlsContainer);
+            document.getElementById('map-container').appendChild(searchPanel);
+            document.getElementById('map-container').appendChild(filterPanel);
+            
+            // 搜索按钮点击事件
+            searchButton.addEventListener('click', function() {
+                // 显示搜索面板，隐藏筛选面板
+                if (searchPanel.style.display === 'block') {
+                    searchPanel.style.display = 'none';
+                } else {
+                    searchPanel.style.display = 'block';
+                    filterPanel.style.display = 'none';
+                }
+            });
+            
+            // 筛选按钮点击事件
+            filterButton.addEventListener('click', function() {
+                // 显示筛选面板，隐藏搜索面板
+                if (filterPanel.style.display === 'block') {
+                    filterPanel.style.display = 'none';
+                } else {
+                    filterPanel.style.display = 'block';
+                    searchPanel.style.display = 'none';
+                }
+            });
+            
+            // 添加筛选选项的事件监听 - 修改为勾选后自动应用筛选
+            setTimeout(() => {
+                const filterNormal = document.getElementById('filter-normal');
+                const filterWarning = document.getElementById('filter-warning');
+                const filterAlarm = document.getElementById('filter-alarm');
+                const filterOffline = document.getElementById('filter-offline');
+                
+                if (filterNormal && filterWarning && filterAlarm && filterOffline) {
+                    filterNormal.addEventListener('change', applyFilters);
+                    filterWarning.addEventListener('change', applyFilters);
+                    filterAlarm.addEventListener('change', applyFilters);
+                    filterOffline.addEventListener('change', applyFilters);
+                }
+            }, 500);
+            
+            // 搜索输入框事件
+            setTimeout(() => {
+                const searchInput = document.getElementById('site-search-input');
+                if (searchInput) {
+                    searchInput.addEventListener('input', function() {
+                        const keyword = this.value.toLowerCase().trim();
+                        const resultsContainer = document.getElementById('search-results');
+                        
+                        // 清空结果
+                        resultsContainer.innerHTML = '';
+                        
+                        if (keyword === '') {
+                            resultsContainer.innerHTML = '<div style="color:#888; font-size:13px;">请输入关键词搜索站点</div>';
+                            return;
+                        }
+                        
+                        // 搜索匹配的站点
+                        const matchedSites = siteData.filter(site => site.name.toLowerCase().includes(keyword));
+                        
+                        if (matchedSites.length === 0) {
+                            resultsContainer.innerHTML = '<div style="color:#888; font-size:13px;">没有找到匹配的站点</div>';
+                        } else {
+                            // 显示搜索结果
+                            matchedSites.forEach(site => {
+                                const resultItem = document.createElement('div');
+                                resultItem.className = 'search-result-item';
+                                resultItem.style.padding = '8px';
+                                resultItem.style.borderBottom = '1px solid #eee';
+                                resultItem.style.cursor = 'pointer';
+                                
+                                // 添加状态指示点
+                                let statusColor;
+                                switch(site.status) {
+                                    case "normal": statusColor = "#2ECC71"; break;
+                                    case "warning": statusColor = "#F39C12"; break;
+                                    case "alarm": statusColor = "#E74C3C"; break;
+                                }
+                                
+                                resultItem.innerHTML = `
+                                    <div style="display:flex; align-items:center;">
+                                        <div style="width:8px; height:8px; border-radius:50%; background-color:${statusColor}; margin-right:8px;"></div>
+                                        <span>${site.name}</span>
+                                    </div>
+                                `;
+                                
+                                // 点击站点时的操作
+                                resultItem.addEventListener('click', function() {
+                                    // 获取当前视图类型
+                                    const currentView = document.getElementById('card-view').style.display === 'block' ? 'card' : 'map';
+                                    
+                                    if (currentView === 'map') {
+                                        // 地图视图: 定位到该站点
+                                        map.setZoomAndCenter(10, site.position);
+                                        
+                                        // 显示信息窗口
+                                        const pixel = map.lngLatToContainer(site.position);
+                                        showSiteInfo({pixel: pixel}, site);
+                                    } else {
+                                        // 卡片视图: 高亮匹配的卡片
+                                        highlightSiteCard(site);
+                                    }
+                                    
+                                    // 关闭搜索面板
+                                    document.querySelector('.search-panel').style.display = 'none';
+                                });
+                                
+                                resultsContainer.appendChild(resultItem);
+                            });
+                        }
+                    });
+                }
+            }, 500);
+        }
+        
+        // 全选或清空筛选选项
+        function selectAllFilters(checked) {
+            document.getElementById('filter-normal').checked = checked;
+            document.getElementById('filter-warning').checked = checked;
+            document.getElementById('filter-alarm').checked = checked;
+            document.getElementById('filter-offline').checked = checked;
+        }
+
+        // 启用点聚合功能
+        function enableMarkerCluster() {
+            map.plugin(['AMap.MarkerCluster'], function() {
+                // 创建聚合对象，传入地图实例
+                const cluster = new AMap.MarkerCluster(map, window.siteMarkers, {
+                    gridSize: 80, // 聚合网格大小
+                    maxZoom: 8,   // 最大的聚合级别，大于该级别就不进行相应的聚合
+                    
+                    // 自定义聚合点样式
+                    renderClusterMarker: function(context) {
+                        const count = context.count;
+                        const markers = context.markers;
+                        
+                        // 判断聚合点内站点状态
+                        let hasNormal = false;
+                        let hasWarning = false;
+                        let hasAlarm = false;
+                        
+                        markers.forEach(marker => {
+                            const status = marker.getExtData().status;
+                            if (status === 'normal') hasNormal = true;
+                            if (status === 'warning') hasWarning = true;
+                            if (status === 'alarm') hasAlarm = true;
+                        });
+                        
+                        // 根据状态决定颜色
+                        let bgColor = '#2ECC71'; // 默认绿色
+                        
+                        if (hasAlarm) {
+                            if (hasWarning || hasNormal) {
+                                // 有故障，也有警告或正常 - 使用渐变色
+                                bgColor = 'linear-gradient(135deg, #E74C3C, #F39C12, #2ECC71)';
+                            } else {
+                                // 只有故障 - 红色
+                                bgColor = '#E74C3C';
+                            }
+                        } else if (hasWarning) {
+                            if (hasNormal) {
+                                // 有警告也有正常 - 橙绿渐变
+                                bgColor = 'linear-gradient(135deg, #F39C12, #2ECC71)';
+                            } else {
+                                // 只有警告 - 橙色
+                                bgColor = '#F39C12';
+                            }
+                        }
+                        
+                        // 创建聚合点样式
+                        const containerDiv = document.createElement('div');
+                        containerDiv.className = 'cluster-marker';
+                        containerDiv.style.width = '40px';
+                        containerDiv.style.height = '40px';
+                        containerDiv.style.borderRadius = '50%';
+                        containerDiv.style.background = bgColor;
+                        containerDiv.style.display = 'flex';
+                        containerDiv.style.justifyContent = 'center';
+                        containerDiv.style.alignItems = 'center';
+                        containerDiv.style.color = 'white';
+                        containerDiv.style.fontSize = '16px';
+                        containerDiv.style.fontWeight = 'bold';
+                        containerDiv.style.boxShadow = '0 2px 6px rgba(0, 0, 0, 0.3)';
+                        containerDiv.style.border = '2px solid white';
+                        
+                        containerDiv.innerHTML = count;
+                        
+                        context.marker.setContent(containerDiv);
+                    }
+                });
+            });
+        }
+
+        // 修改卡片视图的加载方式
+        // 全局变量用于存储分页和过滤状态
+        let currentPage = 1;
+        const itemsPerPage = 12; // 每页显示12个卡片
+        let filteredSites = []; // 存储过滤后的站点数据
+        let cardViewSortMethod = 'stopRate'; // 默认排序方法
+
+        // 刷新卡片视图
+        function refreshCardView() {
+            // 保存当前的筛选和排序设置
+            const sortSelect = document.getElementById('sort-select');
+            if (sortSelect) {
+                cardViewSortMethod = sortSelect.value;
+            }
+            
+            // 重新加载卡片
+            loadSiteCards();
+        }
+
+        // 切换页码
+        function changePage(delta) {
+            currentPage += delta;
+            loadSiteCards();
+        }
+
+        // 排序站点卡片
+        function sortSiteCards() {
+            const sortMethod = document.getElementById('sort-select').value;
+            cardViewSortMethod = sortMethod;
+            loadSiteCards();
+        }
+
+        // 加载站点卡片
+        function loadSiteCards() {
+            // 应用当前的筛选条件
+            applyCardFilters();
+            
+            // 对筛选后的数据进行排序
+            sortFilteredSites();
+            
+            // 计算总页数
+            const totalPages = Math.ceil(filteredSites.length / itemsPerPage);
+            
+            // 确保当前页在有效范围内
+            if (currentPage < 1) currentPage = 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+            
+            // 更新分页信息
+            document.getElementById('page-info').textContent = `第 ${currentPage} 页，共 ${totalPages} 页`;
+            document.getElementById('prev-page').disabled = currentPage <= 1;
+            document.getElementById('next-page').disabled = currentPage >= totalPages;
+            
+            // 计算当前页的数据
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = Math.min(startIndex + itemsPerPage, filteredSites.length);
+            const currentPageData = filteredSites.slice(startIndex, endIndex);
+            
+            // 获取卡片容器
+            const siteCardsContainer = document.getElementById('site-cards-container');
+            
+            // 清空原有内容
+            siteCardsContainer.innerHTML = '';
+            
+            // 如果没有数据显示提示
+            if (currentPageData.length === 0) {
+                siteCardsContainer.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 20px;">没有符合条件的站点</div>';
+                return;
+            }
+            
+            // 为每个站点创建卡片
+            currentPageData.forEach(site => {
+                // 创建卡片元素
+                const card = document.createElement('div');
+                card.className = 'site-card';
+                card.dataset.siteName = site.name; // 添加数据属性，用于查找卡片
+                
+                // 获取站点状态样式
+                let statusClass = '';
+                switch(site.status) {
+                    case 'normal':
+                        statusClass = 'card-status-normal';
+                        break;
+                    case 'warning':
+                        statusClass = 'card-status-warning';
+                        break;
+                    case 'alarm':
+                        statusClass = 'card-status-alarm';
+                        break;
+                }
+                
+                // 获取天气图标
+                const weatherIcon = getWeatherIcon(site.weather.icon);
+                
+                // 使用固定的非计划停机数据（与GIS显示一致）
+                const stopHours = Math.round(Math.random() * 2 * 10) / 10; // 0-2小时，保留一位小数
+                const stopRate = (Math.round(Math.random() * 5 * 10) / 10) + "%"; // 0-5%，保留一位小数
+                
+                // 设置卡片内容 - 移动站点标签到状态指示器左侧
+                card.innerHTML = `
+                    <h3>${site.name}</h3>
+                    <div class="card-header">
+                        <div class="site-tag">${site.type}</div>
+                        <div class="card-status-indicator ${statusClass}"></div>
+                    </div>
+                    <div class="site-info">
+                        <div class="site-weather">
+                            ${weatherIcon} ${site.weather.temp}°C / 湿度${site.weather.humidity}%
+                        </div>
+                        <p><span class="info-label">设备状态:</span> <span class="info-value">${site.offlineDevices ? `离线 ${site.offlineCount}/${site.totalDevices}` : '全部在线'}</span></p>
+                        <div class="site-metrics">
+                            <span title="安全运行天数">安全运行: ${site.runDays}天</span> | 
+                            <span title="今日非计划停机时长">今日停机: ${stopHours}小时</span> | 
+                            <span title="累计非计划停机率">累计停机率: ${stopRate}</span>
+                        </div>
+                    </div>
+                    <div class="site-buttons">
+                        <button class="site-btn full-width">进入站点</button>
+                    </div>
+                `;
+                
+                // 添加卡片点击事件
+                card.addEventListener('click', function(e) {
+                    // 如果点击的是按钮，不执行卡片点击事件
+                    if (e.target.classList.contains('site-btn')) {
+                        return;
+                    }
+                    
+                    // 切换到地图视图并定位到站点
+                    switchView('map');
+                    map.setZoomAndCenter(10, site.position);
+                    
+                    // 显示信息窗口
+                    const pixel = map.lngLatToContainer(site.position);
+                    showSiteInfo({pixel: pixel}, site);
+                });
+                
+                // 添加"进入站点"按钮点击事件
+                const siteBtn = card.querySelector('.site-btn');
+                if (siteBtn) {
+                    siteBtn.addEventListener('click', function() {
+                        // 跳转到站点首页
+                        window.location.href = 'site-homepage.html';
+                        // 如果需要传递站点信息，可以在URL中添加参数
+                        // window.location.href = 'site-homepage.html?siteName=' + encodeURIComponent(site.name);
+                    });
+                }
+                
+                // 添加到容器
+                siteCardsContainer.appendChild(card);
+            });
+            
+            // 更新卡片布局以适应当前屏幕大小
+            updateCardLayout();
+        }
+
+        // 更新卡片布局以适应不同屏幕大小
+        function updateCardLayout() {
+            const siteCardsContainer = document.getElementById('site-cards-container');
+            
+            // 检测当前是否是大屏模式
+            const isLargeScreen = window.innerWidth >= 1440;
+            
+            if (isLargeScreen) {
+                // 大屏模式：每行显示4个卡片
+                siteCardsContainer.style.gridTemplateColumns = 'repeat(4, 1fr)';
+            } else if (window.innerWidth >= 992) {
+                // 中等屏幕：每行显示3个卡片
+                siteCardsContainer.style.gridTemplateColumns = 'repeat(3, 1fr)';
+            } else if (window.innerWidth >= 768) {
+                // 平板：每行显示2个卡片
+                siteCardsContainer.style.gridTemplateColumns = 'repeat(2, 1fr)';
+            } else {
+                // 手机：每行显示1个卡片
+                siteCardsContainer.style.gridTemplateColumns = '1fr';
+            }
+        }
+
+        // 处理窗口大小变化
+        window.addEventListener('resize', function() {
+            // 如果当前是卡片视图，更新卡片布局
+            if (document.getElementById('card-view').style.display === 'block') {
+                updateCardLayout();
+            }
+        });
+
+        // 对筛选后的站点数据进行排序
+        function sortFilteredSites() {
+            switch(cardViewSortMethod) {
+                case 'stopRate':
+                    // 按非计划停机率排序（这里用模拟数据，所以使用站点ID作为替代）
+                    filteredSites.sort((a, b) => {
+                        // 假设ID越大，停机率越高
+                        return siteData.indexOf(b) - siteData.indexOf(a);
+                    });
+                    break;
+                case 'status':
+                    // 按故障优先排序
+                    filteredSites.sort((a, b) => {
+                        // 定义状态优先级：alarm > warning > normal
+                        const statusPriority = { 'alarm': 2, 'warning': 1, 'normal': 0 };
+                        return statusPriority[b.status] - statusPriority[a.status];
+                    });
+                    break;
+                case 'runDays':
+                    // 按安全运行天数降序排序
+                    filteredSites.sort((a, b) => b.runDays - a.runDays);
+                    break;
+            }
+        }
+
+        // 应用卡片视图的筛选条件
+        function applyCardFilters() {
+            // 获取GIS视图的筛选选项状态，保持筛选一致性
+            const showNormal = document.getElementById('filter-normal').checked;
+            const showWarning = document.getElementById('filter-warning').checked;
+            const showAlarm = document.getElementById('filter-alarm').checked;
+            const showOffline = document.getElementById('filter-offline').checked;
+            
+            // 筛选站点数据
+            filteredSites = siteData.filter(site => {
+                // 根据站点状态筛选
+                if (site.status === "normal" && !showNormal) {
+                    return false;
+                } else if (site.status === "warning" && !showWarning) {
+                    return false;
+                } else if (site.status === "alarm" && !showAlarm) {
+                    return false;
+                }
+                
+                // 根据是否包含离线设备筛选
+                if (!showOffline && site.offlineDevices) {
+                    return false;
+                }
+                
+                return true;
+            });
+        }
+
+        // 添加GIS视图的刷新按钮
+        function addGISRefreshButton() {
+            // 创建按钮容器
+            const buttonContainer = document.createElement('div');
+            buttonContainer.className = 'gis-buttons-container';
+            
+            // 刷新按钮
+            const refreshBtn = document.createElement('div');
+            refreshBtn.className = 'refresh-btn gis-control-btn';
+            refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i>';
+            refreshBtn.title = '刷新地图';
+            
+            refreshBtn.addEventListener('click', function() {
+                refreshGISView();
+            });
+            
+            // 返回原始视图按钮
+            const resetViewBtn = document.createElement('div');
+            resetViewBtn.className = 'refresh-btn gis-control-btn';
+            resetViewBtn.innerHTML = '<i class="fas fa-globe-asia"></i>';
+            resetViewBtn.title = '返回原始视图';
+            
+            resetViewBtn.addEventListener('click', function() {
+                // 重置地图到默认视图
+                map.setZoomAndCenter(4, [105.0, 35.0]);
+            });
+            
+            // 添加按钮到容器
+            buttonContainer.appendChild(refreshBtn);
+            buttonContainer.appendChild(resetViewBtn);
+            
+            // 添加容器到地图
+            document.getElementById('map-container').appendChild(buttonContainer);
+        }
+
+        // 刷新GIS视图
+        function refreshGISView() {
+            // 移除现有的标记
+            if (window.siteMarkers && window.siteMarkers.length) {
+                map.remove(window.siteMarkers);
+            }
+            
+            // 重新添加标记
+            addSiteMarkers();
+            
+            // 如果启用了聚合，重新启用
+            enableMarkerCluster();
+        }
+
+        // 添加自定义样式
+        function addStyles() {
+            const styleElement = document.createElement('style');
+            styleElement.textContent = `
+                .site-tag {
+                    display: inline-block;
+                    background: var(--primary-color);
+                    color: white;
+                    padding: 3px 8px;
+                    border-radius: 4px;
+                    font-size: 12px;
+                    margin: 8px 0;
+                }
+                
+                .site-weather {
+                    display: flex;
+                    align-items: center;
+                    margin-bottom: 8px;
+                    color: #666;
+                }
+                
+                .site-info p {
+                    display: flex;
+                    justify-content: space-between;
+                    margin-bottom: 6px;
+                }
+                
+                .info-label {
+                    color: #666;
+                }
+                
+                .info-value {
+                    font-weight: 500;
+                }
+                
+                .gis-refresh-btn {
+                    position: absolute;
+                    right: 20px;
+                    top: 170px; /* 放在全屏按钮下方 */
+                    z-index: 11;
+                }
+                
+                .filter-buttons {
+                    display: flex;
+                    gap: 8px;
+                    margin-top: 15px;
+                }
+                
+                .filter-btn {
+                    flex: 1;
+                    padding: 6px 0;
+                    border: 1px solid #ddd;
+                    border-radius: 4px;
+                    background-color: white;
+                    cursor: pointer;
+                    font-size: 13px;
+                }
+                
+                .filter-btn.primary {
+                    background-color: var(--primary-color);
+                    color: white;
+                    border-color: var(--primary-color);
+                }
+                
+                .search-result-item:hover {
+                    background-color: var(--light-color);
+                }
+                
+                .site-card-highlight {
+                    box-shadow: 0 0 0 3px var(--primary-color);
+                    transform: translateY(-3px);
+                    transition: all 0.3s ease;
+                }
+                
+                .site-card {
+                    cursor: pointer;
+                }
+                
+                .card-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 10px;
+                    margin-top: -10px; /* 添加负边距，使其更靠近标题 */
+                }
+                
+                .card-status-indicator {
+                    position: relative; /* 改为相对定位，不再是绝对定位 */
+                    width: 16px;
+                    height: 16px;
+                    border-radius: 50%;
+                    margin-left: auto; /* 将其推到右侧 */
+                }
+                
+                .site-metrics {
+                    display: flex;
+                    justify-content: space-between;
+                    background-color: rgba(73, 161, 141, 0.1);
+                    padding: 8px 10px;
+                    border-radius: 4px;
+                    margin: 10px 0;
+                    color: var(--primary-color);
+                    font-weight: 500;
+                    font-size: 13px;
+                    text-align: center;
+                }
+                
+                .full-width {
+                    width: 100%;
+                }
+                
+                /* 大屏模式适配 */
+                @media (min-width: 1440px) {
+                    .site-cards {
+                        grid-template-columns: repeat(4, 1fr);
+                    }
+                    
+                    .key-data-cards {
+                        gap: 30px;
+                    }
+                    
+                    .data-card {
+                        min-width: 220px;
+                        padding: 20px 25px;
+                    }
+                    
+                    .data-card-value {
+                        font-size: 32px;
+                    }
+                    
+                    .data-card-label {
+                        font-size: 16px;
+                    }
+                }
+                
+                /* 平板和较小屏幕适配 */
+                @media (max-width: 992px) {
+                    .site-cards {
+                        grid-template-columns: repeat(2, 1fr);
+                    }
+                }
+                
+                @media (max-width: 768px) {
+                    .card-view-header {
+                        flex-direction: column;
+                        gap: 10px;
+                    }
+                    
+                    .card-view-controls, .pagination {
+                        width: 100%;
+                        justify-content: space-between;
+                    }
+                    
+                    .site-cards {
+                        grid-template-columns: 1fr;
+                    }
+                    
+                    .key-data-cards {
+                        flex-direction: column;
+                        gap: 10px;
+                        left: 20px;
+                        right: 20px;
+                        transform: none;
+                    }
+                    
+                    .data-card {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        min-width: 0;
+                        width: 100%;
+                    }
+                    
+                    .data-card-value {
+                        margin-bottom: 0;
+                        font-size: 20px;
+                    }
+                    
+                    .search-box {
+                        width: 100%;
+                    }
+                }
+            `;
+            
+            document.head.appendChild(styleElement);
+        }
+
+        // 高亮站点卡片
+        function highlightSiteCard(targetSite) {
+            // 先计算站点在筛选后的索引
+            const siteIndex = filteredSites.findIndex(site => site.name === targetSite.name);
+            
+            if (siteIndex === -1) {
+                // 如果站点不在当前筛选结果中，显示提示
+                alert('该站点不在当前筛选结果中，请调整筛选条件');
+                return;
+            }
+            
+            // 计算站点所在的页码
+            const sitePage = Math.floor(siteIndex / itemsPerPage) + 1;
+            
+            // 如果页码不是当前页，则切换到对应页面
+            if (sitePage !== currentPage) {
+                currentPage = sitePage;
+                loadSiteCards();
+            }
+            
+            // 延迟执行，确保卡片已经加载
+            setTimeout(() => {
+                const allCards = document.querySelectorAll('.site-card');
+                const cardInPage = siteIndex % itemsPerPage;
+                
+                if (allCards[cardInPage]) {
+                    // 移除之前的高亮
+                    document.querySelectorAll('.site-card-highlight').forEach(card => {
+                        card.classList.remove('site-card-highlight');
+                    });
+                    
+                    // 添加高亮效果
+                    allCards[cardInPage].classList.add('site-card-highlight');
+                    
+                    // 滚动到卡片位置
+                    allCards[cardInPage].scrollIntoView({behavior: 'smooth', block: 'center'});
+                }
+            }, 100);
+        }
+
+        // 添加站点卡片搜索功能
+        function searchSiteCards() {
+            const keyword = document.getElementById('card-search-input').value.toLowerCase().trim();
+            
+            if (keyword === '') {
+                // 如果搜索框为空，恢复所有筛选
+                applyCardFilters();
+                loadSiteCards();
+                return;
+            }
+            
+            // 先应用当前的筛选条件
+            applyCardFilters();
+            
+            // 在筛选结果中进一步搜索
+            filteredSites = filteredSites.filter(site => 
+                site.name.toLowerCase().includes(keyword) || 
+                site.type.toLowerCase().includes(keyword)
+            );
+            
+            // 重置到第一页
+            currentPage = 1;
+            
+            // 重新加载卡片
+            loadSiteCards();
+        }
+
+        // 添加搜索框的回车键监听
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('card-search-input');
+            if (searchInput) {
+                searchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        searchSiteCards();
+                    }
+                });
+            }
+        });
+
+        // 更新卡片视图时间显示
+        function updateCardTime() {
+            const timeDisplay = document.getElementById('card-time-display');
+            if (timeDisplay) {
+                const now = new Date();
+                const timeStr = now.toLocaleString('zh-CN', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: false
+                });
+                timeDisplay.textContent = timeStr;
+            }
+        }
+
+        // 确保页面卸载时清除定时器
+        window.addEventListener('beforeunload', function() {
+            if (window.cardTimeInterval) {
+                clearInterval(window.cardTimeInterval);
+            }
+        });
+
+        // AI助手功能
+        (function() {
+            // AI助手相关元素
+            const assistantIcon = document.getElementById('ai-assistant-icon');
+            const assistantDialog = document.getElementById('ai-assistant-dialog');
+            const dialogClose = document.getElementById('ai-dialog-close');
+            const dialogMinimize = document.getElementById('ai-dialog-minimize');
+            const aiInput = document.getElementById('ai-input');
+            const aiSendBtn = document.getElementById('ai-send-btn');
+            const aiMessages = document.getElementById('ai-messages');
+            const aiNotification = document.getElementById('ai-notification');
+            const quickActionBtns = document.querySelectorAll('.ai-action-btn');
+
+            // AI助手模拟数据
+            const aiAssistantData = {
+                alertSites: [
+                    { name: "贵阳清镇能源站", status: "alarm", issue: "逆变器故障", offlineTime: 3.5, stopRate: "12.2%" },
+                    { name: "武汉东湖能源站", status: "alarm", issue: "通信中断", offlineTime: 2.8, stopRate: "8.5%" },
+                    { name: "上海浦东能源站", status: "warning", issue: "电池温度过高", offlineTime: 1.2, stopRate: "4.3%" },
+                    { name: "深圳南山能源站", status: "warning", issue: "充电桩离线", offlineTime: 0.8, stopRate: "3.1%" }
+                ],
+                predictions: [
+                    { name: "重庆江北能源站", device: "蓄电池组A", probability: "87%", timeFrame: "48小时内", suggestion: "提前检查电池连接件" },
+                    { name: "成都高新区能源站", device: "充电桩3号", probability: "65%", timeFrame: "72小时内", suggestion: "检查供电线路" },
+                    { name: "北京朝阳能源站", device: "光伏逆变器", probability: "42%", timeFrame: "一周内", suggestion: "检查散热系统" }
+                ],
+                recommendations: [
+                    { name: "贵阳清镇能源站", action: "更换逆变器散热风扇", priority: "高", impact: "可降低停机率8.5%" },
+                    { name: "武汉东湖能源站", action: "优化通信网络配置", priority: "高", impact: "可提高设备在线率12.3%" },
+                    { name: "上海浦东能源站", action: "调整电池温度控制参数", priority: "中", impact: "可延长电池寿命15%" },
+                    { name: "深圳南山能源站", action: "升级充电桩固件", priority: "中", impact: "可减少离线事件30%" }
+                ],
+                statusSummary: {
+                    totalSites: 30,
+                    normalSites: 22,
+                    warningSites: 4,
+                    alarmSites: 4,
+                    offlineDevices: 18,
+                    avgStopRate: "3.7%"
+                },
+                stopRateHistory: [2.8, 3.1, 2.9, 3.5, 4.2, 3.9, 3.7],
+                commonResponses: {
+                    greeting: ["你好！", "很高兴为你服务！", "有什么可以帮到你的吗？"],
+                    unknown: ["抱歉，我无法理解这个问题。", "这个问题有点复杂，请尝试换一种方式提问。", "我还在学习中，这个问题我暂时无法回答。"],
+                    help: ["我可以帮你监控站点状态、预测故障、提供运维建议。", "你可以问我关于站点运行情况、设备状态、停机率等问题。", "我能够分析告警数据，预测可能的故障，并提供优化建议。"]
+                }
+            };
+
+            // 初始化
+            function init() {
+                // 点击图标打开对话框
+                assistantIcon.addEventListener('click', toggleDialog);
+                
+                // 关闭和最小化对话框
+                dialogClose.addEventListener('click', closeDialog);
+                dialogMinimize.addEventListener('click', minimizeDialog);
+                
+                // 发送消息
+                aiSendBtn.addEventListener('click', sendMessage);
+                aiInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        sendMessage();
+                    }
+                });
+                
+                // 快速操作按钮
+                quickActionBtns.forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const action = this.dataset.action;
+                        handleQuickAction(action);
+                    });
+                });
+                
+                // 设置周期性提醒和通知
+                setupPeriodicAlerts();
+                
+                // 添加智能问答功能
+                addSmartAnswerButtons();
+            }
+
+            // 切换对话框显示状态
+            function toggleDialog() {
+                assistantDialog.classList.toggle('active');
+                
+                if (assistantDialog.classList.contains('active')) {
+                    // 清除通知
+                    clearNotification();
+                    // 滚动到最新消息
+                    setTimeout(() => {
+                        scrollToBottom();
+                    }, 300);
+                }
+            }
+
+            // 关闭对话框
+            function closeDialog() {
+                assistantDialog.classList.remove('active');
+            }
+
+            // 最小化对话框
+            function minimizeDialog() {
+                assistantDialog.classList.remove('active');
+                // 显示动画效果提示用户对话框被最小化了
+                assistantIcon.classList.add('pulse-animation');
+                setTimeout(() => {
+                    assistantIcon.classList.remove('pulse-animation');
+                }, 2000);
+            }
+
+            // 显示通知
+            function showNotification(count = 1) {
+                aiNotification.textContent = count;
+                aiNotification.classList.add('active');
+            }
+
+            // 清除通知
+            function clearNotification() {
+                aiNotification.classList.remove('active');
+            }
+
+            // 发送用户消息
+            function sendMessage() {
+                const message = aiInput.value.trim();
+                if (!message) return;
+                
+                // 添加用户消息到对话框
+                addUserMessage(message);
+                
+                // 清空输入框
+                aiInput.value = '';
+                
+                // 滚动到最新消息
+                scrollToBottom();
+                
+                // 显示AI正在输入的状态
+                showTypingIndicator();
+                // 给助手图标添加正在输入的状态
+                assistantIcon.classList.add('with-typing');
+                
+                // 模拟AI思考和输入时间
+                setTimeout(() => {
+                    // 处理用户消息并生成AI回复
+                    hideTypingIndicator();
+                    assistantIcon.classList.remove('with-typing');
+                    processUserMessage(message);
+                }, 1200);
+            }
+
+            // 显示正在输入的指示器
+            function showTypingIndicator() {
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'ai-message ai-message-bot typing-indicator';
+                typingDiv.innerHTML = `
+                    <div class="ai-avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="ai-message-content">
+                        <div class="ai-message-typing">
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                        </div>
+                    </div>
+                `;
+                typingDiv.id = 'typing-indicator';
+                aiMessages.appendChild(typingDiv);
+                
+                // 滚动到最新消息
+                scrollToBottom();
+            }
+
+            // 隐藏正在输入的指示器
+            function hideTypingIndicator() {
+                const typingIndicator = document.getElementById('typing-indicator');
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+            }
+
+            // 添加用户消息到对话框
+            function addUserMessage(text) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'ai-message ai-message-user';
+                messageDiv.innerHTML = `
+                    <div class="ai-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="ai-message-content">
+                        <p>${text}</p>
+                    </div>
+                `;
+                aiMessages.appendChild(messageDiv);
+            }
+
+            // 添加AI助手消息到对话框 - 更新为带样式和动画的版本
+            function addBotMessage(content, messageType = 'normal') {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'ai-message ai-message-bot';
+                
+                // 根据消息类型添加额外样式
+                let contentWrapper = content;
+                if (messageType === 'alert') {
+                    contentWrapper = `<div class="urgent-alert">${content}</div>`;
+                } else if (messageType === 'prediction') {
+                    contentWrapper = `<div class="prediction-alert">${content}</div>`;
+                } else if (messageType === 'recommendation') {
+                    contentWrapper = `<div class="recommendation-message">${content}</div>`;
+                }
+                
+                messageDiv.innerHTML = `
+                    <div class="ai-avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="ai-message-content">
+                        ${contentWrapper}
+                    </div>
+                `;
+                aiMessages.appendChild(messageDiv);
+                
+                // 滚动到最新消息
+                scrollToBottom();
+            }
+
+            // 处理用户消息
+            function processUserMessage(message) {
+                const lowercaseMsg = message.toLowerCase();
+                
+                // 检查是否是站点问题
+                const siteMatch = siteData.find(site => lowercaseMsg.includes(site.name.toLowerCase()));
+                if (siteMatch) {
+                    respondAboutSite(siteMatch);
+                    return;
+                }
+                
+                // 检查是否是关于故障或告警的问题
+                if (lowercaseMsg.includes('故障') || lowercaseMsg.includes('告警') || lowercaseMsg.includes('警告')) {
+                    showAlertAnalysis();
+                    return;
+                }
+                
+                // 检查是否是关于预测的问题
+                if (lowercaseMsg.includes('预测') || lowercaseMsg.includes('预报') || lowercaseMsg.includes('未来') || lowercaseMsg.includes('可能')) {
+                    showPredictions();
+                    return;
+                }
+                
+                // 检查是否是关于建议的问题
+                if (lowercaseMsg.includes('建议') || lowercaseMsg.includes('优化') || lowercaseMsg.includes('改进')) {
+                    showRecommendations();
+                    return;
+                }
+                
+                // 检查是否是关于状态总览的问题
+                if (lowercaseMsg.includes('状态') || lowercaseMsg.includes('总览') || lowercaseMsg.includes('概况') || lowercaseMsg.includes('汇总')) {
+                    showStatusSummary();
+                    return;
+                }
+                
+                // 检查是否是关于非计划停机率的问题
+                if (lowercaseMsg.includes('停机') || lowercaseMsg.includes('停机率')) {
+                    showStopRateAnalysis();
+                    return;
+                }
+                
+                // 检查是否是请求帮助的特殊情况 - 实时数据解读
+                if (lowercaseMsg.includes('实时') || lowercaseMsg.includes('解读') || lowercaseMsg.includes('数据分析')) {
+                    showRealTimeAnalysis();
+                    return;
+                }
+                
+                // 检查是否是问候
+                if (lowercaseMsg.includes('你好') || lowercaseMsg.includes('嗨') || lowercaseMsg.includes('哈喽') || lowercaseMsg.includes('早上好') || lowercaseMsg.includes('下午好') || lowercaseMsg.includes('晚上好')) {
+                    const randomGreeting = aiAssistantData.commonResponses.greeting[Math.floor(Math.random() * aiAssistantData.commonResponses.greeting.length)];
+                    addBotMessage(`<p>${randomGreeting}我是智能运维助手，可以帮助你监控站点、预测故障和优化运维。</p>`);
+                    return;
+                }
+                
+                // 检查是否是关于帮助的问题
+                if (lowercaseMsg.includes('帮助') || lowercaseMsg.includes('能做什么') || lowercaseMsg.includes('怎么用') || lowercaseMsg.includes('使用说明')) {
+                    const randomHelp = aiAssistantData.commonResponses.help[Math.floor(Math.random() * aiAssistantData.commonResponses.help.length)];
+                    addBotMessage(`<p>${randomHelp}</p><p>你可以尝试点击下方的快速操作按钮，或者直接询问我具体的站点信息。</p>`);
+                    return;
+                }
+                
+                // 检查是否是关于紧急情况的问题
+                if (lowercaseMsg.includes('紧急') || lowercaseMsg.includes('严重') || lowercaseMsg.includes('急需处理')) {
+                    showEmergencySituation();
+                    return;
+                }
+                
+                // 默认回复
+                const randomUnknown = aiAssistantData.commonResponses.unknown[Math.floor(Math.random() * aiAssistantData.commonResponses.unknown.length)];
+                addBotMessage(`<p>${randomUnknown}</p><p>你可以尝试点击下方的快速操作按钮查看常用功能。</p>`);
+            }
+
+            // 快速操作按钮处理
+            function handleQuickAction(action) {
+                switch(action) {
+                    case 'status':
+                        showStatusSummary();
+                        break;
+                    case 'alerts':
+                        showAlertAnalysis();
+                        break;
+                    case 'prediction':
+                        showPredictions();
+                        break;
+                    case 'recommendations':
+                        showRecommendations();
+                        break;
+                }
+            }
+
+            // 展示站点状态总览
+            function showStatusSummary() {
+                const summary = aiAssistantData.statusSummary;
+                const content = `
+                    <p>站点状态总览：</p>
+                    <ul style="margin: 10px 0; padding-left: 20px;">
+                        <li>站点总数：${summary.totalSites}个</li>
+                        <li>正常站点：${summary.normalSites}个</li>
+                        <li>告警站点：${summary.warningSites}个</li>
+                        <li>故障站点：${summary.alarmSites}个</li>
+                        <li>离线设备总数：${summary.offlineDevices}台</li>
+                        <li>平均非计划停机率：${summary.avgStopRate}</li>
+                    </ul>
+                    <p>今天系统整体运行状况良好，但有${summary.alarmSites}个站点处于故障状态，需要优先处理。</p>
+                    <div class="action-suggestion">
+                        <button class="suggestion-btn" onclick="window.location.href='#'"><i class="fas fa-wrench"></i> 查看故障站点</button>
+                        <button class="suggestion-btn" onclick="window.location.href='#'"><i class="fas fa-file-alt"></i> 生成日报表</button>
+                    </div>
+                `;
+                addBotMessage(content);
+            }
+
+            // 展示告警分析
+            function showAlertAnalysis() {
+                const alerts = aiAssistantData.alertSites;
+                let alertContent = `<p>最近告警分析：</p><div style="margin-top: 10px;">`;
+                
+                alerts.forEach(alert => {
+                    const statusClass = alert.status === 'alarm' ? 'card-status-alarm' : 'card-status-warning';
+                    const statusText = alert.status === 'alarm' ? '故障' : '警告';
+                    
+                    alertContent += `
+                        <div style="border: 1px solid #eee; border-radius: 8px; padding: 12px; margin-bottom: 10px; position: relative;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="font-weight: 500;">${alert.name}</span>
+                                <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%;" class="${statusClass}"></span>
+                            </div>
+                            <div style="margin-top: 5px; color: #666;">
+                                <div>状态：${statusText}</div>
+                                <div>问题：${alert.issue}</div>
+                                <div>离线时长：${alert.offlineTime}小时</div>
+                                <div>非计划停机率：${alert.stopRate}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                alertContent += `</div>
+                    <p>建议优先处理贵阳清镇能源站和武汉东湖能源站的故障，这两个站点的停机时间已超过2小时。</p>
+                    <div class="action-suggestion">
+                        <button class="suggestion-btn" onclick="window.location.href='#'"><i class="fas fa-tools"></i> 创建工单</button>
+                        <button class="suggestion-btn" onclick="window.location.href='#'"><i class="fas fa-chart-line"></i> 查看历史告警</button>
+                    </div>
+                `;
+                
+                addBotMessage(alertContent);
+            }
+
+            // 展示故障预测
+            function showPredictions() {
+                const predictions = aiAssistantData.predictions;
+                let predictionContent = `<p>故障预测分析：</p><div style="margin-top: 10px;">`;
+                
+                predictions.forEach(pred => {
+                    predictionContent += `
+                        <div style="border: 1px solid #eee; border-radius: 8px; padding: 12px; margin-bottom: 10px;">
+                            <div style="font-weight: 500;">${pred.name} - ${pred.device}</div>
+                            <div style="margin-top: 5px; color: #666;">
+                                <div>故障概率：${pred.probability}</div>
+                                <div>预测时间框架：${pred.timeFrame}</div>
+                                <div>建议操作：${pred.suggestion}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                predictionContent += `</div>
+                    <p>根据历史数据分析，以上设备在未来可能出现故障。建议提前安排巡检和维护，避免非计划停机。</p>
+                    <div class="action-suggestion">
+                        <button class="suggestion-btn" onclick="window.location.href='#'"><i class="fas fa-calendar-check"></i> 安排巡检</button>
+                        <button class="suggestion-btn" onclick="window.location.href='#'"><i class="fas fa-history"></i> 查看预测历史</button>
+                    </div>
+                `;
+                
+                addBotMessage(predictionContent);
+            }
+
+            // 展示运维建议
+            function showRecommendations() {
+                const recommendations = aiAssistantData.recommendations;
+                let recContent = `<p>运维优化建议：</p><div style="margin-top: 10px;">`;
+                
+                recommendations.forEach(rec => {
+                    let priorityColor;
+                    switch(rec.priority) {
+                        case '高':
+                            priorityColor = '#E74C3C';
+                            break;
+                        case '中':
+                            priorityColor = '#F39C12';
+                            break;
+                        case '低':
+                            priorityColor = '#2ECC71';
+                            break;
+                    }
+                    
+                    recContent += `
+                        <div style="border: 1px solid #eee; border-radius: 8px; padding: 12px; margin-bottom: 10px;">
+                            <div style="font-weight: 500;">${rec.name}</div>
+                            <div style="margin-top: 5px; color: #666;">
+                                <div>建议操作：${rec.action}</div>
+                                <div>优先级：<span style="color: ${priorityColor};">${rec.priority}</span></div>
+                                <div>预期效果：${rec.impact}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                recContent += `</div>
+                    <p>实施这些建议可以有效降低非计划停机率，提高设备可靠性和运行效率。</p>
+                    <div class="action-suggestion">
+                        <button class="suggestion-btn" onclick="window.location.href='#'"><i class="fas fa-clipboard-list"></i> 创建工作计划</button>
+                        <button class="suggestion-btn" onclick="window.location.href='#'"><i class="fas fa-chart-pie"></i> 查看优化效果</button>
+                    </div>
+                `;
+                
+                addBotMessage(recContent);
+            }
+
+            // 回应关于特定站点的问题
+            function respondAboutSite(site) {
+                // 获取站点状态文本
+                let statusText, statusClass;
+                switch(site.status) {
+                    case 'normal':
+                        statusText = '正常';
+                        statusClass = 'card-status-normal';
+                        break;
+                    case 'warning':
+                        statusText = '告警';
+                        statusClass = 'card-status-warning';
+                        break;
+                    case 'alarm':
+                        statusText = '故障';
+                        statusClass = 'card-status-alarm';
+                        break;
+                }
+                
+                // 生成随机的停机时长和停机率
+                const stopHours = Math.round(Math.random() * 2 * 10) / 10; // 0-2小时，保留一位小数
+                const stopRate = (Math.round(Math.random() * 5 * 10) / 10) + "%"; // 0-5%，保留一位小数
+                
+                // 生成站点信息内容
+                const content = `
+                    <p>${site.name}的状态信息如下：</p>
+                    <div style="border: 1px solid #eee; border-radius: 8px; padding: 15px; margin: 10px 0; position: relative;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <span style="font-weight: 500; font-size: 16px;">${site.name}</span>
+                            <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%;" class="${statusClass}"></span>
+                        </div>
+                        <div style="margin-bottom: 5px;">
+                            <span style="color: #666;">站点类型：</span>
+                            <span>${site.type}</span>
+                        </div>
+                        <div style="margin-bottom: 5px;">
+                            <span style="color: #666;">运行状态：</span>
+                            <span>${statusText}</span>
+                        </div>
+                        <div style="margin-bottom: 5px;">
+                            <span style="color: #666;">设备状态：</span>
+                            <span>${site.offlineDevices ? `离线 ${site.offlineCount}/${site.totalDevices}` : '全部在线'}</span>
+                        </div>
+                        <div style="margin-bottom: 5px;">
+                            <span style="color: #666;">安全运行天数：</span>
+                            <span>${site.runDays}天</span>
+                        </div>
+                        <div style="margin-bottom: 5px;">
+                            <span style="color: #666;">今日非计划停机时长：</span>
+                            <span>${stopHours}小时</span>
+                        </div>
+                        <div>
+                            <span style="color: #666;">累计非计划停机率：</span>
+                            <span>${stopRate}</span>
+                        </div>
+                    </div>
+                `;
+                
+                // 根据站点状态添加不同的建议
+                let suggestion = '';
+                if (site.status === 'normal') {
+                    suggestion = `<p>${site.name}运行状态良好，建议继续保持当前的运维计划。</p>`;
+                } else if (site.status === 'warning') {
+                    suggestion = `
+                        <p>${site.name}存在告警状态，建议关注以下几点：</p>
+                        <ul style="margin: 10px 0; padding-left: 20px;">
+                            <li>检查${site.offlineDevices ? '离线设备' : '告警设备'}的通信状态</li>
+                            <li>查看设备运行参数是否在正常范围内</li>
+                            <li>评估是否需要安排工作人员现场巡检</li>
+                        </ul>
+                        <div class="action-suggestion">
+                            <button class="suggestion-btn" onclick="window.location.href='#'"><i class="fas fa-search"></i> 查看设备详情</button>
+                            <button class="suggestion-btn" onclick="window.location.href='#'"><i class="fas fa-clipboard-check"></i> 创建巡检任务</button>
+                        </div>
+                    `;
+                } else if (site.status === 'alarm') {
+                    suggestion = `
+                        <p>${site.name}处于故障状态，建议立即采取以下措施：</p>
+                        <ul style="margin: 10px 0; padding-left: 20px;">
+                            <li>创建紧急工单处理故障设备</li>
+                            <li>通知现场运维人员进行设备检修</li>
+                            <li>评估故障影响范围并制定应急预案</li>
+                        </ul>
+                        <div class="action-suggestion">
+                            <button class="suggestion-btn" onclick="window.location.href='#'"><i class="fas fa-tools"></i> 创建工单</button>
+                            <button class="suggestion-btn" onclick="window.location.href='#'"><i class="fas fa-phone"></i> 通知运维人员</button>
+                        </div>
+                    `;
+                }
+                
+                addBotMessage(content + suggestion);
+            }
+
+            // 展示非计划停机率分析
+            function showStopRateAnalysis() {
+                const stopRateData = aiAssistantData.stopRateHistory;
+                const avgStopRate = aiAssistantData.statusSummary.avgStopRate;
+                
+                // 创建简单的趋势图HTML（实际项目中可以使用Chart.js等图表库）
+                const max = Math.max(...stopRateData);
+                const chartHTML = `
+                    <div class="trend-chart">
+                        <div style="padding: 10px; height: 100%; display: flex; flex-direction: column;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <span style="font-size: 14px; color: #666;">七日非计划停机率趋势</span>
+                                <span style="font-size: 14px; color: var(--primary-color);">均值: ${avgStopRate}</span>
+                            </div>
+                            <div style="flex: 1; display: flex; align-items: flex-end; gap: 5px;">
+                                ${stopRateData.map(rate => {
+                                    const height = (rate / max * 100);
+                                    return `
+                                        <div style="flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%;">
+                                            <div style="width: 80%; background-color: var(--primary-color); height: ${height}%; border-radius: 3px 3px 0 0;"></div>
+                                            <div style="font-size: 12px; margin-top: 5px;">${rate}%</div>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                const content = `
+                    <p>非计划停机率分析：</p>
+                    ${chartHTML}
+                    <p style="margin-top: 10px;">过去7天的平均非计划停机率为${avgStopRate}。整体呈小幅下降趋势，但仍有优化空间。</p>
+                    <p>主要影响因素：</p>
+                    <ul style="margin: 10px 0; padding-left: 20px;">
+                        <li>设备通信中断占比最高(38%)</li>
+                        <li>逆变器故障影响较大(25%)</li>
+                        <li>电池温度异常(15%)</li>
+                        <li>其他因素(22%)</li>
+                    </ul>
+                    <p>建议加强设备通信网络的稳定性，定期检查逆变器运行状态。</p>
+                    <div class="action-suggestion">
+                        <button class="suggestion-btn" onclick="window.location.href='#'"><i class="fas fa-chart-bar"></i> 详细报告</button>
+                        <button class="suggestion-btn" onclick="window.location.href='#'"><i class="fas fa-lightbulb"></i> 优化建议</button>
+                    </div>
+                `;
+                
+                addBotMessage(content);
+            }
+
+            // 滚动到最新消息
+            function scrollToBottom() {
+                const dialogBody = document.getElementById('ai-dialog-body');
+                dialogBody.scrollTop = dialogBody.scrollHeight;
+            }
+
+            // 设置周期性提醒和通知
+            function setupPeriodicAlerts() {
+                // 每隔一段时间触发一个通知
+                setInterval(() => {
+                    if (!assistantDialog.classList.contains('active')) {
+                        // 如果对话框没有打开，显示通知
+                        showNotification();
+                        
+                        // 给图标添加脉动效果
+                        assistantIcon.classList.add('pulse-animation');
+                        setTimeout(() => {
+                            assistantIcon.classList.remove('pulse-animation');
+                        }, 3000);
+                    }
+                }, 30000); // 每30秒触发一次
+                
+                // 第一次运行后延迟10秒显示第一个通知
+                setTimeout(() => {
+                    if (!assistantDialog.classList.contains('active')) {
+                        showNotification();
+                        assistantIcon.classList.add('pulse-animation');
+                        setTimeout(() => {
+                            assistantIcon.classList.remove('pulse-animation');
+                        }, 3000);
+                    }
+                }, 10000);
+                
+                // 设置自动推送告警和智能建议
+                setupAutoPushAlerts();
+            }
+            
+            // 添加自动推送告警和智能建议的函数
+            function setupAutoPushAlerts() {
+                // 预设几种不同类型的自动推送消息
+                const autoPushMessages = [
+                    // 告警推送
+                    {
+                        type: 'alert',
+                        title: '紧急告警',
+                        content: `<p><i class="fas fa-exclamation-triangle" style="color: #E74C3C;"></i> <b>紧急告警:</b> 贵阳清镇能源站逆变器故障，已离线3.5小时</p>
+                                <p>非计划停机率已达12.2%，超出预警阈值(5%)。建议立即处理。</p>
+                                <div class="action-suggestion">
+                                    <button class="suggestion-btn" onclick="window.location.href='#'"><i class="fas fa-tools"></i> 创建工单</button>
+                                    <button class="suggestion-btn" onclick="window.location.href='#'"><i class="fas fa-eye"></i> 查看详情</button>
+                                </div>`
+                    },
+                    // 故障预测推送
+                    {
+                        type: 'prediction',
+                        title: '故障预测',
+                        content: `<p><i class="fas fa-exclamation-circle" style="color: #F39C12;"></i> <b>故障预测:</b> 重庆江北能源站蓄电池组A</p>
+                                <p>根据历史运行数据分析，预计48小时内有87%概率发生故障。建议提前检查电池连接件。</p>
+                                <div class="action-suggestion">
+                                    <button class="suggestion-btn" onclick="window.location.href='#'"><i class="fas fa-clipboard-check"></i> 创建巡检任务</button>
+                                </div>`
+                    },
+                    // 设备异常推送
+                    {
+                        type: 'alert',
+                        title: '设备异常',
+                        content: `<p><i class="fas fa-bolt" style="color: #F39C12;"></i> <b>设备异常:</b> 上海浦东能源站电池温度过高</p>
+                                <p>目前温度42°C，超出正常范围(15-35°C)。已持续1.2小时，可能导致电池寿命缩短。</p>
+                                <div class="action-suggestion">
+                                    <button class="suggestion-btn" onclick="window.location.href='#'"><i class="fas fa-thermometer-half"></i> 查看温度曲线</button>
+                                    <button class="suggestion-btn" onclick="window.location.href='#'"><i class="fas fa-sliders-h"></i> 调整参数</button>
+                                </div>`
+                    },
+                    // 优化建议推送
+                    {
+                        type: 'recommendation',
+                        title: '优化建议',
+                        content: `<p><i class="fas fa-lightbulb" style="color: #49A18D;"></i> <b>优化建议:</b> 系统运行效率提升</p>
+                                <p>分析显示，调整充电桩工作时间可降低峰值负荷12%，延长设备使用寿命。建议实施优化方案。</p>
+                                <div class="action-suggestion">
+                                    <button class="suggestion-btn" onclick="window.location.href='#'"><i class="fas fa-file-alt"></i> 查看优化方案</button>
+                                </div>`
+                    },
+                    // 运维提醒推送
+                    {
+                        type: 'recommendation',
+                        title: '运维提醒',
+                        content: `<p><i class="fas fa-calendar-check" style="color: #49A18D;"></i> <b>运维提醒:</b> 设备定期维护</p>
+                                <p>以下站点设备需要进行定期维护：</p>
+                                <ul style="margin: 5px 0 10px 20px;">
+                                    <li>成都高新区能源站 - 风扇清洁</li>
+                                    <li>重庆南岸区能源站 - 接线检查</li>
+                                </ul>
+                                <div class="action-suggestion">
+                                    <button class="suggestion-btn" onclick="window.location.href='#'"><i class="fas fa-tasks"></i> 查看维护计划</button>
+                                </div>`
+                    }
+                ];
+                
+                // 随机显示推送消息的函数
+                function pushRandomAlert() {
+                    // 如果对话框已打开，不推送
+                    if (assistantDialog.classList.contains('active')) return;
+                    
+                    // 随机选择一条消息
+                    const randomMessage = autoPushMessages[Math.floor(Math.random() * autoPushMessages.length)];
+                    
+                    // 显示通知
+                    showNotification();
+                    
+                    // 给图标添加脉动效果
+                    assistantIcon.classList.add('pulse-animation');
+                    
+                    // 打开对话框并添加消息
+                    setTimeout(() => {
+                        // 移除脉动效果
+                        assistantIcon.classList.remove('pulse-animation');
+                        
+                        // 打开对话框
+                        assistantDialog.classList.add('active');
+                        
+                        // 显示AI正在输入的状态
+                        showTypingIndicator();
+                        assistantIcon.classList.add('with-typing');
+                        
+                        // 延迟一会再显示消息，模拟思考时间
+                        setTimeout(() => {
+                            // 隐藏输入指示器
+                            hideTypingIndicator();
+                            assistantIcon.classList.remove('with-typing');
+                            
+                            // 添加AI消息，使用对应的消息类型
+                            addBotMessage(randomMessage.content, randomMessage.type);
+                            
+                            // 滚动到最新消息
+                            scrollToBottom();
+                            
+                            // 清除通知
+                            clearNotification();
+                        }, 1500);
+                    }, 1000);
+                }
+                
+                // 模拟真实场景：随机时间推送告警和建议
+                function scheduleRandomPushes() {
+                    // 设置多个随机时间间隔，每次随机推送一条消息
+                    const intervals = [45000, 75000, 110000, 180000]; // 45秒、75秒、110秒、180秒
+                    
+                    intervals.forEach(interval => {
+                        setTimeout(() => {
+                            pushRandomAlert();
+                            
+                            // 递归调用，确保持续推送
+                            setTimeout(scheduleRandomPushes, 240000); // 每4分钟重新安排推送
+                        }, interval);
+                    });
+                }
+                
+                // 启动随机推送功能（等待页面加载后30秒开始）
+                setTimeout(scheduleRandomPushes, 30000);
+            }
+
+            // 添加实时数据解读功能
+            function showRealTimeAnalysis() {
+                const content = `
+                    <p>目前系统实时数据分析如下：</p>
+                    <div class="chart-container">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <div>
+                                <span style="font-weight: 500;">实时设备状态</span>
+                                <div style="font-size: 13px; color: #666;">最近更新: ${new Date().toLocaleTimeString()}</div>
+                            </div>
+                            <div style="display: flex; gap: 10px; font-size: 13px;">
+                                <div><span style="display: inline-block; width: 10px; height: 10px; background-color: #2ECC71; border-radius: 50%; margin-right: 4px;"></span> 在线 (85%)</div>
+                                <div><span style="display: inline-block; width: 10px; height: 10px; background-color: #E74C3C; border-radius: 50%; margin-right: 4px;"></span> 离线 (15%)</div>
+                            </div>
+                        </div>
+                        <div style="height: 120px; display: flex; align-items: flex-end; gap: 2px; padding: 0 10px;">
+                            ${Array.from({length: 24}, () => Math.floor(Math.random() * 50) + 50).map(height => 
+                                `<div style="flex: 1; background-color: ${height > 80 ? '#2ECC71' : height > 60 ? '#F39C12' : '#E74C3C'}; height: ${height}%; border-radius: 2px 2px 0 0;"></div>`
+                            ).join('')}
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 12px; color: #666; margin-top: 5px;">
+                            <span>00:00</span>
+                            <span>06:00</span>
+                            <span>12:00</span>
+                            <span>18:00</span>
+                            <span>当前</span>
+                        </div>
+                    </div>
+                    <p style="margin-top: 10px;">数据分析发现：</p>
+                    <ul style="margin: 5px 0; padding-left: 20px;">
+                        <li>当前在线率85%，较昨日同期提升3%</li>
+                        <li>系统负载稳定，峰值出现在14:00-16:00</li>
+                        <li>检测到3次通信波动，但均自动恢复</li>
+                    </ul>
+                    <p>总体运行状况良好，建议继续监控武汉东湖能源站的通信状态。</p>
+                `;
+                
+                addBotMessage(content);
+            }
+
+            // 添加紧急情况处理功能
+            function showEmergencySituation() {
+                const content = `
+                    <div class="urgent-alert">
+                        <p><i class="fas fa-exclamation-triangle" style="color: #E74C3C;"></i> <b>检测到紧急情况：</b></p>
+                        <p>以下站点需要立即处理：</p>
+                        <ol style="margin: 5px 0 10px 20px;">
+                            <li><b>贵阳清镇能源站</b> - 逆变器故障，已离线3.5小时</li>
+                            <li><b>武汉东湖能源站</b> - 通信中断，已离线2.8小时</li>
+                        </ol>
+                        <p>建议立即采取以下措施：</p>
+                        <ul style="margin: 5px 0 10px 20px;">
+                            <li>通知现场运维人员</li>
+                            <li>创建紧急工单</li>
+                            <li>启动应急预案</li>
+                        </ul>
+                    </div>
+                    <div class="action-suggestion">
+                        <button class="suggestion-btn" onclick="window.location.href='#'"><i class="fas fa-bell"></i> 通知运维团队</button>
+                        <button class="suggestion-btn" onclick="window.location.href='#'"><i class="fas fa-tools"></i> 创建紧急工单</button>
+                    </div>
+                `;
+                
+                addBotMessage(content, 'alert');
+            }
+
+            // 添加智能问答功能
+            function addSmartAnswerButtons() {
+                // 创建悬浮式智能问答按钮
+                const smartAnswerBtn = document.createElement('div');
+                smartAnswerBtn.className = 'ai-smart-answer-btn';
+                smartAnswerBtn.innerHTML = `<i class="fas fa-magic"></i>`;
+                smartAnswerBtn.title = '智能问答';
+                
+                // 添加样式
+                const style = document.createElement('style');
+                style.textContent = `
+                    .ai-smart-answer-btn {
+                        position: absolute;
+                        right: 180px;
+                        top: 10px;
+                        background-color: rgba(255, 255, 255, 0.2);
+                        width: 30px;
+                        height: 30px;
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        cursor: pointer;
+                        color: white;
+                        transition: all 0.3s ease;
+                    }
+                    
+                    .ai-smart-answer-btn:hover {
+                        background-color: rgba(255, 255, 255, 0.3);
+                        transform: scale(1.1);
+                    }
+                    
+                    .ai-smart-answer-panel {
+                        position: absolute;
+                        top: 50px;
+                        right: 10px;
+                        background-color: white;
+                        border-radius: 8px;
+                        padding: 10px;
+                        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+                        width: 250px;
+                        display: none;
+                        z-index: 15;
+                    }
+                    
+                    .ai-smart-answer-panel.active {
+                        display: block;
+                    }
+                    
+                    .ai-smart-question {
+                        padding: 8px 12px;
+                        background-color: #f1f9f7;
+                        border-radius: 4px;
+                        margin-bottom: 8px;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                        font-size: 13px;
+                    }
+                    
+                    .ai-smart-question:hover {
+                        background-color: var(--light-color);
+                        transform: translateX(5px);
+                    }
+                `;
+                document.head.appendChild(style);
+                
+                // 创建智能问答面板
+                const smartAnswerPanel = document.createElement('div');
+                smartAnswerPanel.className = 'ai-smart-answer-panel';
+                smartAnswerPanel.innerHTML = `
+                    <h4 style="margin: 0 0 10px 0; font-size: 14px;">智能问答</h4>
+                    <div class="ai-smart-questions">
+                        <div class="ai-smart-question" data-question="武汉东湖能源站的状态如何？">1. 武汉东湖能源站的状态如何？</div>
+                        <div class="ai-smart-question" data-question="哪些站点目前存在告警？">2. 哪些站点目前存在告警？</div>
+                        <div class="ai-smart-question" data-question="近期可能会出现故障的设备有哪些？">3. 近期可能会出现故障的设备有哪些？</div>
+                        <div class="ai-smart-question" data-question="系统的实时运行数据是什么？">4. 系统的实时运行数据是什么？</div>
+                        <div class="ai-smart-question" data-question="如何优化系统的运行效率？">5. 如何优化系统的运行效率？</div>
+                        <div class="ai-smart-question" data-question="当前系统的非计划停机率分析">6. 当前系统的非计划停机率分析</div>
+                    </div>
+                `;
+                
+                // 添加到对话框
+                const dialogHeader = document.querySelector('.ai-dialog-header');
+                dialogHeader.appendChild(smartAnswerBtn);
+                dialogHeader.appendChild(smartAnswerPanel);
+                
+                // 添加点击事件
+                smartAnswerBtn.addEventListener('click', function() {
+                    smartAnswerPanel.classList.toggle('active');
+                });
+                
+                // 点击问题时
+                const smartQuestions = smartAnswerPanel.querySelectorAll('.ai-smart-question');
+                smartQuestions.forEach(question => {
+                    question.addEventListener('click', function() {
+                        const questionText = this.dataset.question;
+                        
+                        // 关闭面板
+                        smartAnswerPanel.classList.remove('active');
+                        
+                        // 在输入框中显示问题
+                        aiInput.value = questionText;
+                        
+                        // 触发发送
+                        sendMessage();
+                    });
+                });
+                
+                // 点击对话框外部时关闭面板
+                document.addEventListener('click', function(event) {
+                    if (!smartAnswerPanel.contains(event.target) && event.target !== smartAnswerBtn) {
+                        smartAnswerPanel.classList.remove('active');
+                    }
+                });
+            }
+
+            // 初始化AI助手
+            init();
+        })();
+    </script>
+</body>
+
+</html>

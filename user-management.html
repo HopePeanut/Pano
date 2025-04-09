@@ -1,0 +1,2026 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户管理 - 智慧运维系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- 引入导航栏模板JS -->
+    <script src="navbar-template.js"></script>
+    <style>
+        :root {
+            --primary-color: #49A18D;
+            --secondary-color: #3D8C7D;
+            --light-color: #F5F7F9;
+            --border-color: #E2E8F0;
+            --text-color: #333333;
+            --light-text: #FFFFFF;
+            --gray-text: #6C757D;
+            --radius: 8px;
+            --alert-red: #E74C3C;
+            --alert-yellow: #F39C12;
+            --alert-green: #2ECC71;
+            --alert-blue: #3498DB;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #FAFAFA;
+            color: var(--text-color);
+        }
+
+        .main-content {
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* 面包屑导航 */
+        .breadcrumb {
+            display: flex;
+            padding: 10px 0;
+            margin-bottom: 20px;
+            list-style: none;
+            font-size: 0.9rem;
+        }
+
+        .breadcrumb-item {
+            color: var(--gray-text);
+        }
+
+        .breadcrumb-item a {
+            color: var(--gray-text);
+            text-decoration: none;
+        }
+
+        .breadcrumb-item a:hover {
+            color: var(--primary-color);
+        }
+
+        .breadcrumb-item + .breadcrumb-item::before {
+            content: "/";
+            padding: 0 8px;
+            color: var(--gray-text);
+        }
+
+        .breadcrumb-item.active {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        /* 页面标题和操作栏 */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        /* 模块切换标签 */
+        .tab-nav {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        .tab-item {
+            padding: 12px 24px;
+            cursor: pointer;
+            font-weight: 500;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .tab-item.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .tab-item:hover:not(.active) {
+            color: var(--primary-color);
+            background-color: var(--light-color);
+        }
+
+        /* 子页内容 */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 搜索和筛选区域 */
+        .filter-bar {
+            background-color: white;
+            padding: 15px;
+            border-radius: var(--radius);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .search-input {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .search-input input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            font-size: 0.9rem;
+        }
+
+        .search-input input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(73, 161, 141, 0.2);
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .filter-select {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            background-color: white;
+            font-size: 0.9rem;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        /* 按钮样式 */
+        .btn {
+            padding: 8px 16px;
+            border-radius: var(--radius);
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .btn i {
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--light-color);
+        }
+
+        .btn-danger {
+            background-color: var(--alert-red);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 0.8rem;
+        }
+
+        /* 账号列表表格 */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .data-table th, 
+        .data-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .data-table th {
+            background-color: var(--light-color);
+            font-weight: 500;
+            color: var(--gray-text);
+            font-size: 0.9rem;
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table tr:hover {
+            background-color: var(--light-color);
+        }
+
+        /* 状态标签 */
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .badge-success {
+            background-color: rgba(46, 204, 113, 0.15);
+            color: var(--alert-green);
+        }
+
+        .badge-danger {
+            background-color: rgba(231, 76, 60, 0.15);
+            color: var(--alert-red);
+        }
+
+        .badge-warning {
+            background-color: rgba(243, 156, 18, 0.15);
+            color: var(--alert-yellow);
+        }
+
+        .badge-info {
+            background-color: rgba(52, 152, 219, 0.15);
+            color: var(--alert-blue);
+        }
+
+        /* 角色和部门标签 */
+        .tag {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            background-color: var(--light-color);
+            color: var(--gray-text);
+        }
+
+        /* 绑定状态图标 */
+        .bind-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .bind-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: var(--gray-text);
+        }
+
+        .bind-success {
+            color: var(--alert-green);
+        }
+
+        .bind-danger {
+            color: var(--gray-text);
+        }
+
+        /* 操作区域 */
+        .action-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* 分页控件 */
+        .pagination {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+            gap: 5px;
+        }
+
+        .pagination button {
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border-color);
+            background-color: white;
+            cursor: pointer;
+            border-radius: var(--radius);
+        }
+
+        .pagination button.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .pagination button:hover:not(.active) {
+            background-color: var(--light-color);
+        }
+
+        /* 复选框样式 */
+        .checkbox-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+        }
+
+        .checkbox-wrapper input {
+            opacity: 0;
+            position: absolute;
+        }
+
+        .checkbox-wrapper .checkmark {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 18px;
+            width: 18px;
+            background-color: white;
+            border: 1px solid var(--border-color);
+            border-radius: 3px;
+        }
+
+        .checkbox-wrapper:hover input ~ .checkmark {
+            border-color: var(--primary-color);
+        }
+
+        .checkbox-wrapper input:checked ~ .checkmark {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .checkbox-wrapper .checkmark:after {
+            content: "";
+            position: absolute;
+            display: none;
+        }
+
+        .checkbox-wrapper input:checked ~ .checkmark:after {
+            display: block;
+        }
+
+        .checkbox-wrapper .checkmark:after {
+            left: 6px;
+            top: 2px;
+            width: 5px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        /* 批量操作工具栏 */
+        .batch-toolbar {
+            display: none;
+            background-color: rgba(73, 161, 141, 0.1);
+            padding: 10px 15px;
+            border-radius: var(--radius);
+            margin-bottom: 15px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .batch-toolbar.active {
+            display: flex;
+        }
+
+        .batch-toolbar-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .batch-toolbar-right {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .filter-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-input {
+                width: 100%;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .data-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 导航栏容器 -->
+    <div id="navbar-container"></div>
+
+    <!-- 主要内容 -->
+    <div class="main-content">
+        <!-- 面包屑导航 -->
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="dashboard.html">首页</a></li>
+            <li class="breadcrumb-item">后台管理</li>
+            <li class="breadcrumb-item active">用户管理</li>
+        </ol>
+
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <h1 class="page-title">用户管理</h1>
+        </div>
+
+        <!-- 模块切换标签 -->
+        <div class="tab-nav">
+            <div class="tab-item active" data-tab="account-management">账号管理</div>
+            <div class="tab-item" data-tab="role-management">角色管理</div>
+        </div>
+
+        <!-- 账号管理子页 -->
+        <div id="account-management" class="tab-content active">
+            <!-- 批量操作工具栏 -->
+            <div class="batch-toolbar" id="batch-toolbar">
+                <div class="batch-toolbar-left">
+                    <span>已选择 <strong id="selected-count">0</strong> 个账号</span>
+                </div>
+                <div class="batch-toolbar-right">
+                    <button class="btn btn-outline btn-sm" id="batch-role-btn">
+                        <i class="fas fa-user-tag"></i> 批量分配角色
+                    </button>
+                    <button class="btn btn-outline btn-sm" id="batch-disable-btn">
+                        <i class="fas fa-ban"></i> 批量停用
+                    </button>
+                    <button class="btn btn-outline btn-sm" id="batch-enable-btn">
+                        <i class="fas fa-check-circle"></i> 批量启用
+                    </button>
+                    <button class="btn btn-outline btn-sm" id="cancel-selection-btn">
+                        <i class="fas fa-times"></i> 取消选择
+                    </button>
+                </div>
+            </div>
+
+            <!-- 搜索和筛选区域 -->
+            <div class="filter-bar">
+                <div class="search-input">
+                    <input type="text" id="account-search" placeholder="搜索账号名称/姓名..." />
+                </div>
+                
+                <div class="filter-group">
+                    <select class="filter-select" id="department-filter">
+                        <option value="">所有部门</option>
+                        <option value="operations">运维中心</option>
+                        <option value="operations-north">运维中心-北区维护组</option>
+                        <option value="operations-south">运维中心-南区维护组</option>
+                        <option value="monitoring">监控中心</option>
+                        <option value="management">管理部门</option>
+                    </select>
+                    
+                    <select class="filter-select" id="status-filter">
+                        <option value="">所有状态</option>
+                        <option value="enabled">已启用</option>
+                        <option value="disabled">已停用</option>
+                    </select>
+                    
+                    <select class="filter-select" id="binding-filter">
+                        <option value="">所有绑定状态</option>
+                        <option value="wechat">已绑定微信</option>
+                        <option value="no-wechat">未绑定微信</option>
+                        <option value="email">已绑定邮箱</option>
+                        <option value="no-email">未绑定邮箱</option>
+                        <option value="phone">已绑定手机</option>
+                        <option value="no-phone">未绑定手机</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <button class="btn btn-primary" id="add-account-btn">
+                        <i class="fas fa-plus"></i> 新增账号
+                    </button>
+                    <button class="btn btn-outline" id="export-btn">
+                        <i class="fas fa-file-export"></i> 导出
+                    </button>
+                </div>
+            </div>
+
+            <!-- 账号数据表格 -->
+            <table class="data-table" id="account-table">
+                <thead>
+                    <tr>
+                        <th width="40">
+                            <label class="checkbox-wrapper">
+                                <input type="checkbox" id="select-all-accounts">
+                                <span class="checkmark"></span>
+                            </label>
+                        </th>
+                        <th>账号名称</th>
+                        <th>所在部门</th>
+                        <th>绑定状态</th>
+                        <th>绑定角色</th>
+                        <th>状态</th>
+                        <th>最近登录</th>
+                        <th width="120">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="account-table-body">
+                    <!-- 表格数据将通过JS动态生成 -->
+                </tbody>
+            </table>
+
+            <!-- 分页控件 -->
+            <div class="pagination" id="account-pagination">
+                <button><i class="fas fa-angle-left"></i></button>
+                <button class="active">1</button>
+                <button>2</button>
+                <button>3</button>
+                <button><i class="fas fa-angle-right"></i></button>
+            </div>
+        </div>
+
+        <!-- 角色管理子页 -->
+        <div id="role-management" class="tab-content">
+            <!-- 批量操作工具栏 -->
+            <div class="batch-toolbar" id="role-batch-toolbar">
+                <div class="batch-toolbar-left">
+                    <span>已选择 <strong id="selected-role-count">0</strong> 个角色</span>
+                </div>
+                <div class="batch-toolbar-right">
+                    <button class="btn btn-outline btn-sm" id="batch-delete-role-btn">
+                        <i class="fas fa-trash-alt"></i> 批量删除
+                    </button>
+                    <button class="btn btn-outline btn-sm" id="cancel-role-selection-btn">
+                        <i class="fas fa-times"></i> 取消选择
+                    </button>
+                </div>
+            </div>
+
+            <!-- 搜索和筛选区域 -->
+            <div class="filter-bar">
+                <div class="search-input">
+                    <input type="text" id="role-search" placeholder="搜索角色名称..." />
+                </div>
+                
+                <div class="filter-group">
+                    <select class="filter-select" id="role-type-filter">
+                        <option value="">所有角色类型</option>
+                        <option value="system">系统角色</option>
+                        <option value="custom">自定义角色</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <button class="btn btn-primary" id="add-role-btn">
+                        <i class="fas fa-plus"></i> 新增角色
+                    </button>
+                </div>
+            </div>
+
+            <!-- 角色数据表格 -->
+            <table class="data-table" id="role-table">
+                <thead>
+                    <tr>
+                        <th width="40">
+                            <label class="checkbox-wrapper">
+                                <input type="checkbox" id="select-all-roles">
+                                <span class="checkmark"></span>
+                            </label>
+                        </th>
+                        <th>角色名称</th>
+                        <th>角色类型</th>
+                        <th>权限数量</th>
+                        <th>角色描述</th>
+                        <th>创建时间</th>
+                        <th>关联账号数</th>
+                        <th width="180">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="role-table-body">
+                    <!-- 表格数据将通过JS动态生成 -->
+                </tbody>
+            </table>
+
+            <!-- 分页控件 -->
+            <div class="pagination" id="role-pagination">
+                <button><i class="fas fa-angle-left"></i></button>
+                <button class="active">1</button>
+                <button>2</button>
+                <button><i class="fas fa-angle-right"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 账号数据（模拟）
+        const accountData = [
+            {
+                id: 1,
+                username: 'wangxm',
+                realName: '王小明',
+                department: '运维中心-南区维护组',
+                departmentCode: 'operations-south',
+                bindings: { wechat: true, email: true, phone: true },
+                roles: ['运维工程师', '站点管理员'],
+                status: 'enabled',
+                lastLogin: { time: '2025-04-09 10:23', ip: '192.168.1.100' }
+            },
+            {
+                id: 2,
+                username: 'liqiang',
+                realName: '李强',
+                department: '运维中心-北区维护组',
+                departmentCode: 'operations-north',
+                bindings: { wechat: true, email: true, phone: false },
+                roles: ['运维工程师'],
+                status: 'enabled',
+                lastLogin: { time: '2025-04-08 16:45', ip: '192.168.1.101' }
+            },
+            {
+                id: 3,
+                username: 'zhangy',
+                realName: '张云',
+                department: '监控中心',
+                departmentCode: 'monitoring',
+                bindings: { wechat: false, email: true, phone: true },
+                roles: ['监控管理员'],
+                status: 'enabled',
+                lastLogin: { time: '2025-04-08 14:30', ip: '192.168.1.102' }
+            },
+            {
+                id: 4,
+                username: 'liuxh',
+                realName: '刘小红',
+                department: '管理部门',
+                departmentCode: 'management',
+                bindings: { wechat: true, email: true, phone: true },
+                roles: ['系统管理员'],
+                status: 'enabled',
+                lastLogin: { time: '2025-04-09 09:15', ip: '192.168.1.103' }
+            },
+            {
+                id: 5,
+                username: 'chenjp',
+                realName: '陈佳鹏',
+                department: '运维中心',
+                departmentCode: 'operations',
+                bindings: { wechat: false, email: true, phone: false },
+                roles: ['运维工程师', '数据分析师'],
+                status: 'disabled',
+                lastLogin: { time: '2025-04-02 11:20', ip: '192.168.1.104' }
+            },
+            {
+                id: 6,
+                username: 'zhaoli',
+                realName: '赵丽',
+                department: '监控中心',
+                departmentCode: 'monitoring',
+                bindings: { wechat: true, email: false, phone: true },
+                roles: ['监控管理员', '数据分析师'],
+                status: 'enabled',
+                lastLogin: { time: '2025-04-09 08:50', ip: '192.168.1.105' }
+            },
+            {
+                id: 7,
+                username: 'sunwen',
+                realName: '孙文',
+                department: '管理部门',
+                departmentCode: 'management',
+                bindings: { wechat: true, email: true, phone: true },
+                roles: ['系统管理员'],
+                status: 'enabled',
+                lastLogin: { time: '2025-04-08 17:30', ip: '192.168.1.106' }
+            },
+            {
+                id: 8,
+                username: 'yangm',
+                realName: '杨明',
+                department: '运维中心-北区维护组',
+                departmentCode: 'operations-north',
+                bindings: { wechat: false, email: false, phone: true },
+                roles: ['运维工程师'],
+                status: 'disabled',
+                lastLogin: { time: '2025-03-25 14:10', ip: '192.168.1.107' }
+            },
+        ];
+
+        // 当前筛选后的数据
+        let filteredAccounts = [...accountData];
+        
+        // 当前选中的账号IDs
+        let selectedAccountIds = [];
+
+        // 角色数据（模拟）
+        const roleData = [
+            {
+                id: 1,
+                name: '系统管理员',
+                type: 'system',
+                permissionCount: 25,
+                description: '拥有系统全部权限，可以管理所有功能',
+                createdTime: '2024-12-05 09:30',
+                linkedAccounts: 2,
+                canDelete: false
+            },
+            {
+                id: 2,
+                name: '运维工程师',
+                type: 'system',
+                permissionCount: 18,
+                description: '负责站点运维管理，包含站点配置、监控告警、工单处理等权限',
+                createdTime: '2024-12-05 09:35',
+                linkedAccounts: 3,
+                canDelete: false
+            },
+            {
+                id: 3,
+                name: '监控管理员',
+                type: 'system',
+                permissionCount: 12,
+                description: '负责监控告警管理，包含告警查看、告警处理、报表查看等权限',
+                createdTime: '2024-12-05 09:40',
+                linkedAccounts: 2,
+                canDelete: false
+            },
+            {
+                id: 4,
+                name: '数据分析师',
+                type: 'custom',
+                permissionCount: 8,
+                description: '只有数据查看和分析的权限，不可进行配置修改',
+                createdTime: '2025-01-15 14:20',
+                linkedAccounts: 2,
+                canDelete: true
+            },
+            {
+                id: 5,
+                name: '站点管理员',
+                type: 'custom',
+                permissionCount: 15,
+                description: '负责单个或多个站点的日常管理与维护',
+                createdTime: '2025-01-20 11:05',
+                linkedAccounts: 1,
+                canDelete: true
+            },
+            {
+                id: 6,
+                name: '访客角色',
+                type: 'custom',
+                permissionCount: 4,
+                description: '仅有基础查看权限，无操作权限',
+                createdTime: '2025-02-10 16:30',
+                linkedAccounts: 0,
+                canDelete: true
+            }
+        ];
+
+        // 当前筛选后的角色数据
+        let filteredRoles = [...roleData];
+        
+        // 当前选中的角色IDs
+        let selectedRoleIds = [];
+
+        // 在页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化页面
+            renderAccountTable();
+            renderRoleTable();
+            setupEventListeners();
+            setupRoleEventListeners();
+        });
+
+        // 渲染账号表格
+        function renderAccountTable() {
+            const tableBody = document.getElementById('account-table-body');
+            tableBody.innerHTML = '';
+            
+            filteredAccounts.forEach(account => {
+                const row = document.createElement('tr');
+                
+                // 检查账号是否被选中
+                const isSelected = selectedAccountIds.includes(account.id);
+                
+                row.innerHTML = `
+                    <td>
+                        <label class="checkbox-wrapper">
+                            <input type="checkbox" class="account-checkbox" data-id="${account.id}" ${isSelected ? 'checked' : ''}>
+                            <span class="checkmark"></span>
+                        </label>
+                    </td>
+                    <td>
+                        <div><strong>${account.username}</strong></div>
+                        <div style="color: var(--gray-text); font-size: 0.9em;">${account.realName}</div>
+                    </td>
+                    <td><span class="tag">${account.department}</span></td>
+                    <td>
+                        <div class="bind-status">
+                            <div class="bind-item ${account.bindings.wechat ? 'bind-success' : 'bind-danger'}">
+                                <i class="fab fa-weixin"></i>
+                            </div>
+                            <div class="bind-item ${account.bindings.email ? 'bind-success' : 'bind-danger'}">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div class="bind-item ${account.bindings.phone ? 'bind-success' : 'bind-danger'}">
+                                <i class="fas fa-mobile-alt"></i>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        ${account.roles.map(role => `<span class="tag">${role}</span>`).join('')}
+                    </td>
+                    <td>
+                        <span class="badge ${account.status === 'enabled' ? 'badge-success' : 'badge-danger'}">
+                            ${account.status === 'enabled' ? '已启用' : '已停用'}
+                        </span>
+                    </td>
+                    <td>
+                        <div>${account.lastLogin.time}</div>
+                        <div style="color: var(--gray-text); font-size: 0.9em;">${account.lastLogin.ip}</div>
+                    </td>
+                    <td>
+                        <div class="action-group">
+                            <button class="btn btn-outline btn-sm view-btn" data-id="${account.id}">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-outline btn-sm edit-btn" data-id="${account.id}">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-outline btn-sm ${account.status === 'enabled' ? 'disable-btn' : 'enable-btn'}" data-id="${account.id}">
+                                <i class="fas ${account.status === 'enabled' ? 'fa-ban' : 'fa-check-circle'}"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+            
+            // 更新批量操作工具栏
+            updateBatchToolbar();
+            
+            // 重新绑定复选框事件
+            setupCheckboxListeners();
+        }
+
+        // 设置事件监听器
+        function setupEventListeners() {
+            // 标签页切换
+            const tabItems = document.querySelectorAll('.tab-item');
+            tabItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+                    
+                    // 移除所有激活状态
+                    document.querySelectorAll('.tab-item').forEach(tab => tab.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                    
+                    // 设置当前标签页为激活状态
+                    this.classList.add('active');
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+            
+            // 搜索和筛选事件
+            document.getElementById('account-search').addEventListener('input', filterAccounts);
+            document.getElementById('department-filter').addEventListener('change', filterAccounts);
+            document.getElementById('status-filter').addEventListener('change', filterAccounts);
+            document.getElementById('binding-filter').addEventListener('change', filterAccounts);
+            
+            // 按钮点击事件
+            document.getElementById('add-account-btn').addEventListener('click', () => {
+                alert('新增账号功能将在完整版中实现');
+            });
+            
+            document.getElementById('export-btn').addEventListener('click', () => {
+                alert('数据导出功能将在完整版中实现');
+            });
+            
+            document.getElementById('batch-role-btn').addEventListener('click', () => {
+                alert(`成功为${selectedAccountIds.length}个账号分配角色`);
+            });
+            
+            document.getElementById('batch-disable-btn').addEventListener('click', () => {
+                alert(`成功停用${selectedAccountIds.length}个账号`);
+            });
+            
+            document.getElementById('batch-enable-btn').addEventListener('click', () => {
+                alert(`成功启用${selectedAccountIds.length}个账号`);
+            });
+            
+            document.getElementById('cancel-selection-btn').addEventListener('click', () => {
+                selectedAccountIds = [];
+                document.getElementById('select-all-accounts').checked = false;
+                renderAccountTable();
+            });
+            
+            // 全选/取消全选
+            document.getElementById('select-all-accounts').addEventListener('change', function() {
+                if (this.checked) {
+                    selectedAccountIds = filteredAccounts.map(account => account.id);
+                } else {
+                    selectedAccountIds = [];
+                }
+                renderAccountTable();
+            });
+            
+            // 操作按钮事件委托
+            document.getElementById('account-table-body').addEventListener('click', function(e) {
+                const viewBtn = e.target.closest('.view-btn');
+                const editBtn = e.target.closest('.edit-btn');
+                const disableBtn = e.target.closest('.disable-btn');
+                const enableBtn = e.target.closest('.enable-btn');
+                
+                if (viewBtn) {
+                    const accountId = viewBtn.getAttribute('data-id');
+                    alert(`查看账号详情：ID ${accountId}`);
+                } else if (editBtn) {
+                    const accountId = editBtn.getAttribute('data-id');
+                    alert(`编辑账号：ID ${accountId}`);
+                } else if (disableBtn) {
+                    const accountId = disableBtn.getAttribute('data-id');
+                    alert(`停用账号：ID ${accountId}`);
+                } else if (enableBtn) {
+                    const accountId = enableBtn.getAttribute('data-id');
+                    alert(`启用账号：ID ${accountId}`);
+                }
+            });
+        }
+
+        // 设置复选框事件监听器
+        function setupCheckboxListeners() {
+            document.querySelectorAll('.account-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const accountId = parseInt(this.getAttribute('data-id'));
+                    
+                    if (this.checked) {
+                        if (!selectedAccountIds.includes(accountId)) {
+                            selectedAccountIds.push(accountId);
+                        }
+                    } else {
+                        selectedAccountIds = selectedAccountIds.filter(id => id !== accountId);
+                    }
+                    
+                    updateBatchToolbar();
+                    updateSelectAllCheckbox();
+                });
+            });
+        }
+
+        // 更新批量操作工具栏
+        function updateBatchToolbar() {
+            const batchToolbar = document.getElementById('batch-toolbar');
+            const selectedCount = document.getElementById('selected-count');
+            
+            if (selectedAccountIds.length > 0) {
+                batchToolbar.classList.add('active');
+                selectedCount.textContent = selectedAccountIds.length;
+            } else {
+                batchToolbar.classList.remove('active');
+                selectedCount.textContent = 0;
+            }
+        }
+
+        // 更新全选复选框状态
+        function updateSelectAllCheckbox() {
+            const selectAllCheckbox = document.getElementById('select-all-accounts');
+            const allChecked = filteredAccounts.length > 0 && 
+                              filteredAccounts.every(account => selectedAccountIds.includes(account.id));
+            
+            selectAllCheckbox.checked = allChecked;
+        }
+
+        // 筛选账号数据
+        function filterAccounts() {
+            const searchTerm = document.getElementById('account-search').value.toLowerCase();
+            const departmentFilter = document.getElementById('department-filter').value;
+            const statusFilter = document.getElementById('status-filter').value;
+            const bindingFilter = document.getElementById('binding-filter').value;
+            
+            // 应用所有筛选条件
+            filteredAccounts = accountData.filter(account => {
+                // 搜索条件
+                if (searchTerm && 
+                    !account.username.toLowerCase().includes(searchTerm) && 
+                    !account.realName.toLowerCase().includes(searchTerm)) {
+                    return false;
+                }
+                
+                // 部门筛选
+                if (departmentFilter && account.departmentCode !== departmentFilter) {
+                    return false;
+                }
+                
+                // 状态筛选
+                if (statusFilter && account.status !== statusFilter) {
+                    return false;
+                }
+                
+                // 绑定状态筛选
+                if (bindingFilter) {
+                    switch (bindingFilter) {
+                        case 'wechat': 
+                            if (!account.bindings.wechat) return false;
+                            break;
+                        case 'no-wechat': 
+                            if (account.bindings.wechat) return false;
+                            break;
+                        case 'email': 
+                            if (!account.bindings.email) return false;
+                            break;
+                        case 'no-email': 
+                            if (account.bindings.email) return false;
+                            break;
+                        case 'phone': 
+                            if (!account.bindings.phone) return false;
+                            break;
+                        case 'no-phone': 
+                            if (account.bindings.phone) return false;
+                            break;
+                    }
+                }
+                
+                return true;
+            });
+            
+            // 更新表格显示
+            renderAccountTable();
+        }
+
+        // 渲染角色表格
+        function renderRoleTable() {
+            const tableBody = document.getElementById('role-table-body');
+            tableBody.innerHTML = '';
+            
+            filteredRoles.forEach(role => {
+                const row = document.createElement('tr');
+                
+                // 检查角色是否被选中
+                const isSelected = selectedRoleIds.includes(role.id);
+                
+                row.innerHTML = `
+                    <td>
+                        <label class="checkbox-wrapper">
+                            <input type="checkbox" class="role-checkbox" data-id="${role.id}" ${isSelected ? 'checked' : ''} ${!role.canDelete ? 'disabled' : ''}>
+                            <span class="checkmark"></span>
+                        </label>
+                    </td>
+                    <td>
+                        <strong>${role.name}</strong>
+                    </td>
+                    <td>
+                        <span class="badge ${role.type === 'system' ? 'badge-info' : 'badge-success'}">
+                            ${role.type === 'system' ? '系统角色' : '自定义角色'}
+                        </span>
+                    </td>
+                    <td>${role.permissionCount}</td>
+                    <td>${role.description}</td>
+                    <td>${role.createdTime}</td>
+                    <td>
+                        <span class="badge ${role.linkedAccounts > 0 ? 'badge-warning' : 'badge-info'}">
+                            ${role.linkedAccounts}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="action-group">
+                            <button class="btn btn-outline btn-sm view-permission-btn" data-id="${role.id}">
+                                <i class="fas fa-eye"></i> 查看权限
+                            </button>
+                            <button class="btn btn-outline btn-sm edit-role-btn" data-id="${role.id}">
+                                <i class="fas fa-edit"></i> 编辑
+                            </button>
+                            ${role.canDelete ? `
+                            <button class="btn btn-outline btn-sm delete-role-btn" data-id="${role.id}">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                            ` : ''}
+                        </div>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+            
+            // 更新批量操作工具栏
+            updateRoleBatchToolbar();
+            
+            // 重新绑定复选框事件
+            setupRoleCheckboxListeners();
+        }
+
+        // 设置角色管理的事件监听器
+        function setupRoleEventListeners() {
+            // 搜索和筛选事件
+            document.getElementById('role-search').addEventListener('input', filterRoles);
+            document.getElementById('role-type-filter').addEventListener('change', filterRoles);
+            
+            // 按钮点击事件
+            document.getElementById('add-role-btn').addEventListener('click', () => {
+                showRoleFormModal();
+            });
+            
+            document.getElementById('batch-delete-role-btn').addEventListener('click', () => {
+                if (confirm(`确认要删除选中的 ${selectedRoleIds.length} 个角色吗？`)) {
+                    alert(`已成功删除 ${selectedRoleIds.length} 个角色`);
+                    selectedRoleIds = [];
+                    renderRoleTable();
+                }
+            });
+            
+            document.getElementById('cancel-role-selection-btn').addEventListener('click', () => {
+                selectedRoleIds = [];
+                document.getElementById('select-all-roles').checked = false;
+                renderRoleTable();
+            });
+            
+            // 全选/取消全选
+            document.getElementById('select-all-roles').addEventListener('change', function() {
+                if (this.checked) {
+                    // 只选择可删除的角色
+                    selectedRoleIds = filteredRoles
+                        .filter(role => role.canDelete)
+                        .map(role => role.id);
+                } else {
+                    selectedRoleIds = [];
+                }
+                renderRoleTable();
+            });
+            
+            // 操作按钮事件委托
+            document.getElementById('role-table-body').addEventListener('click', function(e) {
+                const viewPermissionBtn = e.target.closest('.view-permission-btn');
+                const editRoleBtn = e.target.closest('.edit-role-btn');
+                const deleteRoleBtn = e.target.closest('.delete-role-btn');
+                
+                if (viewPermissionBtn) {
+                    const roleId = parseInt(viewPermissionBtn.getAttribute('data-id'));
+                    const role = roleData.find(r => r.id === roleId);
+                    showPermissionModal(role);
+                } else if (editRoleBtn) {
+                    const roleId = parseInt(editRoleBtn.getAttribute('data-id'));
+                    const role = roleData.find(r => r.id === roleId);
+                    showRoleFormModal(role);
+                } else if (deleteRoleBtn) {
+                    const roleId = parseInt(deleteRoleBtn.getAttribute('data-id'));
+                    if (confirm('确认要删除此角色吗？')) {
+                        alert(`删除角色：ID ${roleId}`);
+                        // 实际应用中应该从数据库中删除角色
+                        // 这里我们只是从前端数组中移除
+                        const index = roleData.findIndex(r => r.id === roleId);
+                        if (index !== -1) {
+                            roleData.splice(index, 1);
+                            selectedRoleIds = selectedRoleIds.filter(id => id !== roleId);
+                            filterRoles(); // 重新渲染表格
+                        }
+                    }
+                }
+            });
+        }
+
+        // 设置角色复选框事件监听器
+        function setupRoleCheckboxListeners() {
+            document.querySelectorAll('.role-checkbox').forEach(checkbox => {
+                if (!checkbox.disabled) {
+                    checkbox.addEventListener('change', function() {
+                        const roleId = parseInt(this.getAttribute('data-id'));
+                        
+                        if (this.checked) {
+                            if (!selectedRoleIds.includes(roleId)) {
+                                selectedRoleIds.push(roleId);
+                            }
+                        } else {
+                            selectedRoleIds = selectedRoleIds.filter(id => id !== roleId);
+                        }
+                        
+                        updateRoleBatchToolbar();
+                        updateSelectAllRolesCheckbox();
+                    });
+                }
+            });
+        }
+
+        // 更新角色批量操作工具栏
+        function updateRoleBatchToolbar() {
+            const batchToolbar = document.getElementById('role-batch-toolbar');
+            const selectedCount = document.getElementById('selected-role-count');
+            
+            if (selectedRoleIds.length > 0) {
+                batchToolbar.classList.add('active');
+                selectedCount.textContent = selectedRoleIds.length;
+            } else {
+                batchToolbar.classList.remove('active');
+                selectedCount.textContent = 0;
+            }
+        }
+
+        // 更新角色全选复选框状态
+        function updateSelectAllRolesCheckbox() {
+            const selectAllCheckbox = document.getElementById('select-all-roles');
+            const deletableRoles = filteredRoles.filter(role => role.canDelete);
+            const allChecked = deletableRoles.length > 0 && 
+                              deletableRoles.every(role => selectedRoleIds.includes(role.id));
+            
+            selectAllCheckbox.checked = allChecked;
+        }
+
+        // 筛选角色数据
+        function filterRoles() {
+            const searchTerm = document.getElementById('role-search').value.toLowerCase();
+            const typeFilter = document.getElementById('role-type-filter').value;
+            
+            // 应用所有筛选条件
+            filteredRoles = roleData.filter(role => {
+                // 搜索条件
+                if (searchTerm && 
+                    !role.name.toLowerCase().includes(searchTerm) && 
+                    !role.description.toLowerCase().includes(searchTerm)) {
+                    return false;
+                }
+                
+                // 角色类型筛选
+                if (typeFilter && role.type !== typeFilter) {
+                    return false;
+                }
+                
+                return true;
+            });
+            
+            // 更新表格显示
+            renderRoleTable();
+        }
+
+        // 显示角色表单模态框（新增或编辑角色）
+        function showRoleFormModal(role = null) {
+            // 创建模态框元素
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.id = 'role-form-modal';
+            
+            // 模态框标题
+            const title = role ? '编辑角色' : '新增角色';
+            
+            // 准备权限数据（模拟数据）
+            const permissionGroups = [
+                {
+                    name: '系统管理',
+                    permissions: [
+                        { id: 'sys_user', name: '用户管理' },
+                        { id: 'sys_role', name: '角色管理' },
+                        { id: 'sys_log', name: '操作日志' },
+                        { id: 'sys_config', name: '系统配置' }
+                    ]
+                },
+                {
+                    name: '站点管理',
+                    permissions: [
+                        { id: 'site_view', name: '站点查看' },
+                        { id: 'site_add', name: '站点添加' },
+                        { id: 'site_edit', name: '站点编辑' },
+                        { id: 'site_delete', name: '站点删除' },
+                        { id: 'site_config', name: '站点配置' }
+                    ]
+                },
+                {
+                    name: '设备管理',
+                    permissions: [
+                        { id: 'device_view', name: '设备查看' },
+                        { id: 'device_add', name: '设备添加' },
+                        { id: 'device_edit', name: '设备编辑' },
+                        { id: 'device_delete', name: '设备删除' },
+                        { id: 'device_control', name: '设备控制' }
+                    ]
+                },
+                {
+                    name: '告警管理',
+                    permissions: [
+                        { id: 'alarm_view', name: '告警查看' },
+                        { id: 'alarm_config', name: '告警配置' },
+                        { id: 'alarm_handle', name: '告警处理' },
+                        { id: 'alarm_statistics', name: '告警统计' }
+                    ]
+                },
+                {
+                    name: '报表管理',
+                    permissions: [
+                        { id: 'report_view', name: '报表查看' },
+                        { id: 'report_download', name: '报表下载' },
+                        { id: 'report_custom', name: '自定义报表' }
+                    ]
+                }
+            ];
+            
+            // 已选权限（编辑时使用）
+            const selectedPermissions = role ? 
+                // 这里应该从角色中获取已有权限，这里我们随机生成一些
+                Array.from({length: role.permissionCount}, () => {
+                    const randomGroup = permissionGroups[Math.floor(Math.random() * permissionGroups.length)];
+                    const randomPerm = randomGroup.permissions[Math.floor(Math.random() * randomGroup.permissions.length)];
+                    return randomPerm.id;
+                }) : [];
+            
+            // 生成权限组HTML
+            let permissionsHtml = '';
+            permissionGroups.forEach(group => {
+                permissionsHtml += `
+                    <div class="permission-group">
+                        <div class="permission-group-header">
+                            <label class="checkbox-wrapper permission-group-checkbox">
+                                <input type="checkbox" class="permission-group-toggle" data-group="${group.name}">
+                                <span class="checkmark"></span>
+                            </label>
+                            <h4>${group.name}</h4>
+                        </div>
+                        <div class="permission-items">
+                `;
+                
+                group.permissions.forEach(perm => {
+                    const isChecked = selectedPermissions.includes(perm.id);
+                    permissionsHtml += `
+                        <div class="permission-item">
+                            <label class="checkbox-wrapper">
+                                <input type="checkbox" class="permission-checkbox" name="permissions[]" 
+                                      value="${perm.id}" data-group="${group.name}" ${isChecked ? 'checked' : ''}>
+                                <span class="checkmark"></span>
+                            </label>
+                            <span>${perm.name}</span>
+                        </div>
+                    `;
+                });
+                
+                permissionsHtml += `
+                        </div>
+                    </div>
+                `;
+            });
+            
+            // 模态框内容
+            modal.innerHTML = `
+                <div class="modal-overlay"></div>
+                <div class="modal-container">
+                    <div class="modal-header">
+                        <h3>${title}</h3>
+                        <button class="modal-close-btn"><i class="fas fa-times"></i></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="role-form">
+                            <div class="form-group">
+                                <label for="role-name">角色名称</label>
+                                <input type="text" id="role-name" class="form-control" value="${role ? role.name : ''}" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="role-description">角色描述</label>
+                                <textarea id="role-description" class="form-control" rows="3">${role ? role.description : ''}</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>权限配置</label>
+                                <div class="permissions-container">
+                                    <div class="permission-actions">
+                                        <button type="button" class="btn btn-outline btn-sm" id="select-all-permissions">全选</button>
+                                        <button type="button" class="btn btn-outline btn-sm" id="deselect-all-permissions">取消全选</button>
+                                    </div>
+                                    <div class="permission-list">
+                                        ${permissionsHtml}
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-outline" id="cancel-role-btn">取消</button>
+                        <button class="btn btn-primary" id="save-role-btn">保存</button>
+                    </div>
+                </div>
+            `;
+            
+            // 添加样式
+            const modalStyle = document.createElement('style');
+            modalStyle.textContent = `
+                .modal {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    z-index: 1000;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                }
+                
+                .modal-overlay {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background-color: rgba(0, 0, 0, 0.5);
+                }
+                
+                .modal-container {
+                    position: relative;
+                    width: 100%;
+                    max-width: 800px;
+                    max-height: 90vh;
+                    overflow: auto;
+                    background-color: white;
+                    border-radius: var(--radius);
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                    display: flex;
+                    flex-direction: column;
+                }
+                
+                .modal-header {
+                    padding: 15px 20px;
+                    border-bottom: 1px solid var(--border-color);
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
+                
+                .modal-close-btn {
+                    background: none;
+                    border: none;
+                    font-size: 1.1rem;
+                    cursor: pointer;
+                    color: var(--gray-text);
+                }
+                
+                .modal-body {
+                    padding: 20px;
+                    overflow-y: auto;
+                    max-height: calc(90vh - 130px);
+                }
+                
+                .modal-footer {
+                    padding: 15px 20px;
+                    border-top: 1px solid var(--border-color);
+                    display: flex;
+                    justify-content: flex-end;
+                    gap: 10px;
+                }
+                
+                .form-group {
+                    margin-bottom: 20px;
+                }
+                
+                .form-group label {
+                    display: block;
+                    margin-bottom: 8px;
+                    font-weight: 500;
+                }
+                
+                .form-control {
+                    width: 100%;
+                    padding: 8px 12px;
+                    border: 1px solid var(--border-color);
+                    border-radius: var(--radius);
+                    font-size: 0.9rem;
+                }
+                
+                .form-control:focus {
+                    outline: none;
+                    border-color: var(--primary-color);
+                    box-shadow: 0 0 0 2px rgba(73, 161, 141, 0.2);
+                }
+                
+                .permissions-container {
+                    border: 1px solid var(--border-color);
+                    border-radius: var(--radius);
+                }
+                
+                .permission-actions {
+                    padding: 10px;
+                    background-color: var(--light-color);
+                    border-bottom: 1px solid var(--border-color);
+                    display: flex;
+                    gap: 10px;
+                }
+                
+                .permission-list {
+                    max-height: 300px;
+                    overflow-y: auto;
+                    padding: 10px;
+                }
+                
+                .permission-group {
+                    margin-bottom: 15px;
+                }
+                
+                .permission-group-header {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    margin-bottom: 10px;
+                }
+                
+                .permission-group-header h4 {
+                    margin: 0;
+                    font-size: 1rem;
+                }
+                
+                .permission-items {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+                    gap: 10px;
+                    margin-left: 28px;
+                }
+                
+                .permission-item {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                }
+            `;
+            
+            document.head.appendChild(modalStyle);
+            document.body.appendChild(modal);
+            
+            // 事件监听器
+            modal.querySelector('.modal-close-btn').addEventListener('click', () => {
+                document.body.removeChild(modal);
+                document.head.removeChild(modalStyle);
+            });
+            
+            modal.querySelector('.modal-overlay').addEventListener('click', () => {
+                document.body.removeChild(modal);
+                document.head.removeChild(modalStyle);
+            });
+            
+            modal.querySelector('#cancel-role-btn').addEventListener('click', () => {
+                document.body.removeChild(modal);
+                document.head.removeChild(modalStyle);
+            });
+            
+            // 全选/取消全选权限
+            modal.querySelector('#select-all-permissions').addEventListener('click', () => {
+                modal.querySelectorAll('.permission-checkbox').forEach(checkbox => {
+                    checkbox.checked = true;
+                });
+                
+                modal.querySelectorAll('.permission-group-toggle').forEach(checkbox => {
+                    checkbox.checked = true;
+                });
+            });
+            
+            modal.querySelector('#deselect-all-permissions').addEventListener('click', () => {
+                modal.querySelectorAll('.permission-checkbox').forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+                
+                modal.querySelectorAll('.permission-group-toggle').forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+            });
+            
+            // 权限组切换
+            modal.querySelectorAll('.permission-group-toggle').forEach(groupToggle => {
+                // 初始化组选择状态
+                const groupName = groupToggle.getAttribute('data-group');
+                const groupPermissionCheckboxes = modal.querySelectorAll(`.permission-checkbox[data-group="${groupName}"]`);
+                const allChecked = Array.from(groupPermissionCheckboxes).every(checkbox => checkbox.checked);
+                groupToggle.checked = allChecked;
+                
+                // 添加切换事件
+                groupToggle.addEventListener('change', function() {
+                    const isChecked = this.checked;
+                    groupPermissionCheckboxes.forEach(checkbox => {
+                        checkbox.checked = isChecked;
+                    });
+                });
+            });
+            
+            // 权限项变更时，更新组状态
+            modal.querySelectorAll('.permission-checkbox').forEach(permCheckbox => {
+                permCheckbox.addEventListener('change', function() {
+                    const groupName = this.getAttribute('data-group');
+                    const groupToggle = modal.querySelector(`.permission-group-toggle[data-group="${groupName}"]`);
+                    const groupPermissionCheckboxes = modal.querySelectorAll(`.permission-checkbox[data-group="${groupName}"]`);
+                    const allChecked = Array.from(groupPermissionCheckboxes).every(checkbox => checkbox.checked);
+                    
+                    groupToggle.checked = allChecked;
+                });
+            });
+            
+            // 保存角色
+            modal.querySelector('#save-role-btn').addEventListener('click', () => {
+                const name = modal.querySelector('#role-name').value.trim();
+                if (!name) {
+                    alert('角色名称不能为空');
+                    return;
+                }
+                
+                const description = modal.querySelector('#role-description').value.trim();
+                const permissionCheckboxes = modal.querySelectorAll('.permission-checkbox:checked');
+                const selectedPermissions = Array.from(permissionCheckboxes).map(checkbox => checkbox.value);
+                
+                if (selectedPermissions.length === 0) {
+                    alert('请至少选择一个权限');
+                    return;
+                }
+                
+                if (role) {
+                    // 更新现有角色
+                    role.name = name;
+                    role.description = description;
+                    role.permissionCount = selectedPermissions.length;
+                    
+                    alert('角色更新成功');
+                } else {
+                    // 创建新角色
+                    const newRole = {
+                        id: roleData.length + 1,
+                        name,
+                        type: 'custom',
+                        permissionCount: selectedPermissions.length,
+                        description,
+                        createdTime: new Date().toLocaleString('zh-CN', { 
+                            year: 'numeric', 
+                            month: '2-digit', 
+                            day: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        }).replace(/\//g, '-'),
+                        linkedAccounts: 0,
+                        canDelete: true
+                    };
+                    
+                    roleData.push(newRole);
+                    alert('新角色创建成功');
+                }
+                
+                // 重新过滤和渲染角色表格
+                filterRoles();
+                
+                // 关闭模态框
+                document.body.removeChild(modal);
+                document.head.removeChild(modalStyle);
+            });
+        }
+
+        // 显示角色权限模态框
+        function showPermissionModal(role) {
+            // 创建模态框元素
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.id = 'permission-modal';
+            
+            // 准备权限数据（模拟数据）
+            const permissionGroups = [
+                {
+                    name: '系统管理',
+                    permissions: [
+                        { id: 'sys_user', name: '用户管理', granted: Math.random() > 0.5 },
+                        { id: 'sys_role', name: '角色管理', granted: Math.random() > 0.5 },
+                        { id: 'sys_log', name: '操作日志', granted: Math.random() > 0.5 },
+                        { id: 'sys_config', name: '系统配置', granted: Math.random() > 0.5 }
+                    ]
+                },
+                {
+                    name: '站点管理',
+                    permissions: [
+                        { id: 'site_view', name: '站点查看', granted: Math.random() > 0.5 },
+                        { id: 'site_add', name: '站点添加', granted: Math.random() > 0.5 },
+                        { id: 'site_edit', name: '站点编辑', granted: Math.random() > 0.5 },
+                        { id: 'site_delete', name: '站点删除', granted: Math.random() > 0.5 },
+                        { id: 'site_config', name: '站点配置', granted: Math.random() > 0.5 }
+                    ]
+                },
+                {
+                    name: '设备管理',
+                    permissions: [
+                        { id: 'device_view', name: '设备查看', granted: Math.random() > 0.5 },
+                        { id: 'device_add', name: '设备添加', granted: Math.random() > 0.5 },
+                        { id: 'device_edit', name: '设备编辑', granted: Math.random() > 0.5 },
+                        { id: 'device_delete', name: '设备删除', granted: Math.random() > 0.5 },
+                        { id: 'device_control', name: '设备控制', granted: Math.random() > 0.5 }
+                    ]
+                },
+                {
+                    name: '告警管理',
+                    permissions: [
+                        { id: 'alarm_view', name: '告警查看', granted: Math.random() > 0.5 },
+                        { id: 'alarm_config', name: '告警配置', granted: Math.random() > 0.5 },
+                        { id: 'alarm_handle', name: '告警处理', granted: Math.random() > 0.5 },
+                        { id: 'alarm_statistics', name: '告警统计', granted: Math.random() > 0.5 }
+                    ]
+                },
+                {
+                    name: '报表管理',
+                    permissions: [
+                        { id: 'report_view', name: '报表查看', granted: Math.random() > 0.5 },
+                        { id: 'report_download', name: '报表下载', granted: Math.random() > 0.5 },
+                        { id: 'report_custom', name: '自定义报表', granted: Math.random() > 0.5 }
+                    ]
+                }
+            ];
+            
+            // 生成权限组HTML
+            let permissionsHtml = '';
+            permissionGroups.forEach(group => {
+                permissionsHtml += `
+                    <div class="permission-group-view">
+                        <div class="permission-group-header-view">
+                            <h4>${group.name}</h4>
+                        </div>
+                        <div class="permission-items-view">
+                `;
+                
+                group.permissions.forEach(perm => {
+                    permissionsHtml += `
+                        <div class="permission-item-view">
+                            <span class="permission-status ${perm.granted ? 'granted' : 'denied'}">
+                                <i class="fas ${perm.granted ? 'fa-check-circle' : 'fa-times-circle'}"></i>
+                            </span>
+                            <span>${perm.name}</span>
+                        </div>
+                    `;
+                });
+                
+                permissionsHtml += `
+                        </div>
+                    </div>
+                `;
+            });
+            
+            // 模态框内容
+            modal.innerHTML = `
+                <div class="modal-overlay"></div>
+                <div class="modal-container">
+                    <div class="modal-header">
+                        <h3>${role.name} - 权限详情</h3>
+                        <button class="modal-close-btn"><i class="fas fa-times"></i></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="role-info">
+                            <div class="role-info-item">
+                                <span class="role-info-label">角色类型：</span>
+                                <span class="badge ${role.type === 'system' ? 'badge-info' : 'badge-success'}">
+                                    ${role.type === 'system' ? '系统角色' : '自定义角色'}
+                                </span>
+                            </div>
+                            <div class="role-info-item">
+                                <span class="role-info-label">创建时间：</span>
+                                <span>${role.createdTime}</span>
+                            </div>
+                            <div class="role-info-item">
+                                <span class="role-info-label">关联账号：</span>
+                                <span>${role.linkedAccounts}个</span>
+                            </div>
+                            <div class="role-info-item">
+                                <span class="role-info-label">角色描述：</span>
+                                <span>${role.description}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="permission-view-container">
+                            <h4 class="permission-view-title">权限列表（${role.permissionCount}）</h4>
+                            <div class="permission-view-list">
+                                ${permissionsHtml}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-outline" id="close-permission-btn">关闭</button>
+                        ${role.type !== 'system' ? `
+                        <button class="btn btn-primary" id="edit-permission-btn" data-id="${role.id}">编辑权限</button>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+            
+            // 添加样式
+            const modalStyle = document.createElement('style');
+            modalStyle.textContent = `
+                .modal {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    z-index: 1000;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                }
+                
+                .modal-overlay {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background-color: rgba(0, 0, 0, 0.5);
+                }
+                
+                .modal-container {
+                    position: relative;
+                    width: 100%;
+                    max-width: 800px;
+                    max-height: 90vh;
+                    overflow: auto;
+                    background-color: white;
+                    border-radius: var(--radius);
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                    display: flex;
+                    flex-direction: column;
+                }
+                
+                .modal-header {
+                    padding: 15px 20px;
+                    border-bottom: 1px solid var(--border-color);
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
+                
+                .modal-close-btn {
+                    background: none;
+                    border: none;
+                    font-size: 1.1rem;
+                    cursor: pointer;
+                    color: var(--gray-text);
+                }
+                
+                .modal-body {
+                    padding: 20px;
+                    overflow-y: auto;
+                    max-height: calc(90vh - 130px);
+                }
+                
+                .modal-footer {
+                    padding: 15px 20px;
+                    border-top: 1px solid var(--border-color);
+                    display: flex;
+                    justify-content: flex-end;
+                    gap: 10px;
+                }
+                
+                .role-info {
+                    background-color: var(--light-color);
+                    border-radius: var(--radius);
+                    padding: 15px;
+                    margin-bottom: 20px;
+                }
+                
+                .role-info-item {
+                    margin-bottom: 8px;
+                    display: flex;
+                    align-items: center;
+                }
+                
+                .role-info-item:last-child {
+                    margin-bottom: 0;
+                }
+                
+                .role-info-label {
+                    font-weight: 500;
+                    margin-right: 8px;
+                    color: var(--gray-text);
+                }
+                
+                .permission-view-container {
+                    border: 1px solid var(--border-color);
+                    border-radius: var(--radius);
+                }
+                
+                .permission-view-title {
+                    padding: 10px 15px;
+                    background-color: var(--light-color);
+                    border-bottom: 1px solid var(--border-color);
+                    margin: 0;
+                    font-size: 1rem;
+                }
+                
+                .permission-view-list {
+                    padding: 15px;
+                    max-height: 400px;
+                    overflow-y: auto;
+                }
+                
+                .permission-group-view {
+                    margin-bottom: 20px;
+                }
+                
+                .permission-group-view:last-child {
+                    margin-bottom: 0;
+                }
+                
+                .permission-group-header-view {
+                    margin-bottom: 10px;
+                    padding-bottom: 8px;
+                    border-bottom: 1px solid var(--border-color);
+                }
+                
+                .permission-group-header-view h4 {
+                    margin: 0;
+                    font-size: 1rem;
+                    color: var(--primary-color);
+                }
+                
+                .permission-items-view {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+                    gap: 10px;
+                }
+                
+                .permission-item-view {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    padding: 5px 0;
+                }
+                
+                .permission-status {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+                
+                .permission-status.granted {
+                    color: var(--alert-green);
+                }
+                
+                .permission-status.denied {
+                    color: var(--alert-red);
+                }
+            `;
+            
+            document.head.appendChild(modalStyle);
+            document.body.appendChild(modal);
+            
+            // 事件监听器
+            modal.querySelector('.modal-close-btn').addEventListener('click', () => {
+                document.body.removeChild(modal);
+                document.head.removeChild(modalStyle);
+            });
+            
+            modal.querySelector('.modal-overlay').addEventListener('click', () => {
+                document.body.removeChild(modal);
+                document.head.removeChild(modalStyle);
+            });
+            
+            modal.querySelector('#close-permission-btn').addEventListener('click', () => {
+                document.body.removeChild(modal);
+                document.head.removeChild(modalStyle);
+            });
+            
+            const editPermissionBtn = modal.querySelector('#edit-permission-btn');
+            if (editPermissionBtn) {
+                editPermissionBtn.addEventListener('click', () => {
+                    document.body.removeChild(modal);
+                    document.head.removeChild(modalStyle);
+                    
+                    // 打开编辑角色模态框
+                    const roleId = parseInt(editPermissionBtn.getAttribute('data-id'));
+                    const role = roleData.find(r => r.id === roleId);
+                    showRoleFormModal(role);
+                });
+            }
+        }
+    </script>
+</body>
+</html> 

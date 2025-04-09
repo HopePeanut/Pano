@@ -1,0 +1,1835 @@
+/* site-homepage.css - 站点首页样式 */
+
+/* 引入全局变量 (如果navbar-template.js或其他地方定义了) */
+/* @import url('global-styles.css'); */
+
+/* 如果没有全局样式，可以在这里定义 */
+:root {
+    --primary-color: #49A18D; /* 清安绿 */
+    --secondary-color: #2C7873; /* 深绿色 */
+    --tertiary-color: #6FB3A8; /* 浅绿色 */
+    --light-color: #E0F5F0; /* 特浅绿色 */
+    --accent-color: #F39C12; /* 橙色作为点缀 */
+    --danger-color: #E74C3C; /* 危险红色 */
+    --warning-color: #F39C12; /* 警告黄色 */
+    --success-color: #2ECC71; /* 成功绿色 */
+    --info-color: #3498DB; /* 信息蓝色 */
+    --text-color: #333333;
+    --light-text: #FFFFFF;
+    --border-color: #E0E0E0;
+    --bg-color: #F5F5F5; /* 页面背景色 */
+    --panel-bg-color: #FFFFFF; /* 面板背景色 */
+    --panel-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* 面板阴影 */
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'PingFang SC', '微软雅黑', sans-serif;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 导航栏占位符 */
+#navbar-container {
+    /* 样式由 navbar-template.js 控制 */
+}
+
+/* 主内容区域 */
+.main-content {
+    flex: 1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* 头部和Grid布局之间的间距 */
+}
+
+/* 页面头部 - 面包屑和操作区域 */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--panel-bg-color);
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: var(--panel-shadow);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 20px; /* 面包屑和站点名称之间的间距 */
+}
+
+.breadcrumb-container {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.breadcrumb-container span {
+    margin: 0 5px;
+    color: #999;
+}
+
+.breadcrumb-container a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.breadcrumb-container a:hover {
+    text-decoration: underline;
+}
+
+.current-site-info {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.site-search-container {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+#site-search-input {
+    border: none;
+    padding: 8px 10px;
+    outline: none;
+    font-size: 14px;
+}
+
+#site-switch-btn {
+    background-color: var(--primary-color);
+    color: var(--light-text);
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#site-switch-btn:hover {
+    background-color: var(--secondary-color);
+}
+
+#device-monitor-btn {
+    background-color: var(--secondary-color);
+    color: var(--light-text);
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+#device-monitor-btn:hover {
+    background-color: var(--primary-color);
+}
+
+/* Grid 布局容器 */
+.dashboard-grid {
+    flex: 1; /* 占据剩余空间 */
+    display: grid;
+    grid-template-columns: 280px 1fr 280px; /* 左侧固定，中间自适应，右侧固定 */
+    grid-template-rows: auto auto auto; /* 修改：让所有行高自适应内容 */
+    gap: 20px; /* 网格项之间的间距 */
+    min-height: 600px; /* 保证最小高度 */
+}
+
+/* Grid 项通用样式 */
+.grid-item {
+    background-color: var(--panel-bg-color);
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: var(--panel-shadow);
+    overflow: hidden; /* 防止内容溢出 */
+    display: flex;
+    flex-direction: column;
+}
+
+.grid-item h2 {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--primary-color);
+    margin-bottom: 15px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--light-color);
+}
+
+/* 特定 Grid 项的位置分配 */
+.overall-status-panel {
+    grid-column: 1 / -1; /* 占据整行 (从第1列到最后1列) */
+    grid-row: 1 / 2;
+    /* 后续添加内部布局 */
+}
+
+.site-info-panel {
+    grid-column: 1 / 2;
+    grid-row: 2 / 3;
+}
+
+.operating-overview-panel {
+    grid-column: 1 / 2;
+    grid-row: 3 / 4;
+}
+
+.scada-panel {
+    grid-column: 2 / 3;
+    grid-row: 2 / 4; /* 占据中间两行的高度 */
+    /* 这里将是最大的区域 */
+    min-height: 400px; /* 保证SCADA图区域有足够高度 */
+}
+
+.video-monitor-panel {
+    grid-column: 3 / 4;
+    grid-row: 2 / 3;
+}
+
+.downtime-rate-panel {
+    grid-column: 3 / 4;
+    grid-row: 3 / 4;
+}
+
+/* 响应式调整 (可选，DEMO阶段可简化) */
+@media (max-width: 1200px) {
+    .dashboard-grid {
+        grid-template-columns: 250px 1fr 250px; /* 缩小侧边栏宽度 */
+    }
+}
+
+@media (max-width: 992px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr 1fr; /* 变成两列 */
+        grid-template-rows: auto auto auto auto; /* 重新排布 */
+        height: auto; /* 取消固定高度 */
+    }
+    .overall-status-panel { grid-column: 1 / -1; grid-row: 1; }
+    .scada-panel { grid-column: 1 / -1; grid-row: 2; }
+    .site-info-panel { grid-column: 1 / 2; grid-row: 3; }
+    .operating-overview-panel { grid-column: 1 / 2; grid-row: 4; }
+    .video-monitor-panel { grid-column: 2 / 3; grid-row: 3; }
+    .downtime-rate-panel { grid-column: 2 / 3; grid-row: 4; }
+}
+
+@media (max-width: 768px) {
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    .header-right {
+        width: 100%;
+        justify-content: space-between;
+    }
+    .dashboard-grid {
+        grid-template-columns: 1fr; /* 变成单列 */
+        grid-template-rows: auto; /* 所有行自动高度 */
+    }
+    /* 单列布局下，所有元素按默认顺序排列 */
+    .overall-status-panel, .scada-panel, .site-info-panel, .operating-overview-panel, .video-monitor-panel, .downtime-rate-panel {
+        grid-column: 1 / -1;
+        grid-row: auto;
+    }
+}
+
+/* --- 具体板块内部样式将在后续步骤添加 --- */
+
+/* 2. 站点信息板块样式 */
+.site-info-panel .info-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px; /* 信息项之间的间距 */
+    padding-top: 10px;
+}
+
+.site-info-panel .info-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+}
+
+.site-info-panel .info-icon {
+    font-size: 1.1rem;
+    width: 20px; /* 固定图标宽度，使其对齐 */
+    text-align: center;
+    color: var(--secondary-color); /* 默认图标颜色 */
+}
+
+/* 特定图标颜色 */
+/* .site-info-panel .capacity-icon { color: var(--info-color); } */ /* 移除，由具体类型决定 */
+.site-info-panel .capacity-icon.ess { color: var(--success-color); } /* 储能用绿色 */
+.site-info-panel .capacity-icon.ev { color: var(--info-color); } /* 充电用蓝色 */
+.site-info-panel .capacity-icon.pv { color: var(--accent-color); } /* 光伏用橙色 */
+.site-info-panel .safety-icon { color: var(--success-color); }
+.site-info-panel .downtime-icon { color: var(--warning-color); }
+.site-info-panel .cumulative-downtime-icon { color: var(--warning-color); }
+.site-info-panel .fire-status-icon { color: var(--secondary-color); } /* 消防状态图标默认色 */
+
+/* 容量详细信息缩进 */
+.site-info-panel .capacity-detail {
+    padding-left: 28px; /* = 图标宽度 + gap */
+    margin-top: -5px; /* 微调间距 */
+    margin-bottom: 5px;
+}
+
+.site-info-panel .capacity-detail .info-icon {
+    width: 16px; /* 子项图标小一点 */
+    font-size: 1rem;
+    margin-right: 5px;
+}
+
+.site-info-panel .info-label {
+    color: #555;
+    min-width: 80px; /* 标签最小宽度，方便对齐 */
+}
+
+.site-info-panel .info-value {
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+/* 消防状态指示灯样式 */
+.site-info-panel .alarm-status-light {
+    display: inline-block;
+    font-size: 1.1rem;
+    line-height: 1; /* 确保垂直居中 */
+    cursor: help; /* 提示用户可以悬停查看详情 */
+}
+
+.site-info-panel .alarm-status-light.alarm-ok {
+    color: var(--success-color); /* 绿色 */
+}
+
+.site-info-panel .alarm-status-light.alarm-active {
+    color: var(--danger-color); /* 红色 */
+    animation: pulse 1.5s infinite; /* 添加跳动动画 */
+}
+
+/* 告警图标跳动动画 */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+/* 加载中提示 */
+.grid-item p {
+    color: #888;
+    font-style: italic;
+    text-align: center;
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 3. 运行概况板块样式 - 重新设计，更专业现代化 */
+.operating-overview-panel {
+    /* 继承 .grid-item 的基础样式 */
+    position: relative;
+    overflow: hidden;
+}
+
+.operating-overview-panel h2 {
+    margin-bottom: 12px;
+    font-size: 15px;
+}
+
+.operating-overview-panel .overview-content {
+    display: flex;
+    flex-direction: column;
+    height: calc(100% - 40px);
+    gap: 15px;
+}
+
+/* 信息卡片样式 */
+.overview-info-card {
+    background-color: #fff;
+    border-radius: 6px;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    overflow: hidden;
+}
+
+.overview-info-card .info-card-header {
+    background-color: #f5f7fa;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #eaecef;
+}
+
+.overview-info-card .info-card-header i {
+    color: #49A18D;
+    margin-right: 8px;
+    font-size: 12px;
+}
+
+.overview-info-card .info-card-header span {
+    font-size: 13px;
+    font-weight: 500;
+    color: #555;
+}
+
+.overview-info-card .info-card-body {
+    padding: 10px 12px;
+}
+
+.overview-info-card .strategy-badge {
+    background-color: rgba(73, 161, 141, 0.1);
+    color: #49A18D;
+    font-size: 13px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    display: inline-block;
+    font-weight: 500;
+    border: 1px solid rgba(73, 161, 141, 0.2);
+}
+
+/* 指标样式 */
+.overview-metrics {
+    display: flex;
+    gap: 15px;
+    justify-content: space-between;
+}
+
+.overview-metrics .metric-item {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    background-color: #fff;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.overview-metrics .metric-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px;
+    flex-shrink: 0;
+}
+
+.overview-metrics .metric-icon.soc-icon {
+    background-color: rgba(73, 161, 141, 0.1);
+}
+
+.overview-metrics .metric-icon.soc-icon i {
+    color: #49A18D;
+}
+
+.overview-metrics .metric-icon.power-icon {
+    background-color: rgba(25, 118, 210, 0.1);
+}
+
+.overview-metrics .metric-icon.power-icon i {
+    color: #1976D2;
+}
+
+.overview-metrics .metric-data {
+    display: flex;
+    flex-direction: column;
+}
+
+.overview-metrics .metric-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+}
+
+.overview-metrics .metric-label {
+    font-size: 11px;
+    color: #777;
+    margin-top: 2px;
+}
+
+/* 充电桩概览信息网格 */
+.overview-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.overview-info-grid .usage-card {
+    grid-column: 1 / -1;
+}
+
+.overview-metric-card {
+    background-color: #fff;
+    border-radius: 6px;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.overview-metric-card .metric-card-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: #f5f5f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px;
+    flex-shrink: 0;
+}
+
+.overview-metric-card .metric-card-icon i {
+    color: #49A18D;
+    font-size: 14px;
+}
+
+.overview-metric-card .metric-card-data {
+    display: flex;
+    flex-direction: column;
+}
+
+.overview-metric-card .metric-card-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+}
+
+.overview-metric-card .metric-card-label {
+    font-size: 11px;
+    color: #777;
+}
+
+.overview-metric-card .usage-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: #f0f0f0;
+    overflow: hidden;
+    border-radius: 0 0 6px 6px;
+}
+
+.overview-metric-card .usage-bar {
+    height: 100%;
+    background-color: #49A18D;
+}
+
+/* 光伏状态卡片 */
+.pv-status-card {
+    background-color: #fff;
+    border-radius: 6px;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    padding: 12px;
+    display: flex;
+    gap: 15px;
+}
+
+.pv-status-card .pv-icon-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pv-status-card .pv-sun-icon {
+    font-size: 36px;
+    color: #FF9800;
+    animation: rotate 20s linear infinite;
+}
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.pv-status-card .pv-data-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.pv-status-card .pv-data-row {
+    display: flex;
+    gap: 24px;
+}
+
+.pv-status-card .pv-data-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.pv-status-card .pv-data-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+}
+
+.pv-status-card .pv-data-label {
+    font-size: 11px;
+    color: #777;
+    margin-top: 2px;
+}
+
+.pv-status-card .pv-efficiency-container {
+    margin-top: 5px;
+}
+
+.pv-status-card .pv-efficiency-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #555;
+    margin-bottom: 4px;
+}
+
+.pv-status-card .pv-efficiency-value {
+    font-weight: 600;
+    color: #FF9800;
+}
+
+.pv-status-card .pv-efficiency-bar {
+    height: 5px;
+    background-color: #f0f0f0;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.pv-status-card .pv-efficiency-fill {
+    height: 100%;
+    background: linear-gradient(to right, #FFCA28, #FF9800);
+    border-radius: 3px;
+    transition: width 0.8s ease-out;
+}
+
+/* 图表容器样式优化 */
+.operating-overview-panel .chart-container {
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 12px;
+    background-color: #fff;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 180px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    overflow: hidden;
+}
+
+.operating-overview-panel .chart-title {
+    font-size: 13px;
+    color: #555;
+    margin-bottom: 8px;
+    font-weight: 500;
+    text-align: center;
+}
+
+/* SVG 基础样式 */
+.operating-overview-panel .chart-svg {
+    width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    flex-grow: 1;
+}
+
+/* SVG 曲线样式增强 */
+.operating-overview-panel .chart-line {
+    fill: none;
+    stroke-width: 2px;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    filter: drop-shadow(0 2px 2px rgba(0,0,0,0.1));
+}
+
+/* SVG 轴线样式 */
+.operating-overview-panel .axis-line {
+    stroke: #aaa;
+    stroke-width: 1px;
+}
+
+/* SVG 网格线样式 */
+.operating-overview-panel .grid-line {
+    stroke: #eee;
+    stroke-width: 1px;
+    stroke-dasharray: 3, 3;
+}
+
+/* SVG 轴标签样式 */
+.operating-overview-panel .axis-label {
+    font-size: 9px;
+    fill: #888;
+    font-weight: 400;
+}
+
+.operating-overview-panel .axis-label.y-label {
+    font-size: 8px;
+}
+
+/* 数据点样式 */
+.operating-overview-panel .data-point {
+    stroke: #fff;
+    stroke-width: 1px;
+}
+
+/* 渐变填充颜色 */
+.operating-overview-panel .gradient-stop-top.plan-color {
+    stop-color: #1976D2;
+}
+
+.operating-overview-panel .gradient-stop-top.actual-color {
+    stop-color: #4CAF50;
+}
+
+.operating-overview-panel .gradient-stop-top.ev-power-color {
+    stop-color: #1976D2;
+}
+
+.operating-overview-panel .gradient-stop-top.pv-power-color {
+    stop-color: #FF9800;
+}
+
+.operating-overview-panel .gradient-stop-bottom {
+    stop-color: #ffffff;
+}
+
+/* 图例样式优化 */
+.operating-overview-panel .chart-legend {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    font-size: 11px;
+    margin-top: 5px;
+    padding-top: 5px;
+    border-top: 1px dashed #eee;
+    color: #666;
+}
+
+.operating-overview-panel .chart-legend i {
+    margin-right: 4px;
+    font-size: 8px;
+}
+
+/* SVG 曲线颜色 (与图例颜色对应) */
+.operating-overview-panel .plan-color { stroke: #1976D2; }
+.operating-overview-panel .actual-color { stroke: #4CAF50; }
+.operating-overview-panel .ev-power-color { stroke: #1976D2; }
+.operating-overview-panel .pv-power-color { stroke: #FF9800; }
+
+/* 图例颜色 (确保与SVG stroke一致) */
+.operating-overview-panel .chart-legend .plan-color { color: #1976D2; }
+.operating-overview-panel .chart-legend .actual-color { color: #4CAF50; }
+.operating-overview-panel .chart-legend .price-color { color: #FF9800; } 
+.operating-overview-panel .chart-legend .ev-power-color { color: #1976D2; } 
+.operating-overview-panel .chart-legend .pv-power-color { color: #FF9800; }
+
+/* 多元融合站 Tab 样式优化 */
+.operating-overview-panel .overview-tabs {
+    display: flex;
+    margin-bottom: 12px;
+    border-bottom: 1px solid #e0e0e0;
+    background-color: #f5f7fa;
+    border-radius: 4px 4px 0 0;
+}
+
+.operating-overview-panel .overview-tab {
+    padding: 8px 15px;
+    cursor: pointer;
+    border: none;
+    background-color: transparent;
+    color: #666;
+    font-size: 13px;
+    font-weight: 500;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.operating-overview-panel .overview-tab:hover {
+    color: #49A18D;
+    background-color: rgba(73, 161, 141, 0.05);
+}
+
+.operating-overview-panel .overview-tab.active {
+    color: #49A18D;
+    font-weight: 600;
+    border-bottom-color: #49A18D;
+    background-color: rgba(73, 161, 141, 0.1);
+}
+
+.operating-overview-panel .overview-tab-content {
+    padding-top: 5px;
+    height: calc(100% - 40px);
+}
+
+/* 1. 运行情况总览板块样式 */
+.overall-status-panel {
+    /* 继承 .grid-item 的基础样式 */
+}
+
+.overall-status-panel h2 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.overall-status-panel .status-cards-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px; /* 减小卡片间距 */
+    margin-top: 8px; /* 减小与标题的间距 */
+}
+
+/* 状态卡片基础样式 */
+.status-card {
+    flex: 1 1 170px; /* 减小最小宽度 */
+    background-color: white;
+    border-radius: 6px;
+    border: 1px solid #eaeaea;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    padding: 10px; /* 减小内边距 */
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s ease;
+    min-height: 90px; /* 减小最小高度 */
+}
+
+/* 大号卡片 (主状态) - 缩小比例 */
+.status-card-large {
+    flex: 1.5 1 180px; /* 减小比例和最小宽度 */
+    min-height: 90px; /* 与其他卡片一致 */
+}
+
+/* 卡片悬停效果 */
+.status-card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+/* 卡片状态颜色 */
+.status-card.status-normal {
+    border-top: 3px solid var(--success-color);
+}
+
+.status-card.status-warning {
+    border-top: 3px solid var(--warning-color);
+}
+
+.status-card.status-error {
+    border-top: 3px solid var(--danger-color);
+}
+
+/* 卡片头部 */
+.status-card .status-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    position: relative;
+}
+
+.status-card .status-title {
+    font-size: 0.85rem;
+    color: #777;
+    font-weight: 500;
+}
+
+/* 状态指示灯 */
+.status-card .status-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.status-normal .status-indicator {
+    background-color: var(--success-color);
+    box-shadow: 0 0 5px var(--success-color);
+}
+
+.status-warning .status-indicator {
+    background-color: var(--warning-color);
+    box-shadow: 0 0 5px var(--warning-color);
+    animation: blink 2s infinite;
+}
+
+.status-error .status-indicator {
+    background-color: var(--danger-color);
+    box-shadow: 0 0 5px var(--danger-color);
+    animation: blink 1s infinite;
+}
+
+/* 指示灯闪烁动画 */
+@keyframes blink {
+    0% { opacity: 0.5; }
+    50% { opacity: 1; }
+    100% { opacity: 0.5; }
+}
+
+/* 卡片内容 */
+.status-card .status-body {
+    display: flex;
+    align-items: center;
+    flex: 1;
+}
+
+.status-card .status-icon {
+    font-size: 1.5rem;
+    margin-right: 12px;
+    width: 30px;
+    text-align: center;
+    color: var(--primary-color);
+}
+
+.status-card .status-content {
+    flex-grow: 1;
+}
+
+.status-card .status-main-text {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #444;
+    line-height: 1.3;
+}
+
+.status-card .status-secondary-text {
+    font-size: 0.85rem;
+    color: #666;
+    margin-top: 3px;
+}
+
+/* 卡片值区域 */
+.status-card .status-value {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    margin-left: 10px;
+}
+
+.status-card .value {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.status-card .value-label {
+    font-size: 0.7rem;
+    color: #888;
+    margin-top: 2px;
+}
+
+/* 更新时间 - 移至标题旁边 */
+.status-update-time {
+    font-size: 0.75rem;
+    color: #999;
+    margin-left: 10px;
+    white-space: nowrap;
+}
+
+/* 不同状态的卡片内容样式 */
+.status-warning .status-main-text {
+    color: var(--warning-color);
+}
+
+.status-error .status-main-text {
+    color: var(--danger-color);
+}
+
+/* 响应式调整 */
+@media (max-width: 992px) {
+    .status-card {
+        flex: 1 1 150px; /* 稍微减小最小宽度 */
+    }
+    
+    .status-card-large {
+        flex: 1 1 200px;
+    }
+}
+
+@media (max-width: 768px) {
+    .status-cards-container {
+        gap: 10px;
+    }
+    
+    .status-card {
+        flex: 1 1 140px;
+        padding: 10px;
+    }
+    
+    .status-icon {
+        font-size: 1.3rem;
+        margin-right: 8px;
+    }
+    
+    .status-main-text {
+        font-size: 0.9rem;
+    }
+    
+    .value {
+        font-size: 1rem;
+    }
+}
+
+/* 5. 视频监控板块样式 */
+.video-monitor-panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.video-monitor-panel h2 {
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.single-video-container {
+    width: 100%;
+    height: calc(100% - 40px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    overflow: hidden;
+}
+
+.large-video {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
+}
+
+.large-video:hover {
+    transform: scale(1.01);
+}
+
+.video-card.switching {
+    animation: fadeSwitch 0.5s ease;
+}
+
+@keyframes fadeSwitch {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+.video-thumbnail {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.video-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,0) 60%, rgba(0,0,0,0.5) 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 10px;
+    box-sizing: border-box;
+    transition: background-color 0.3s;
+}
+
+.video-overlay.playing {
+    background: linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,0) 60%, rgba(0,0,0,0.3) 100%);
+}
+
+.camera-name {
+    color: white;
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 4px;
+    background-color: rgba(0,0,0,0.5);
+    align-self: flex-start;
+    font-size: 14px;
+}
+
+.video-overlay.playing .camera-name {
+    background-color: rgba(73, 161, 141, 0.7);
+}
+
+.video-play-button {
+    color: white;
+    font-size: 40px;
+    align-self: center;
+    margin-top: auto;
+    margin-bottom: auto;
+    opacity: 0.7;
+    transition: opacity 0.3s, transform 0.3s;
+}
+
+.video-overlay:hover .video-play-button {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.video-controls {
+    font-size: 14px;
+    margin-left: 15px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.video-controls button {
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    font-size: 14px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+}
+
+.video-controls button:hover {
+    background-color: rgba(0,0,0,0.1);
+}
+
+.video-controls button.active {
+    color: #49A18D;
+}
+
+#camera-indicator {
+    margin: 0 10px;
+    color: #666;
+    font-size: 13px;
+}
+
+/* 可以删除旧的多视频网格相关样式（如果有的话）*/
+.video-grid {
+    display: none; /* 隐藏旧的多视频网格 */
+}
+
+/* 6. 非计划停机率板块样式 */
+.downtime-rate-panel {
+    /* 继承 .grid-item 的基础样式 */
+}
+
+/* 停机信息展示区域 */
+.downtime-info-container {
+    display: flex;
+    gap: 10px; /* 减小间距 */
+    margin-top: 5px; /* 减小上边距 */
+    margin-bottom: 10px; /* 减小下边距 */
+}
+
+.downtime-info-item {
+    flex: 1;
+    background-color: #f9f9f9;
+    border-radius: 6px;
+    padding: 6px; /* 减小内边距 */
+    display: flex;
+    align-items: center;
+    gap: 8px; /* 减小图标和文字间的间距 */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.downtime-icon {
+    font-size: 1.2rem; /* 减小图标大小 */
+    color: var(--primary-color);
+    width: 25px; /* 减小宽度 */
+    text-align: center;
+    margin-right: 3px; /* 减小右边距 */
+}
+
+.downtime-info-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.downtime-label {
+    font-size: 0.75rem; /* 减小标签字体 */
+    color: #777;
+    margin-bottom: 2px; /* 减小下边距 */
+}
+
+.downtime-value {
+    font-size: 1rem; /* 减小数值字体 */
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+/* 趋势图容器 */
+.downtime-trend-container {
+    margin-top: 10px; /* 减小上边距 */
+    background-color: white;
+    border-radius: 6px;
+    padding: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.trend-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.trend-title {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #555;
+}
+
+.trend-period-selector {
+    display: flex;
+    gap: 2px;
+    background-color: #f0f0f0;
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid #e0e0e0;
+}
+
+.period-btn {
+    background-color: transparent;
+    border: none;
+    padding: 4px 8px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: #666;
+}
+
+.period-btn:hover {
+    background-color: #e8e8e8;
+}
+
+.period-btn.active {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.trend-chart-container {
+    height: 200px;
+    margin-top: 5px;
+}
+
+/* 图表样式 */
+.trend-chart {
+    width: 100%;
+    height: 100%;
+}
+
+.chart-axis {
+    stroke: #ccc;
+    stroke-width: 1px;
+}
+
+.chart-grid {
+    stroke: #eee;
+    stroke-width: 1px;
+    stroke-dasharray: 2, 2;
+}
+
+.chart-tick {
+    stroke: #ccc;
+    stroke-width: 1px;
+}
+
+.chart-label {
+    font-size: 8px;
+    fill: #999;
+    font-family: sans-serif;
+}
+
+.y-label {
+    text-anchor: end;
+}
+
+.x-label {
+    text-anchor: middle;
+}
+
+.chart-bar {
+    fill: var(--primary-color);
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+.chart-bar:hover {
+    opacity: 1;
+}
+
+.chart-point {
+    fill: var(--primary-color);
+    stroke: white;
+    stroke-width: 1;
+}
+
+.chart-line {
+    fill: none;
+    stroke: var(--primary-color);
+    stroke-width: 2;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+}
+
+.chart-value-label {
+    font-size: 7px;
+    fill: #666;
+    text-anchor: middle;
+    font-weight: 600;
+}
+
+/* SCADA图板块样式 */
+.scada-panel {
+    position: relative;
+    overflow: hidden;
+}
+
+.scada-update-time {
+    font-size: 12px;
+    color: #666;
+    margin-left: 10px;
+    font-weight: normal;
+}
+
+.scada-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+}
+
+#scada-svg {
+    transition: transform 0.3s ease;
+    background-color: #f5f5f5;
+    cursor: move;
+}
+
+#scada-controls {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    display: flex;
+    gap: 5px;
+    z-index: 10;
+}
+
+#scada-controls button {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+#scada-controls button:hover {
+    background-color: #f0f0f0;
+}
+
+/* SCADA元素样式 */
+.scada-element {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.scada-element:hover {
+    filter: brightness(1.1);
+    cursor: pointer;
+}
+
+.scada-label {
+    font-size: 12px;
+    fill: #333;
+    pointer-events: none;
+}
+
+.scada-value {
+    font-size: 10px;
+    fill: #666;
+    pointer-events: none;
+}
+
+.scada-mode {
+    font-size: 10px;
+    fill: #1a73e8;
+    pointer-events: none;
+}
+
+.scada-params {
+    font-size: 10px;
+    color: #333;
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 5px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
+/* 状态颜色 */
+.scada-element.normal path,
+.scada-element.normal rect,
+.scada-element.normal circle {
+    transition: fill 0.3s ease;
+}
+
+.scada-element.warning path,
+.scada-element.warning rect,
+.scada-element.warning circle {
+    transition: fill 0.3s ease;
+}
+
+.scada-element.error path,
+.scada-element.error rect,
+.scada-element.error circle {
+    transition: fill 0.3s ease;
+}
+
+/* 电流流动线样式 */
+.flow-line {
+    stroke: #4a90e2;
+    stroke-width: 2;
+    stroke-dasharray: 4;
+    animation: flowAnimation 2s linear infinite;
+}
+
+@keyframes flowAnimation {
+    to { stroke-dashoffset: 24; }
+}
+
+/* 电池SOC指示器增强 */
+.scada-element[data-type="ess"] rect[opacity="0.7"] {
+    transition: width 0.3s, fill 0.3s;
+}
+
+/* 图标悬停效果 */
+.scada-element {
+    transition: transform 0.2s ease;
+}
+
+.scada-element:hover {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+}
+
+/* 充电桩闪电图标效果 */
+.scada-element[data-type="ev"] path[fill="yellow"] {
+    animation: glow 1.5s infinite alternate;
+}
+
+@keyframes glow {
+    from { filter: drop-shadow(0 0 2px rgba(255, 255, 0, 0.3)); }
+    to { filter: drop-shadow(0 0 5px rgba(255, 255, 0, 0.7)); }
+}
+
+/* 楼宇幕墙反光效果 */
+.scada-element[data-type="building"] path[opacity="0.7"] {
+    animation: reflect 8s infinite linear;
+}
+
+@keyframes reflect {
+    0% { opacity: 0.6; }
+    50% { opacity: 0.8; }
+    100% { opacity: 0.6; }
+}
+
+/* 模态框样式 */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 5% auto;
+    padding: 0;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    width: 80%;
+    max-width: 600px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    animation: modalFadeIn 0.3s;
+}
+
+@keyframes modalFadeIn {
+    from {opacity: 0; transform: translateY(-30px);}
+    to {opacity: 1; transform: translateY(0);}
+}
+
+.close-modal {
+    color: #777;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    margin-right: 15px;
+}
+
+.close-modal:hover,
+.close-modal:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.modal-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 18px;
+    color: #333;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.device-status {
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 14px;
+    color: white;
+}
+
+.device-status.normal {
+    background-color: #4CAF50;
+}
+
+.device-status.warning {
+    background-color: #FFC107;
+    color: #333;
+}
+
+.device-status.error {
+    background-color: #F44336;
+}
+
+.status-display {
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.status-item {
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+}
+
+.status-label {
+    font-weight: bold;
+    width: 120px;
+    color: #555;
+}
+
+.status-value {
+    color: #333;
+}
+
+.control-panel h3 {
+    margin: 15px 0 10px;
+    font-size: 16px;
+    color: #333;
+}
+
+.control-item {
+    margin-bottom: 15px;
+}
+
+.control-item label {
+    display: block;
+    margin-bottom: 5px;
+    color: #555;
+}
+
+.submit-controls {
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.primary-btn, .secondary-btn {
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    border: none;
+    font-size: 14px;
+}
+
+.primary-btn {
+    background-color: #49A18D;
+    color: white;
+}
+
+.primary-btn:hover {
+    background-color: #3d8a77;
+}
+
+.secondary-btn {
+    background-color: #e0e0e0;
+    color: #333;
+}
+
+.secondary-btn:hover {
+    background-color: #d0d0d0;
+}
+
+/* 开关控制器样式 */
+.switch-control {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin: 15px 0;
+}
+
+.switch {
+    width: 60px;
+    height: 30px;
+    background-color: #ccc;
+    border-radius: 15px;
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.switch.on {
+    background-color: #49A18D;
+}
+
+.switch-handle {
+    width: 26px;
+    height: 26px;
+    background-color: white;
+    border-radius: 50%;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    transition: transform 0.3s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+.switch.on .switch-handle {
+    transform: translateX(30px);
+}
+
+/* 模式按钮样式 */
+.mode-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.mode-btn {
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    color: #333;
+}
+
+.mode-btn.active {
+    background-color: #49A18D;
+    color: white;
+    border-color: #49A18D;
+}
+
+.mode-btn:hover:not(.active) {
+    background-color: #e0e0e0;
+}
+
+/* 楼宇图表样式 */
+.building-chart {
+    margin-top: 20px;
+}
+
+.building-chart h3 {
+    margin-bottom: 10px;
+    font-size: 16px;
+    color: #333;
+}
+
+/* 储能系统控制面板的功率输入控件样式 */
+.power-input-container {
+    margin-bottom: 20px;
+}
+
+.power-input-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.power-input-group label {
+    width: 120px;
+    margin-right: 10px;
+}
+
+.power-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.power-number-input {
+    width: 120px;
+    height: 36px;
+    padding: 5px 30px 5px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    text-align: right;
+}
+
+.power-number-input:focus {
+    border-color: #49A18D;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(73, 161, 141, 0.2);
+}
+
+.power-unit {
+    position: absolute;
+    right: 10px;
+    color: #666;
+}
+
+.power-description {
+    margin-top: 5px;
+}
+
+.power-hint {
+    display: block;
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 8px;
+}
+
+.power-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.power-preset-btn {
+    padding: 6px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #f5f5f5;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.2s;
+}
+
+.power-preset-btn:hover {
+    background-color: #e0e0e0;
+}
+
+.power-preset-btn:first-child {
+    color: #F44336;
+    border-color: #F44336;
+    background-color: rgba(244, 67, 54, 0.05);
+}
+
+.power-preset-btn:first-child:hover {
+    background-color: rgba(244, 67, 54, 0.1);
+}
+
+.power-preset-btn:last-child {
+    color: #4CAF50;
+    border-color: #4CAF50;
+    background-color: rgba(76, 175, 80, 0.05);
+}
+
+.power-preset-btn:last-child:hover {
+    background-color: rgba(76, 175, 80, 0.1);
+}
+
+/* 当前策略行内显示样式 */
+.strategy-display {
+    display: flex;
+    align-items: center;
+    background-color: #fff;
+    border-radius: 6px;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    padding: 10px 15px;
+    margin-bottom: 15px;
+}
+
+.strategy-display .strategy-label {
+    display: flex;
+    align-items: center;
+    margin-right: 10px;
+}
+
+.strategy-display .strategy-label i {
+    color: #49A18D;
+    margin-right: 6px;
+    font-size: 14px;
+}
+
+.strategy-display .strategy-label span {
+    font-size: 13px;
+    color: #555;
+    font-weight: 500;
+}
+
+.strategy-display .strategy-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: #49A18D;
+    background-color: rgba(73, 161, 141, 0.1);
+    padding: 4px 12px;
+    border-radius: 4px;
+    border: 1px solid rgba(73, 161, 141, 0.2);
+} 
