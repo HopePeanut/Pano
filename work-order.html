@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智慧运维系统 - 工单管理</title>
+    <!-- 引入高德地图API -->
+    <script type="text/javascript"
+        src="https://webapi.amap.com/maps?v=2.0&key=82d018675c18540fbe5d3eb2ba1c2b93&securityJsCode=fe718e66f1eec99306d822d5ae03b084">
+    </script>
+    <!-- 添加Font Awesome图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 添加导航栏模板JS文件引用 -->
+    <script src="navbar-template.js"></script>
+    <!-- 添加工单管理页面CSS -->
+    <link rel="stylesheet" href="work-order.css">
+</head>
+
+<body>
+    <!-- 导航栏将通过JS动态加载 -->
+    <div id="navbar-container"></div>
+
+    <!-- 主内容区 -->
+    <div class="main-content">
+        <!-- 面包屑导航 -->
+        <div class="breadcrumb">
+            <span><i class="fas fa-home"></i></span>
+            <span>运维管理</span>
+            <span>工单系统</span>
+        </div>
+
+        <!-- 统计概况区 -->
+        <div class="stats-overview">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-plus-circle"></i></div>
+                <div class="stat-info">
+                    <div class="stat-label">今日新增工单</div>
+                    <div class="stat-value" id="new-tickets">12</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-spinner"></i></div>
+                <div class="stat-info">
+                    <div class="stat-label">进行中工单</div>
+                    <div class="stat-value" id="in-progress-tickets">28</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="stat-info">
+                    <div class="stat-label">本月完成工单</div>
+                    <div class="stat-value" id="completed-tickets">87</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-clock"></i></div>
+                <div class="stat-info">
+                    <div class="stat-label">平均响应时间</div>
+                    <div class="stat-value" id="avg-response-time">2.4h</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 筛选区 -->
+        <div class="filter-section">
+            <div class="filter-group">
+                <div class="filter-item">
+                    <label>站点名称</label>
+                    <input type="text" id="site-filter" placeholder="请输入站点名称">
+                </div>
+                <div class="filter-item">
+                    <label>工单类型</label>
+                    <select id="ticket-type-filter">
+                        <option value="">全部</option>
+                        <option value="设备故障">设备故障</option>
+                        <option value="例行巡检">例行巡检</option>
+                        <option value="系统维护">系统维护</option>
+                        <option value="设备安装">设备安装</option>
+                        <option value="其他">其他</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>工单状态</label>
+                    <div class="status-checkbox-container">
+                        <label class="status-checkbox">
+                            <input type="checkbox" name="status" value="新建" checked>
+                            <span>新建</span>
+                        </label>
+                        <label class="status-checkbox">
+                            <input type="checkbox" name="status" value="已受理" checked>
+                            <span>已受理</span>
+                        </label>
+                        <label class="status-checkbox">
+                            <input type="checkbox" name="status" value="处理中" checked>
+                            <span>处理中</span>
+                        </label>
+                        <label class="status-checkbox">
+                            <input type="checkbox" name="status" value="已完成">
+                            <span>已完成</span>
+                        </label>
+                        <label class="status-checkbox">
+                            <input type="checkbox" name="status" value="已关闭">
+                            <span>已关闭</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="filter-group">
+                <div class="filter-item">
+                    <label>时间范围</label>
+                    <div class="date-range">
+                        <input type="date" id="date-from" value="2023-10-01">
+                        <span>至</span>
+                        <input type="date" id="date-to" value="2023-10-31">
+                    </div>
+                </div>
+                <div class="filter-actions">
+                    <button class="btn" id="search-btn"><i class="fas fa-search"></i> 搜索</button>
+                    <button class="btn btn-reset" id="reset-btn"><i class="fas fa-undo"></i> 重置</button>
+                    <button class="btn btn-export" id="export-btn"><i class="fas fa-file-export"></i> 导出</button>
+                </div>
+            </div>
+            <div class="ai-recommendations">
+                <div class="ai-title">
+                    <i class="fas fa-robot"></i> AI推荐筛选
+                </div>
+                <div class="ai-tags">
+                    <span class="ai-tag">今日逾期工单</span>
+                    <span class="ai-tag">高优先级未处理</span>
+                    <span class="ai-tag">待审核工单</span>
+                    <span class="ai-tag">设备故障工单</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 工单列表 -->
+        <div class="ticket-list">
+            <!-- 工单卡片示例，实际由JS动态生成 -->
+        </div>
+
+        <!-- 分页控制 -->
+        <div class="pagination-control">
+            <button id="prev-page" disabled><i class="fas fa-chevron-left"></i> 上一页</button>
+            <div class="page-info">
+                <span id="current-page">1</span> / <span id="total-pages">5</span>
+            </div>
+            <button id="next-page"><i class="fas fa-chevron-right"></i> 下一页</button>
+        </div>
+    </div>
+
+    <!-- AI助手悬浮窗 -->
+    <div class="ai-assistant">
+        <div class="ai-assistant-icon">
+            <i class="fas fa-robot"></i>
+        </div>
+        <div class="ai-assistant-panel">
+            <div class="ai-assistant-header">
+                <h3>智慧运维</h3>
+                <button class="ai-close-btn"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="ai-assistant-content">
+                <div class="ai-assistant-message">
+                    您好，我是您的智慧运维助手。有什么可以帮您的吗？
+                </div>
+                <div class="ai-quick-actions">
+                    <button class="ai-action-btn" data-action="summarize">请总结今日新增工单</button>
+                    <button class="ai-action-btn" data-action="similar">这个工单是否曾出现过类似情况？</button>
+                    <button class="ai-action-btn" data-action="suggest">有哪些工单需要优先处理？</button>
+                </div>
+                <div class="ai-input-container">
+                    <input type="text" class="ai-input" placeholder="输入您的问题...">
+                    <button class="ai-send-btn"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 工单详情弹窗 -->
+    <div class="modal" id="ticket-detail-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>工单详情</h3>
+                <button class="close-modal"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <!-- 工单标题和ID区域 -->
+                <div class="ticket-header">
+                    <h2 id="modal-ticket-title">设备故障报修 - 逆变器异常</h2>
+                    <div class="ticket-id">
+                        <span>工单编号：</span>
+                        <span id="modal-ticket-id">GD-2023101501</span>
+                    </div>
+                    <div class="overdue-badge" id="overdue-badge" style="display: none;">
+                        <i class="fas fa-exclamation-circle"></i> 已逾期
+                    </div>
+                </div>
+                
+                <!-- 工单流程进度 -->
+                <div class="ticket-progress-container">
+                    <h4><i class="fas fa-tasks"></i> 工单处理流程</h4>
+                    <div class="ticket-progress">
+                        <div class="progress-step completed">
+                            <div class="step-icon"><i class="fas fa-plus-circle"></i></div>
+                            <div class="step-label">新建</div>
+                            <div class="step-time">10-15 08:23</div>
+                        </div>
+                        <div class="progress-step completed">
+                            <div class="step-icon"><i class="fas fa-clipboard-check"></i></div>
+                            <div class="step-label">已受理</div>
+                            <div class="step-time">10-15 09:17</div>
+                        </div>
+                        <div class="progress-step active">
+                            <div class="step-icon"><i class="fas fa-tools"></i></div>
+                            <div class="step-label">处理中</div>
+                            <div class="step-time">10-15 10:35</div>
+                        </div>
+                        <div class="progress-step">
+                            <div class="step-icon"><i class="fas fa-check-circle"></i></div>
+                            <div class="step-label">已完成</div>
+                            <div class="step-time">-</div>
+                        </div>
+                        <div class="progress-step">
+                            <div class="step-icon"><i class="fas fa-archive"></i></div>
+                            <div class="step-label">已关闭</div>
+                            <div class="step-time">-</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 工单基本信息卡片 -->
+                <div class="ticket-info-card">
+                    <h4><i class="fas fa-info-circle"></i> 基本信息</h4>
+                    <div class="ticket-details">
+                        <div class="detail-item">
+                            <span class="detail-label">所属站点：</span>
+                            <span class="detail-value" id="modal-site-name">北京昌平储能电站</span>
+                            <button class="map-btn" id="show-site-map"><i class="fas fa-map-marker-alt"></i></button>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">工单类型：</span>
+                            <span class="detail-value" id="modal-ticket-type">设备故障</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">优先级：</span>
+                            <span class="detail-value priority-high" id="modal-priority">高</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">创建时间：</span>
+                            <span class="detail-value" id="modal-create-time">2023-10-15 08:23</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">计划完成：</span>
+                            <span class="detail-value" id="modal-deadline">2023-10-16 17:00</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">当前状态：</span>
+                            <span class="detail-value status-processing" id="modal-status">处理中</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">当前处理人：</span>
+                            <span class="detail-value" id="modal-handler">王工程师</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">现场天气：</span>
+                            <span class="detail-value" id="modal-weather">🌤️ 25℃ 湿度45%</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 工单描述卡片 -->
+                <div class="ticket-info-card">
+                    <h4><i class="fas fa-file-alt"></i> 问题描述</h4>
+                    <div class="ticket-description">
+                        <p id="modal-description">昌平储能电站3号逆变器报警，显示过温保护，需要现场检查冷却系统是否正常工作。现场监控显示设备间温度正常，初步判断可能是温度传感器异常或内部风扇故障。</p>
+                    </div>
+                </div>
+                
+                <!-- 现场图片卡片 -->
+                <div class="ticket-info-card">
+                    <h4><i class="fas fa-images"></i> 现场图片</h4>
+                    <div class="ticket-images">
+                        <div class="image-gallery" id="modal-images">
+                            <!-- 图片由JS动态生成 -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 操作日志卡片 -->
+                <div class="ticket-info-card">
+                    <h4><i class="fas fa-history"></i> 操作日志</h4>
+                    <div class="ticket-timeline">
+                        <div class="timeline" id="modal-timeline">
+                            <div class="timeline-item">
+                                <div class="timeline-icon">
+                                    <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="操作人">
+                                </div>
+                                <div class="timeline-content">
+                                    <div class="timeline-header">
+                                        <span class="operator">王工程师</span>
+                                        <span class="operation-time">2023-10-15 10:35</span>
+                                    </div>
+                                    <div class="operation-content">
+                                        <span class="operation-type">状态更新</span>
+                                        <p>已到达现场，开始检查逆变器冷却系统。初步发现内部风扇有异响，可能需要更换。</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-icon">
+                                    <img src="https://randomuser.me/api/portraits/men/68.jpg" alt="操作人">
+                                </div>
+                                <div class="timeline-content">
+                                    <div class="timeline-header">
+                                        <span class="operator">李调度</span>
+                                        <span class="operation-time">2023-10-15 09:17</span>
+                                    </div>
+                                    <div class="operation-content">
+                                        <span class="operation-type">工单受理</span>
+                                        <p>已联系现场工程师前往处理，预计10:30到达现场。</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-icon">
+                                    <img src="https://randomuser.me/api/portraits/women/65.jpg" alt="操作人">
+                                </div>
+                                <div class="timeline-content">
+                                    <div class="timeline-header">
+                                        <span class="operator">张监控</span>
+                                        <span class="operation-time">2023-10-15 08:23</span>
+                                    </div>
+                                    <div class="operation-content">
+                                        <span class="operation-type">创建工单</span>
+                                        <p>系统监控发现3号逆变器告警，创建工单并通知运维人员。</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="accept-ticket"><i class="fas fa-clipboard-check"></i> 受理工单</button>
+                <button class="btn btn-success" id="complete-ticket"><i class="fas fa-check-circle"></i> 完成工单</button>
+                <button class="btn btn-secondary close-modal"><i class="fas fa-times"></i> 关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 站点地图弹窗 -->
+    <div class="modal" id="site-map-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>站点位置</h3>
+                <button class="close-modal"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div id="site-map-container" style="height: 400px;"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 图片预览弹窗 -->
+    <div class="image-preview-modal" id="image-preview-modal">
+        <div class="preview-content">
+            <button class="preview-close" id="preview-close"><i class="fas fa-times"></i></button>
+            <button class="preview-nav preview-prev" id="preview-prev"><i class="fas fa-chevron-left"></i></button>
+            <img src="" alt="预览图片" class="preview-image" id="preview-image">
+            <button class="preview-nav preview-next" id="preview-next"><i class="fas fa-chevron-right"></i></button>
+        </div>
+    </div>
+
+    <!-- 工单JS -->
+    <script src="work-order.js"></script>
+</body>
+
+</html> 

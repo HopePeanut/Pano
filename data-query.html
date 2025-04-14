@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智慧运维系统 - 数据查询</title>
+    <!-- 引入高德地图API -->
+    <script type="text/javascript" src="https://webapi.amap.com/maps?v=2.0&key=82d018675c18540fbe5d3eb2ba1c2b93"></script>
+    <!-- 引入Font Awesome图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 引入ECharts图表库 -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <!-- 引入导航栏模板 -->
+    <script src="navbar-template.js"></script>
+    <!-- 引入页面样式 -->
+    <link rel="stylesheet" href="data-query.css">
+</head>
+
+<body>
+    <!-- 导航栏容器 -->
+    <div id="navbar-container"></div>
+
+    <!-- 主内容区 -->
+    <div class="main-content">
+        <!-- 面包屑导航 -->
+        <div class="breadcrumb">
+            <span><a href="dashboard.html" style="text-decoration: none; color: inherit;"><i class="fas fa-home" style="margin-right: 5px;"></i>首页</a></span>
+            <span>数据分析</span>
+            <span>数据查询</span>
+        </div>
+
+        <!-- 筛选区 -->
+        <div class="filter-section" id="filter-section">
+            <div class="filter-header">
+                <h2><i class="fas fa-filter"></i> 查询条件</h2>
+                <div class="filter-actions">
+                    <button class="btn btn-save" id="save-filter">
+                        <i class="fas fa-save"></i> 保存方案
+                    </button>
+                    <button class="btn btn-collapse" id="collapse-filter">
+                        <i class="fas fa-chevron-up"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="filter-content">
+                <div class="filter-row">
+                    <!-- 站点选择 -->
+                    <div class="filter-item">
+                        <label><i class="fas fa-map-marked-alt"></i> 站点选择</label>
+                        <div class="select-container site-select-trigger">
+                            <input type="text" id="selected-sites-display" placeholder="点击选择站点" readonly>
+                            <button class="map-select-btn" title="地图选点">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </button>
+                        </div>
+                        <span id="selected-sites-count" style="font-size: 12px; color: #666;">已选择 0 个站点</span>
+                    </div>
+
+                    <!-- 设备层级 -->
+                    <div class="filter-item">
+                        <label><i class="fas fa-sitemap"></i> 设备层级</label>
+                        <div class="device-hierarchy">
+                            <!-- 系统类型选择 -->
+                            <div class="hierarchy-level">
+                                <label class="level-label">系统类型:</label>
+                                <select id="system-type-select">
+                                    <option value="">-- 请选择 --</option>
+                                    <option value="storage">储能系统</option>
+                                    <option value="charging">充电桩</option>
+                                    <option value="pv">光伏系统</option>
+                                </select>
+                            </div>
+                            <!-- 系统实例选择 (动态加载) -->
+                            <div class="hierarchy-level" id="system-instance-level" style="display: none;">
+                                <label class="level-label">系统实例:</label>
+                                <div class="checkbox-list" id="system-instance-list">
+                                    <!-- Checkboxes will be loaded here -->
+                                </div>
+                            </div>
+                            <!-- 部件类型选择 (动态加载) -->
+                            <div class="hierarchy-level" id="component-type-level" style="display: none;">
+                                <label class="level-label">部件类型:</label>
+                                <div class="checkbox-list" id="component-type-list">
+                                    <!-- Checkboxes will be loaded here -->
+                                </div>
+                            </div>
+                            <!-- 部件实例选择 (动态加载) -->
+                            <div class="hierarchy-level" id="component-instance-level" style="display: none;">
+                                <label class="level-label">部件实例:</label>
+                                <div class="checkbox-list" id="component-instance-list">
+                                    <!-- Checkboxes will be loaded here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="filter-row">
+                    <!-- 点位选择 -->
+                    <div class="filter-item">
+                        <label><i class="fas fa-crosshairs"></i> 点位选择</label>
+                        <div class="point-select-container">
+                            <div class="search-box">
+                                <input type="text" id="point-search" placeholder="搜索点位名称...">
+                                <i class="fas fa-search"></i>
+                            </div>
+                            <div class="point-list" id="point-list">
+                                <p class="point-list-placeholder">请先在"设备层级"中选择具体部件实例</p>
+                                <!-- 点位列表将根据设备选择动态加载 -->
+                                <!-- 模拟结构
+                                <div class="point-category">
+                                    <div class="category-header">
+                                        <input type="checkbox" class="category-check"> PCS #1
+                                    </div>
+                                    <div class="point-items">
+                                        <label><input type="checkbox" value="p1_active_power"> 有功功率</label>
+                                        <label><input type="checkbox" value="p1_reactive_power"> 无功功率</label>
+                                    </div>
+                                </div>
+                                -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 时间设置 -->
+                    <div class="filter-item">
+                        <label><i class="fas fa-clock"></i> 时间设置</label>
+                        <div class="time-settings">
+                            <div class="time-granularity">
+                                <label>时间粒度：</label>
+                                <select id="time-granularity">
+                                    <option value="second">秒</option>
+                                    <option value="minute">分</option>
+                                    <option value="hour" selected>时</option>
+                                    <option value="day">天</option>
+                                </select>
+                            </div>
+                            <div class="time-range">
+                                <label>时间范围：</label>
+                                <input type="datetime-local" id="time-start">
+                                <span>至</span>
+                                <input type="datetime-local" id="time-end">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="filter-row">
+                    <!-- 查询指标 -->
+                    <div class="filter-item">
+                        <label><i class="fas fa-chart-line"></i> 查询指标</label>
+                        <div class="metrics-select">
+                            <label><input type="checkbox" value="max"> 最大值</label>
+                            <label><input type="checkbox" value="min"> 最小值</label>
+                            <label><input type="checkbox" value="avg"> 平均值</label>
+                            <label><input type="checkbox" value="raw" checked> 采集值</label>
+                            <label><input type="checkbox" value="diff"> 差值</label>
+                        </div>
+                    </div>
+
+                    <!-- 快捷方案 -->
+                    <div class="filter-item">
+                        <label><i class="fas fa-star"></i> 我的方案</label>
+                        <button class="btn btn-outline" id="select-scheme-btn">
+                            <i class="fas fa-list-ul"></i> 选择方案
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 查询按钮 -->
+                <div class="query-actions">
+                    <button class="btn btn-reset" id="reset-filter">
+                        <i class="fas fa-undo"></i> 重置
+                    </button>
+                    <button class="btn btn-query" id="execute-query">
+                        <i class="fas fa-search"></i> 查询
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 数据展示区 -->
+        <div class="data-section">
+            <!-- 展示方式切换 -->
+            <div class="view-controls">
+                <div class="view-tabs">
+                    <button class="view-tab active" data-view="chart">
+                        <i class="fas fa-chart-line"></i> 图表
+                    </button>
+                    <button class="view-tab" data-view="table">
+                        <i class="fas fa-table"></i> 表格
+                    </button>
+                </div>
+                <div class="chart-controls">
+                    <button class="btn-chart-type" data-type="line" title="折线图">
+                        <i class="fas fa-chart-line"></i>
+                    </button>
+                    <button class="btn-chart-type" data-type="bar" title="柱状图">
+                        <i class="fas fa-chart-bar"></i>
+                    </button>
+                    <button class="btn-compare" title="数据对比">
+                        <i class="fas fa-random"></i>
+                    </button>
+                    <button class="btn-export" title="导出">
+                        <i class="fas fa-download"></i>
+                    </button>
+                    <button class="btn-help" title="使用帮助">
+                        <i class="fas fa-question-circle"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 图表容器 -->
+            <div class="chart-container" id="chart-container">
+                <!-- ECharts图表将在这里渲染 -->
+            </div>
+
+            <!-- 表格容器 -->
+            <div class="table-container" id="table-container" style="display: none;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>时间</th>
+                            <th>站点</th>
+                            <th>设备</th>
+                            <th>点位</th>
+                            <th>数值</th>
+                        </tr>
+                    </thead>
+                    <tbody id="data-table-body">
+                        <!-- 数据行将动态插入 -->
+                    </tbody>
+                </table>
+                <!-- 分页控制 -->
+                <div class="pagination">
+                    <button class="btn-page" disabled><i class="fas fa-chevron-left"></i></button>
+                    <span>第 <span id="current-page">1</span> / <span id="total-pages">10</span> 页</span>
+                    <button class="btn-page"><i class="fas fa-chevron-right"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 地图选点 Modal -->
+    <div id="map-modal" class="modal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h3>地图选点</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="map-container"></div>
+                <div class="selected-sites">
+                    <h4>已选择站点：</h4>
+                    <div id="selected-sites-list"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary btn-cancel">取消</button>
+                <button class="btn btn-primary btn-confirm">确认</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 站点选择 Modal -->
+    <div id="site-select-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>选择站点</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="search-box modal-search">
+                    <input type="text" id="site-search-input" placeholder="搜索站点名称...">
+                    <i class="fas fa-search"></i>
+                </div>
+                <div id="site-list-container" class="modal-list">
+                    <!-- 站点列表将通过JS动态加载 -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary btn-cancel">取消</button>
+                <button class="btn btn-primary btn-confirm">确认</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 方案选择 Modal -->
+    <div id="scheme-select-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>选择方案</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="search-box modal-search">
+                    <input type="text" id="scheme-search-input" placeholder="搜索方案名称...">
+                    <i class="fas fa-search"></i>
+                </div>
+                <div id="scheme-list-container" class="modal-list">
+                    <!-- 方案列表将通过JS动态加载 -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary btn-cancel">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 保存查询方案 Modal -->
+    <div id="save-scheme-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>保存查询方案</h3>
+                <button class="close-modal"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>方案名称</label>
+                    <input type="text" id="scheme-name" placeholder="请输入方案名称">
+                </div>
+                <div class="form-group">
+                    <label>方案描述</label>
+                    <textarea id="scheme-description" placeholder="请输入方案描述"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-cancel">取消</button>
+                <button class="btn btn-confirm">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 加载动画 -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <span>数据加载中...</span>
+        </div>
+    </div>
+
+    <!-- 数据对比 Modal -->
+    <div id="data-compare-modal" class="modal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h3>数据对比</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="compare-settings">
+                    <div class="form-group">
+                        <label>对比方式</label>
+                        <select id="compare-type">
+                            <option value="overlay">叠加显示</option>
+                            <option value="side-by-side">并排显示</option>
+                            <option value="percentage">百分比对比</option>
+                            <option value="difference">差值对比</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>对比时间范围</label>
+                        <div class="time-range">
+                            <input type="datetime-local" id="compare-time-start">
+                            <span>至</span>
+                            <input type="datetime-local" id="compare-time-end">
+                        </div>
+                    </div>
+                </div>
+                <div class="compare-series">
+                    <h4>选择要对比的数据系列</h4>
+                    <div id="compare-series-list" class="series-list">
+                        <!-- 数据系列将动态加载 -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary btn-cancel">取消</button>
+                <button class="btn btn-primary btn-confirm">应用对比</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 使用帮助 Modal -->
+    <div id="help-modal" class="modal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h3>数据查询使用帮助</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="help-section">
+                    <h4><i class="fas fa-filter"></i> 如何筛选数据</h4>
+                    <ol>
+                        <li>在<b>站点选择</b>中选择需要查询的站点，可以点击地图图标使用地图选点。</li>
+                        <li>在<b>设备层级</b>中依次选择系统类型、系统实例、部件类型和部件实例。</li>
+                        <li>在<b>点位选择</b>中勾选需要查询的具体数据点位。</li>
+                        <li>设置<b>时间粒度</b>和<b>时间范围</b>。</li>
+                        <li>选择需要的<b>查询指标</b>（最大值、最小值、平均值等）。</li>
+                        <li>点击<b>查询</b>按钮执行查询。</li>
+                    </ol>
+                </div>
+                
+                <div class="help-section">
+                    <h4><i class="fas fa-chart-line"></i> 图表操作</h4>
+                    <ul>
+                        <li>可以在<b>图表</b>和<b>表格</b>视图之间切换。</li>
+                        <li>可以选择<b>折线图</b>或<b>柱状图</b>展示方式。</li>
+                        <li>图表区域支持<b>缩放</b>操作：鼠标滚轮或触控板上下滑动可以放大缩小，按住并拖动可以平移。</li>
+                        <li>点击图例可以<b>隐藏/显示</b>对应的数据系列。</li>
+                    </ul>
+                </div>
+                
+                <div class="help-section">
+                    <h4><i class="fas fa-random"></i> 数据对比功能</h4>
+                    <ul>
+                        <li>查询数据后，点击<b>数据对比</b>按钮（<i class="fas fa-random"></i>）可以进入对比模式。</li>
+                        <li>在对比设置中选择以下对比方式：
+                            <ul>
+                                <li><b>叠加显示</b>：将选中的数据系列在同一图表中叠加显示。</li>
+                                <li><b>并排显示</b>：将选中的数据系列转为柱状图并排显示。</li>
+                                <li><b>百分比对比</b>：计算并显示数据系列相对于第一个系列的百分比。</li>
+                                <li><b>差值对比</b>：计算并显示数据系列与第一个系列的差值。</li>
+                            </ul>
+                        </li>
+                        <li><b>双击</b>数据对比按钮可以取消对比模式。</li>
+                    </ul>
+                </div>
+                
+                <div class="help-section">
+                    <h4><i class="fas fa-save"></i> 保存和加载查询方案</h4>
+                    <ul>
+                        <li>设置好筛选条件后，点击<b>保存方案</b>按钮可以保存当前筛选设置供后续使用。</li>
+                        <li>点击<b>选择方案</b>按钮可以加载之前保存的查询方案。</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary btn-close">知道了</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页面脚本 -->
+    <script src="data-query.js"></script>
+</body>
+</html> 

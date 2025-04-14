@@ -1395,7 +1395,7 @@ function addEventListeners() {
     // 设备监控按钮
     const monitorBtn = document.getElementById('device-monitor-btn');
     if(monitorBtn) monitorBtn.addEventListener('click', () => {
-        alert('跳转到设备详细监控页 (功能待实现)');
+        alert('云平台同事在开发数字孪生页面，因此该部分功能demo暂不绘制');
     });
 }
 
