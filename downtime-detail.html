@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>非计划停机率详情 - 智慧运维系统</title>
+    
+    <!-- 引入CSS文件 -->
+    <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="lib/font-awesome/css/all.min.css">
+    <link rel="stylesheet" href="lib/select2/css/select2.min.css">
+    <link rel="stylesheet" href="lib/daterangepicker/daterangepicker.css">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/downtime-detail.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <div id="navbar-container"></div>
+    
+    <!-- 主要内容区域 -->
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12">
+                <!-- 面包屑导航 -->
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="index.html">首页</a></li>
+                        <li class="breadcrumb-item"><a href="data-analysis.html">数据分析</a></li>
+                        <li class="breadcrumb-item"><a href="statistics.html">统计对比</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">非计划停机率详情</li>
+                    </ol>
+                </nav>
+                
+                <!-- 页面标题 -->
+                <h4 class="page-title">
+                    <i class="fas fa-chart-line mr-2"></i>非计划停机率详情
+                    <span class="float-right">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" data-toggle="tooltip" title="理论运行时长是指在正常工作日计划内的满负荷运行时长，不包含法定节假日及计划停机维护时间。">
+                            <i class="fas fa-info-circle"></i> 理论运行时长说明
+                        </button>
+                    </span>
+                </h4>
+                
+                <!-- 筛选区域 -->
+                <div class="filter-section">
+                    <div class="filter-title"><i class="fas fa-filter mr-2"></i>筛选条件</div>
+                    <div class="filter-row">
+                        <div class="col-md-3 filter-col">
+                            <div class="filter-label">时间范围</div>
+                            <div class="btn-group btn-group-sm mb-2" role="group">
+                                <button type="button" class="btn btn-time-range active" data-range="7">近7天</button>
+                                <button type="button" class="btn btn-time-range" data-range="30">近30天</button>
+                                <button type="button" class="btn btn-time-range" data-range="month">本月</button>
+                                <button type="button" class="btn btn-time-range" data-range="custom">自定义</button>
+                            </div>
+                            <div class="custom-date-container" style="display: none;">
+                                <input type="text" class="form-control form-control-sm" id="date-range-picker" placeholder="请选择日期范围">
+                            </div>
+                        </div>
+                        <div class="col-md-3 filter-col">
+                            <div class="filter-label">站点选择</div>
+                            <select class="form-control select2-sites" id="site-selector" multiple="multiple" data-placeholder="请选择站点">
+                                <!-- 站点选项将通过JS动态填充 -->
+                            </select>
+                        </div>
+                        <div class="col-md-3 filter-col">
+                            <div class="filter-label">设备选择</div>
+                            <select class="form-control select2-devices" id="device-selector" multiple="multiple" data-placeholder="请选择设备">
+                                <!-- 设备选项将通过JS动态填充 -->
+                            </select>
+                        </div>
+                        <div class="col-md-3 filter-col d-flex align-items-end">
+                            <button type="button" class="btn btn-primary" id="query-btn">
+                                <i class="fas fa-search mr-1"></i>查询
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary ml-2" id="reset-btn">
+                                <i class="fas fa-redo-alt mr-1"></i>重置
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 指标卡片区域 -->
+                <div class="row mb-4">
+                    <div class="col-lg-2-4 col-md-4 col-sm-6 mb-3">
+                        <div class="metric-card">
+                            <div class="metric-title">非计划停机总时长</div>
+                            <div class="metric-value" id="total-downtime">0小时</div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2-4 col-md-4 col-sm-6 mb-3">
+                        <div class="metric-card">
+                            <div class="metric-title">非计划停机率</div>
+                            <div class="metric-value" id="downtime-rate">0%</div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2-4 col-md-4 col-sm-6 mb-3">
+                        <div class="metric-card">
+                            <div class="metric-title">累计停机次数</div>
+                            <div class="metric-value" id="downtime-count">0次</div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2-4 col-md-4 col-sm-6 mb-3">
+                        <div class="metric-card">
+                            <div class="metric-title">平均单次停机时长</div>
+                            <div class="metric-value" id="avg-downtime">0小时</div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2-4 col-md-4 col-sm-6 mb-3">
+                        <div class="metric-card">
+                            <div class="metric-title">最大单次停机时长</div>
+                            <div class="metric-value" id="max-downtime">0小时</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 图表区域 -->
+                <div class="chart-container mb-4">
+                    <div class="chart-title">
+                        <i class="fas fa-chart-area mr-2"></i>非计划停机趋势
+                    </div>
+                    <div class="chart-actions mb-2">
+                        <div class="btn-group btn-group-sm mr-3" role="group">
+                            <button type="button" class="btn btn-outline-secondary active" id="view-by-site">按站点查看</button>
+                            <button type="button" class="btn btn-outline-secondary" id="view-by-device">按设备查看</button>
+                        </div>
+                        <div class="btn-group btn-group-sm" role="group">
+                            <button type="button" class="btn btn-outline-secondary active" id="view-daily">日视图</button>
+                            <button type="button" class="btn btn-outline-secondary" id="view-weekly">周视图</button>
+                            <button type="button" class="btn btn-outline-secondary" id="view-monthly">月视图</button>
+                        </div>
+                    </div>
+                    <div id="downtime-trend-chart"></div>
+                    <div class="chart-legend">
+                        <div class="legend-item">
+                            <div class="legend-color legend-normal"></div>
+                            <span>正常停机（≤4小时）</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color legend-abnormal"></div>
+                            <span>异常停机（>4小时）</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 表格区域 -->
+                <div class="table-section">
+                    <div class="table-title">
+                        <i class="fas fa-list-alt mr-2"></i>非计划停机详情
+                    </div>
+                    <div class="table-actions mb-3">
+                        <div class="d-flex">
+                            <div class="btn-group btn-group-sm mr-3" role="group">
+                                <button type="button" class="btn btn-outline-secondary active" id="view-mode-table">
+                                    <i class="fas fa-table mr-1"></i>表格视图
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary" id="view-mode-chart">
+                                    <i class="fas fa-chart-pie mr-1"></i>图表视图
+                                </button>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="export-btn">
+                                <i class="fas fa-file-export mr-1"></i>导出Excel
+                            </button>
+                        </div>
+                        <div class="search-container">
+                            <i class="fas fa-search"></i>
+                            <input type="text" class="form-control form-control-sm" id="search-input" placeholder="搜索站点/设备/原因...">
+                        </div>
+                    </div>
+                    
+                    <!-- 表格视图 -->
+                    <div id="table-view">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>序号</th>
+                                        <th>站点名称</th>
+                                        <th>设备名称</th>
+                                        <th>停机开始时间</th>
+                                        <th>停机结束时间</th>
+                                        <th>停机时长(小时)</th>
+                                        <th>停机原因</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="downtime-table-body">
+                                    <!-- 表格数据将通过JS动态填充 -->
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- 分页控件 -->
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div class="table-info">
+                                显示 <span id="showing-records">0-0</span> 条，共 <span id="total-records">0</span> 条记录
+                            </div>
+                            <nav aria-label="分页">
+                                <ul class="pagination pagination-sm" id="pagination">
+                                    <!-- 分页将通过JS动态填充 -->
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                    
+                    <!-- 图表视图 -->
+                    <div id="chart-view" style="display: none;">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div id="downtime-pie-chart" style="height: 300px;"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <div id="downtime-bar-chart" style="height: 300px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 加载中遮罩 -->
+    <div class="loading-container" id="loading-overlay" style="display: none;">
+        <div class="spinner-border text-primary" role="status">
+            <span class="sr-only">加载中...</span>
+        </div>
+        <div class="loading-text">数据加载中，请稍候...</div>
+    </div>
+    
+    <!-- JavaScript 依赖 -->
+    <script src="lib/jquery/jquery.min.js"></script>
+    <script src="lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="lib/echarts/echarts.min.js"></script>
+    <script src="lib/select2/js/select2.min.js"></script>
+    <script src="lib/moment/moment.min.js"></script>
+    <script src="lib/daterangepicker/daterangepicker.js"></script>
+    <script src="js/navbar-template.js"></script>
+    <script src="js/downtime-detail.js"></script>
+</body>
+</html> 

@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智慧运维系统 - 站点健康评分详情</title>
+    <!-- 引入Font Awesome图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 引入ECharts图表库 -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <!-- 引入Moment.js日期处理库 -->
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
+    <!-- 引入Moment.js中文语言包 -->
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/locale/zh-cn.js"></script>
+    <!-- 引入导航栏模板 -->
+    <script src="navbar-template.js"></script>
+    <!-- 引入页面样式 -->
+    <link rel="stylesheet" href="statistics.css">
+    <link rel="stylesheet" href="health-score-detail.css">
+</head>
+<body>
+    <!-- 导航栏容器 -->
+    <div id="navbar-container"></div>
+
+    <!-- 主内容区 -->
+    <div class="main-content">
+        <!-- 面包屑导航 -->
+        <div class="breadcrumb">
+            <span><a href="dashboard.html"><i class="fas fa-home" style="margin-right: 5px;"></i>首页</a></span>
+            <span><a href="#">数据分析</a></span>
+            <span><a href="statistics.html">统计对比</a></span>
+            <span>站点健康</span>
+        </div>
+
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <h1><i class="fas fa-tachometer-alt"></i> 站点健康评分详情</h1>
+            <p>本页面用于查看全站点的健康评分详情及评分构成维度分析，帮助您识别评分低的站点问题和评分高的站点优势。</p>
+        </div>
+
+        <!-- 筛选区（吸顶/置顶浮动） -->
+        <div class="filter-section" id="filter-section">
+            <div class="filter-row">
+                <!-- 时间选择 -->
+                <div class="filter-group">
+                    <label>时间范围：</label>
+                    <div class="btn-group time-range-toggle">
+                        <button class="btn btn-time-range active" data-range="week" title="近7天数据">近7天</button>
+                        <button class="btn btn-time-range" data-range="month30" title="近30天数据">近30天</button>
+                        <button class="btn btn-time-range" data-range="thisMonth" title="本月数据">本月</button>
+                        <button class="btn btn-time-range" data-range="lastMonth" title="上月数据">上月</button>
+                    </div>
+                    <button class="btn btn-icon btn-custom-date" title="选择自定义日期"><i class="fas fa-calendar-alt"></i></button>
+                </div>
+
+                <!-- 搜索框 -->
+                <div class="filter-group search-group">
+                    <input type="text" id="site-search" placeholder="输入站点名称搜索...">
+                    <button class="btn btn-search"><i class="fas fa-search"></i></button>
+                </div>
+
+                <!-- 导出按钮 -->
+                <div class="filter-group">
+                    <button class="btn btn-export" title="导出数据"><i class="fas fa-download"></i> 导出数据</button>
+                </div>
+            </div>
+
+            <div class="filter-row">
+                <!-- 评分维度多选框 -->
+                <div class="filter-group dimension-filter">
+                    <label>评分维度：</label>
+                    <label class="checkbox-label"><input type="checkbox" class="dimension-checkbox" value="stoppage" checked> 非计划停机率得分</label>
+                    <label class="checkbox-label"><input type="checkbox" class="dimension-checkbox" value="alarm" checked> 告警得分</label>
+                    <label class="checkbox-label"><input type="checkbox" class="dimension-checkbox" value="soh" checked> 电池SOH得分</label>
+                    <label class="checkbox-label"><input type="checkbox" class="dimension-checkbox" value="temperature" checked> 电池温度一致性</label>
+                    <label class="checkbox-label"><input type="checkbox" class="dimension-checkbox" value="voltage" checked> 电池电压一致性</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- 全站点评分概览表 -->
+        <div class="section-card" id="score-overview-section">
+            <div class="section-header">
+                <h2>全站点评分概览</h2>
+                <div class="section-actions">
+                    <button class="btn btn-refresh" title="刷新数据"><i class="fas fa-sync-alt"></i></button>
+                    <button class="btn btn-toggle-view" title="切换视图"><i class="fas fa-table"></i></button>
+                    <button class="btn btn-expand-collapse" title="展开/收起"><i class="fas fa-chevron-up"></i></button>
+                </div>
+            </div>
+            <div class="section-content">
+                <!-- 表格视图 -->
+                <div class="table-container" id="health-score-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th class="sortable" data-sort="site">站点名称 <i class="fas fa-sort"></i></th>
+                                <th class="sortable sorted-desc" data-sort="totalScore">综合评分 <i class="fas fa-sort-down"></i></th>
+                                <th class="sortable" data-sort="stoppageScore">停机率得分 <i class="fas fa-sort"></i></th>
+                                <th class="sortable" data-sort="alarmScore">告警得分 <i class="fas fa-sort"></i></th>
+                                <th class="sortable" data-sort="sohScore">电池SOH得分 <i class="fas fa-sort"></i></th>
+                                <th class="sortable" data-sort="temperatureScore">温度一致性 <i class="fas fa-sort"></i></th>
+                                <th class="sortable" data-sort="voltageScore">电压一致性 <i class="fas fa-sort"></i></th>
+                                <th>评分趋势 (近7日)</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- 表格内容将由JS动态生成 -->
+                        </tbody>
+                    </table>
+                    <!-- 分页器 -->
+                    <div class="pagination">
+                        <button class="btn btn-page" data-page="prev"><i class="fas fa-chevron-left"></i></button>
+                        <span class="page-info">第 <span id="current-page">1</span> 页，共 <span id="total-pages">5</span> 页</span>
+                        <button class="btn btn-page" data-page="next"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </div>
+                <!-- 图表视图 (默认隐藏) -->
+                <div class="chart-container" id="health-score-chart" style="display: none;"></div>
+            </div>
+        </div>
+
+        <!-- 评分维度分布统计图 -->
+        <div class="section-card" id="score-dimension-section">
+            <div class="section-header">
+                <h2>评分维度分布统计</h2>
+                <div class="section-actions">
+                    <div class="btn-group chart-type-toggle">
+                        <button class="btn btn-chart-type active" data-type="bar" title="柱状图"><i class="fas fa-chart-bar"></i></button>
+                        <button class="btn btn-chart-type" data-type="line" title="折线图"><i class="fas fa-chart-line"></i></button>
+                        <button class="btn btn-chart-type" data-type="heatmap" title="热力图"><i class="fas fa-th"></i></button>
+                        <button class="btn btn-chart-type" data-type="table" title="表格视图"><i class="fas fa-table"></i></button>
+                    </div>
+                    <button class="btn btn-expand-collapse" title="展开/收起"><i class="fas fa-chevron-up"></i></button>
+                </div>
+            </div>
+            <div class="section-content">
+                <!-- 维度选择标签页 -->
+                <div class="dimension-tabs">
+                    <button class="dimension-tab active" data-dimension="stoppage">非计划停机率得分</button>
+                    <button class="dimension-tab" data-dimension="alarm">告警得分</button>
+                    <button class="dimension-tab" data-dimension="soh">电池SOH得分</button>
+                    <button class="dimension-tab" data-dimension="temperature">电池温度一致性</button>
+                    <button class="dimension-tab" data-dimension="voltage">电池电压一致性</button>
+                </div>
+                <!-- 维度图表容器 -->
+                <div class="dimension-chart-container" id="dimension-chart"></div>
+                <!-- 维度表格容器 (默认隐藏) -->
+                <div class="dimension-table-container" id="dimension-table" style="display: none;"></div>
+            </div>
+        </div>
+
+        <!-- 健康评分构成解释区 -->
+        <div class="section-card" id="score-explanation-section">
+            <div class="section-header">
+                <h2>健康评分构成解释</h2>
+                <div class="section-actions">
+                    <button class="btn btn-expand-collapse" title="展开/收起"><i class="fas fa-chevron-down"></i></button>
+                </div>
+            </div>
+            <div class="section-content" style="display: none;">
+                <!-- 评分算法说明 -->
+                <div class="explanation-box">
+                    <h3>评分算法说明</h3>
+                    <p>总评分 = 停机率得分 × 0.2 + 告警得分 × 0.2 + 电池SOH得分 × 0.2 + 电池温度一致性 × 0.2 + 电池电压一致性 × 0.2</p>
+                    
+                    <h3>各维度评分规则</h3>
+                    <div class="dimension-explanation">
+                        <div class="dimension-item">
+                            <h4><i class="fas fa-plug"></i> 非计划停机率得分 (20%)</h4>
+                            <p>基于非计划停机率计算，停机率越低评分越高。停机率超过阈值将大幅降低评分。</p>
+                        </div>
+                        <div class="dimension-item">
+                            <h4><i class="fas fa-exclamation-triangle"></i> 告警得分 (20%)</h4>
+                            <p>根据告警次数和累计持续时长影响评分。严重告警权重高于一般告警，长时间未处理的告警会持续降低评分。</p>
+                        </div>
+                        <div class="dimension-item">
+                            <h4><i class="fas fa-battery-full"></i> 电池SOH得分 (20%)</h4>
+                            <p>电池健康状态(SOH)越高评分越高。SOH低于80%将降低评分，低于60%大幅降低评分。</p>
+                        </div>
+                        <div class="dimension-item">
+                            <h4><i class="fas fa-thermometer-half"></i> 电池温度一致性 (20%)</h4>
+                            <p>电池温度一致性好评分高，温差大扣分。温差超过阈值将大幅降低评分，提示可能存在电池热管理问题。</p>
+                        </div>
+                        <div class="dimension-item">
+                            <h4><i class="fas fa-bolt"></i> 电池电压一致性 (20%)</h4>
+                            <p>电池电压一致性好评分高，电压差异大扣分。电压差异超过阈值将大幅降低评分，提示电池可能存在性能衰减。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> <!-- /main-content -->
+
+    <!-- 评分详情弹窗 -->
+    <div class="modal" id="score-detail-modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3 id="modal-site-name">站点名称 - 评分详情</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- 总评分概览 -->
+                <div class="score-overview">
+                    <div class="total-score-display">
+                        <div class="score-circle">
+                            <span id="modal-total-score">85</span>
+                        </div>
+                        <div class="score-label">总评分</div>
+                    </div>
+                    <div class="dimension-scores">
+                        <div class="dimension-score-item">
+                            <div class="dimension-score-label">停机率得分</div>
+                            <div class="dimension-score-bar">
+                                <div class="dimension-score-fill" id="modal-stoppage-bar" style="width: 80%;"></div>
+                                <span class="dimension-score-value" id="modal-stoppage-score">80</span>
+                            </div>
+                        </div>
+                        <div class="dimension-score-item">
+                            <div class="dimension-score-label">告警得分</div>
+                            <div class="dimension-score-bar">
+                                <div class="dimension-score-fill" id="modal-alarm-bar" style="width: 90%;"></div>
+                                <span class="dimension-score-value" id="modal-alarm-score">90</span>
+                            </div>
+                        </div>
+                        <div class="dimension-score-item">
+                            <div class="dimension-score-label">电池SOH得分</div>
+                            <div class="dimension-score-bar">
+                                <div class="dimension-score-fill" id="modal-soh-bar" style="width: 85%;"></div>
+                                <span class="dimension-score-value" id="modal-soh-score">85</span>
+                            </div>
+                        </div>
+                        <div class="dimension-score-item">
+                            <div class="dimension-score-label">温度一致性</div>
+                            <div class="dimension-score-bar">
+                                <div class="dimension-score-fill" id="modal-temperature-bar" style="width: 88%;"></div>
+                                <span class="dimension-score-value" id="modal-temperature-score">88</span>
+                            </div>
+                        </div>
+                        <div class="dimension-score-item">
+                            <div class="dimension-score-label">电压一致性</div>
+                            <div class="dimension-score-bar">
+                                <div class="dimension-score-fill" id="modal-voltage-bar" style="width: 95%;"></div>
+                                <span class="dimension-score-value" id="modal-voltage-score">95</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 切换标签页 -->
+                <div class="detail-tabs">
+                    <button class="detail-tab active" data-tab="trend">评分趋势</button>
+                    <button class="detail-tab" data-tab="stoppage">停机详情</button>
+                    <button class="detail-tab" data-tab="alarm">告警详情</button>
+                    <button class="detail-tab" data-tab="soh">电池SOH详情</button>
+                    <button class="detail-tab" data-tab="temperature">温度一致性</button>
+                    <button class="detail-tab" data-tab="voltage">电压一致性</button>
+                </div>
+
+                <!-- 标签页内容 -->
+                <div class="detail-tab-content">
+                    <!-- 评分趋势图表 -->
+                    <div class="tab-pane active" id="trend-tab-pane">
+                        <div class="detail-chart" id="trend-chart"></div>
+                    </div>
+                    
+                    <!-- 停机详情 (默认隐藏) -->
+                    <div class="tab-pane" id="stoppage-tab-pane">
+                        <div class="detail-chart" id="stoppage-chart"></div>
+                        <div class="detail-table" id="stoppage-table"></div>
+                    </div>
+                    
+                    <!-- 告警详情 (默认隐藏) -->
+                    <div class="tab-pane" id="alarm-tab-pane">
+                        <div class="detail-chart" id="alarm-chart"></div>
+                        <div class="detail-table" id="alarm-table"></div>
+                    </div>
+                    
+                    <!-- 电池SOH详情 (默认隐藏) -->
+                    <div class="tab-pane" id="soh-tab-pane">
+                        <div class="detail-chart" id="soh-chart"></div>
+                        <div class="detail-table" id="soh-table"></div>
+                    </div>
+                    
+                    <!-- 温度一致性详情 (默认隐藏) -->
+                    <div class="tab-pane" id="temperature-tab-pane">
+                        <div class="detail-chart" id="temperature-chart"></div>
+                        <div class="detail-table" id="temperature-table"></div>
+                    </div>
+                    
+                    <!-- 电压一致性详情 (默认隐藏) -->
+                    <div class="tab-pane" id="voltage-tab-pane">
+                        <div class="detail-chart" id="voltage-chart"></div>
+                        <div class="detail-table" id="voltage-table"></div>
+                    </div>
+                </div>
+                
+                <!-- 异常事件列表 -->
+                <div class="anomaly-events">
+                    <h4><i class="fas fa-exclamation-circle"></i> 评分异常事件</h4>
+                    <div id="anomaly-list">
+                        <!-- 异常事件将由JS动态生成 -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-export-detail">导出详情报告</button>
+                <button class="btn btn-close">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 自定义日期模态框 -->
+    <div id="custom-date-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>选择自定义时间范围</h3>
+                <button id="close-custom-date" class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="custom-start-date">开始日期:</label>
+                    <input type="date" id="custom-start-date">
+                </div>
+                <div class="form-group">
+                    <label for="custom-end-date">结束日期:</label>
+                    <input type="date" id="custom-end-date">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="cancel-custom-date" class="btn btn-secondary">取消</button>
+                <button id="confirm-custom-date" class="btn btn-primary">确认</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页面脚本 -->
+    <script src="health-score-detail.js"></script>
+</body>
+</html> 

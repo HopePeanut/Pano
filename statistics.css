@@ -1,0 +1,575 @@
+/* statistics.css - 统计对比页面样式 */
+
+/* 全局变量 */
+:root {
+    --primary-color: #49A18D; /* 清安绿 */
+    --secondary-color: #2C7873;
+    --tertiary-color: #6FB3A8;
+    --light-color: #E0F5F0;
+    --accent-color: #F39C12;
+    --danger-color: #E74C3C;
+    --success-color: #2ECC71;
+    --warning-color: #F1C40F;
+    --text-color: #333333;
+    --light-text: #FFFFFF;
+    --border-color: #E0E0E0;
+    --bg-color: #F5F5F5; /* 页面背景色 */
+    --card-bg: #FFFFFF; /* 卡片背景色 */
+    --shadow: 0 4px 15px rgba(0, 0, 0, 0.08); /* 卡片阴影 */
+    --border-radius: 8px; /* 圆角 */
+    --transition: all 0.3s ease; /* 过渡效果 */
+}
+
+/* 基础样式 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'PingFang SC', '微软雅黑', sans-serif;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 主内容区 */
+.main-content {
+    flex: 1;
+    padding: 25px;
+    max-width: 1800px; /* 适当增加最大宽度以容纳更多卡片 */
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* 面包屑导航 (复用 data-query.css 样式，稍作调整) */
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    margin-bottom: 25px; /* 增加底部间距 */
+    font-size: 14px;
+    color: #666;
+}
+
+.breadcrumb span {
+    display: flex;
+    align-items: center;
+}
+
+.breadcrumb span a {
+    text-decoration: none;
+    color: inherit;
+    transition: var(--transition);
+}
+.breadcrumb span a:hover {
+    color: var(--primary-color);
+}
+
+
+.breadcrumb span:not(:last-child)::after {
+    content: '/';
+    margin: 0 10px; /* 增加分隔符间距 */
+    color: #ccc;
+}
+
+.breadcrumb span:last-child {
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
+/* 统计概览布局 - 修改为单列垂直布局 */
+.stats-overview {
+    display: grid;
+    /* 修改这里：将多列改为单列 */
+    grid-template-columns: 1fr; /* 每行只占一个fraction，即单列 */
+    gap: 25px; /* 卡片间垂直间距 */
+}
+
+/* 统计卡片样式 */
+.stats-card {
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+    overflow: hidden; /* 防止内容溢出 */
+    display: flex;
+    flex-direction: column; /* 使内容垂直排列 */
+    transition: var(--transition);
+}
+
+.stats-card:hover {
+    transform: translateY(-5px); /* 轻微上移效果 */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+/* 卡片头部 */
+.card-header {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--border-color);
+    background: linear-gradient(to right, var(--light-color), #fff);
+    position: relative;
+    flex-wrap: wrap; /* 保留换行，以防按钮过多 */
+    gap: 10px;
+}
+
+.card-header h3 {
+    font-size: 17px; /* 调整标题大小 */
+    font-weight: 500;
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    gap: 10px; /* 图标与文字间距 */
+    margin-right: auto; /* 保持标题在左侧 */
+}
+
+/* 自定义日期按钮 */
+.btn-custom-date {
+    /* 复用 btn-icon 样式 */
+}
+
+/* 卡片操作按钮区域 */
+.card-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* 按钮间距 */
+    margin-left: auto; /* 保持按钮区域在右侧 */
+    flex-wrap: wrap; /* 允许按钮组换行 */
+    justify-content: flex-end; /* 换行时靠右 */
+}
+
+/* 通用按钮样式 (稍作调整) */
+.btn {
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: 13px; /* 稍小字体 */
+    border: 1px solid transparent;
+    background: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* 图标按钮 */
+.btn-icon {
+    padding: 6px; /* 图标按钮方形 */
+    width: 32px;
+    height: 32px;
+    justify-content: center;
+    border: 1px solid var(--border-color);
+    background-color: #fff;
+    color: var(--text-color);
+}
+.btn-icon:hover {
+    background-color: var(--light-color);
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+.btn-icon i {
+    font-size: 14px; /* 图标大小 */
+}
+
+/* 查看详情按钮 */
+.btn-details {
+    color: var(--primary-color);
+    background-color: var(--light-color);
+    border-color: var(--tertiary-color);
+    font-weight: 500;
+}
+.btn-details:hover {
+    background-color: var(--primary-color);
+    color: var(--light-text);
+    border-color: var(--primary-color);
+}
+.btn-details i {
+    margin-left: 3px;
+}
+
+/* 卡片内容区域 */
+.card-content {
+    padding: 20px;
+    flex: 1; /* 占据剩余空间 */
+    display: flex; /* 使图表/表格能撑开 */
+    flex-direction: column;
+}
+
+/* 图表容器 */
+.chart-container {
+    width: 100%;
+    height: 350px; /* 固定图表高度 */
+    min-height: 300px; /* 最小高度 */
+}
+
+/* 表格容器 */
+.table-container {
+    width: 100%;
+    margin-top: 15px; /* 与图表间距 */
+    overflow-x: auto; /* 表格内容多时允许横向滚动 */
+}
+
+.table-container table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table-container th,
+.table-container td {
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 14px;
+}
+
+.table-container th {
+    background-color: #f8f9fa;
+    font-weight: 500;
+    color: var(--secondary-color);
+}
+
+.table-container tbody tr:hover {
+    background-color: var(--light-color);
+}
+
+/* 排名切换按钮组 */
+.btn-group.rank-toggle {
+    display: inline-flex;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    overflow: hidden; /* 隐藏内部边框 */
+}
+
+.btn-rank {
+    padding: 5px 10px; /* 调整内边距 */
+    font-size: 12px; /* 稍小字体 */
+    border: none;
+    border-right: 1px solid var(--border-color); /* 按钮间分隔线 */
+    background-color: #fff;
+    color: var(--text-color);
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.btn-rank:last-child {
+    border-right: none;
+}
+
+.btn-rank:hover {
+    background-color: var(--light-color);
+}
+
+.btn-rank.active {
+    background-color: var(--primary-color);
+    color: var(--light-text);
+    font-weight: 500;
+}
+
+.btn-rank.active:hover {
+    background-color: var(--secondary-color);
+}
+
+/* 响应式设计 - 调整或移除不再需要的列数修改 */
+@media (max-width: 1200px) {
+    /* .stats-overview 的 grid-template-columns 在此断点下无需再修改，因为已经是单列 */
+}
+
+@media (max-width: 768px) {
+    .main-content {
+        padding: 15px;
+    }
+    /* .stats-overview 的 grid-template-columns 在此断点下也无需修改 */
+    .stats-overview {
+        gap: 15px; /* 可以调整移动端的垂直间距 */
+    }
+    .card-header {
+        flex-direction: column; /* 头部内容垂直排列 */
+        align-items: flex-start; /* 左对齐 */
+        gap: 10px;
+    }
+    .card-actions {
+        width: 100%; /* 按钮占满宽度 */
+        justify-content: flex-end; /* 按钮右对齐 */
+    }
+    .btn-details {
+        padding: 8px 15px; /* 增大按钮 */
+    }
+    .chart-container {
+        height: 300px; /* 减小图表高度 */
+    }
+}
+
+/* 时间范围切换按钮组 */
+.btn-group.time-range-toggle {
+    display: inline-flex;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.btn-time-range {
+    padding: 5px 10px;
+    font-size: 12px;
+    border: none;
+    border-right: 1px solid var(--border-color);
+    background-color: #fff;
+    color: var(--text-color);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-time-range:last-child {
+    border-right: none;
+}
+
+.btn-time-range:hover {
+    background-color: var(--light-color);
+}
+
+.btn-time-range.active {
+    background-color: var(--primary-color);
+    color: var(--light-text);
+    font-weight: 500;
+}
+
+.btn-time-range.active:hover {
+    background-color: var(--secondary-color);
+}
+
+/* 模态框基础样式 (如果 data-query.css 中已有，可跳过或合并) */
+.modal {
+    display: none; /* 默认隐藏 */
+    position: fixed; /* 固定定位 */
+    z-index: 1000; /* 置于顶层 */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto; /* 内容过多时允许滚动 */
+    background-color: rgba(0, 0, 0, 0.5); /* 半透明背景 */
+    align-items: center; /* 垂直居中 */
+    justify-content: center; /* 水平居中 */
+}
+
+.modal.active {
+    display: flex; /* 显示时改为 flex */
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: auto;
+    padding: 20px;
+    border-radius: var(--border-radius);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    width: 90%;
+    max-width: 500px; /* 限制最大宽度 */
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 15px;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+    color: var(--primary-color);
+}
+
+.close-modal {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #888;
+    padding: 0 5px;
+    line-height: 1;
+}
+.close-modal:hover {
+    color: #333;
+}
+
+.modal-body .form-group {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.modal-body label {
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.modal-body input[type="date"] {
+    padding: 8px 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.modal-footer {
+    padding-top: 15px;
+    border-top: 1px solid var(--border-color);
+    margin-top: 15px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+/* 调整按钮组样式 */
+.btn-group {
+    display: inline-flex;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.btn-group > button {
+    padding: 5px 10px;
+    font-size: 12px;
+    border: none;
+    background-color: #fff;
+    color: var(--text-color);
+    cursor: pointer;
+    transition: var(--transition);
+    border-right: 1px solid var(--border-color);
+}
+
+.btn-group > button:last-child {
+    border-right: none;
+}
+
+.btn-group > button:hover {
+    background-color: var(--light-color);
+}
+
+.btn-group > button.active {
+    background-color: var(--primary-color);
+    color: var(--light-text);
+    font-weight: 500;
+}
+
+.btn-group > button.active:hover {
+    background-color: var(--secondary-color);
+}
+
+.stats-card .card-actions .btn-group {
+    margin-right: 8px; /* 调整按钮组之间的间距 */
+}
+
+/* 排名维度切换按钮 */
+.rank-dimension-toggle .btn-rank-dim {
+    padding: 5px 10px;
+    font-size: 12px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    color: #495057;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.rank-dimension-toggle .btn-rank-dim:first-child {
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+    border-right: none; /* 合并边框 */
+}
+
+.rank-dimension-toggle .btn-rank-dim:last-child {
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
+
+.rank-dimension-toggle .btn-rank-dim.active,
+.rank-dimension-toggle .btn-rank-dim:hover {
+    background-color: var(--primary-color, #49A18D);
+    color: white;
+    border-color: var(--primary-color, #49A18D);
+}
+
+/* 过滤容器和下拉菜单 */
+.filter-container {
+    position: relative; /* 为下拉菜单定位提供基准 */
+    display: inline-block; /* 使容器适应内容宽度 */
+    margin-right: 8px; /* 与其他按钮保持间距 */
+}
+
+.filter-dropdown {
+    display: none; /* 默认隐藏 */
+    position: absolute;
+    top: 100%; /* 定位在按钮下方 */
+    left: 0;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    padding: 15px;
+    min-width: 180px; /* 下拉菜单最小宽度 */
+    z-index: 10; /* 确保在其他元素之上 */
+    margin-top: 5px; /* 与按钮留出一点空隙 */
+}
+
+.filter-dropdown.show {
+    display: block; /* 点击时显示 */
+}
+
+.filter-dropdown h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: #333;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+}
+
+.filter-dropdown label {
+    display: block; /* 每个选项占一行 */
+    margin-bottom: 8px;
+    font-size: 13px;
+    color: #555;
+    cursor: pointer;
+}
+
+.filter-dropdown input[type="checkbox"] {
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+.filter-dropdown .btn-apply-filter {
+    display: block; /* 占满整行 */
+    width: 100%;
+    margin-top: 15px;
+    padding: 8px 12px;
+    background-color: var(--primary-color, #49A18D);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: center;
+    font-size: 13px;
+    transition: background-color 0.2s;
+}
+
+.filter-dropdown .btn-apply-filter:hover {
+    background-color: #3a8b7a; /* 主色的深色变体 */
+}
+
+/* 可能需要调整表格样式以适应新的排名维度 */
+.stats-table th:first-child {
+    /* 根据内容稍微加宽第一列 */
+    min-width: 100px;
+}

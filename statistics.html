@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智慧运维系统 - 统计对比</title>
+    <!-- 引入Font Awesome图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 引入ECharts图表库 -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <!-- 引入导航栏模板 -->
+    <script src="navbar-template.js"></script>
+    <!-- 引入页面样式 -->
+    <link rel="stylesheet" href="statistics.css">
+</head>
+<body>
+    <!-- 导航栏容器 -->
+    <div id="navbar-container"></div>
+
+    <!-- 主内容区 -->
+    <div class="main-content">
+        <!-- 面包屑导航 -->
+        <div class="breadcrumb">
+            <span><a href="dashboard.html" style="text-decoration: none; color: inherit;"><i class="fas fa-home" style="margin-right: 5px;"></i>首页</a></span>
+            <span>数据分析</span>
+            <span>统计对比</span>
+        </div>
+
+        <!-- 统计模块概览 -->
+        <div class="stats-overview">
+            <!-- 1. 站点健康评分排行榜 -->
+            <div class="stats-card" id="health-score-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-tachometer-alt"></i> 站点健康评分</h3>
+                    <div class="card-actions">
+                        <div class="btn-group time-range-toggle">
+                            <button class="btn btn-time-range active" data-range="all" title="累计数据">累计</button>
+                            <button class="btn btn-time-range" data-range="day" title="今日数据">日</button>
+                            <button class="btn btn-time-range" data-range="week" title="本周数据">周</button>
+                            <button class="btn btn-time-range" data-range="month" title="本月数据">月</button>
+                            <button class="btn btn-time-range" data-range="year" title="本年数据">年</button>
+                        </div>
+                        <button class="btn btn-icon btn-custom-date" title="选择自定义日期"><i class="fas fa-calendar-alt"></i></button>
+                        <div class="btn-group rank-toggle">
+                            <button class="btn btn-rank active" data-rank="top" title="Top 10"><i class="fas fa-arrow-up"></i> Top 10</button>
+                            <button class="btn btn-rank" data-rank="last" title="Last 10"><i class="fas fa-arrow-down"></i> Last 10</button>
+                        </div>
+                        <button class="btn btn-icon btn-switch-view" title="切换视图"><i class="fas fa-table"></i></button>
+                        <button class="btn btn-icon btn-export" title="导出数据"><i class="fas fa-download"></i></button>
+                        <button class="btn btn-details" title="查看详情"><i class="fas fa-arrow-right"></i> 查看详情</button>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="chart-container" id="health-score-chart"></div>
+                    <div class="table-container" id="health-score-table" style="display: none;">
+                        <!-- 表格内容将由JS生成 -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. 非计划停机率概况 -->
+            <div class="stats-card" id="downtime-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-plug"></i> 非计划停机率</h3>
+                    <div class="card-actions">
+                        <div class="btn-group time-range-toggle">
+                            <button class="btn btn-time-range active" data-range="all" title="累计数据">累计</button>
+                            <button class="btn btn-time-range" data-range="day" title="今日数据">日</button>
+                            <button class="btn btn-time-range" data-range="week" title="本周数据">周</button>
+                            <button class="btn btn-time-range" data-range="month" title="本月数据">月</button>
+                            <button class="btn btn-time-range" data-range="year" title="本年数据">年</button>
+                        </div>
+                        <button class="btn btn-icon btn-custom-date" title="选择自定义日期"><i class="fas fa-calendar-alt"></i></button>
+                        <div class="btn-group rank-toggle">
+                            <button class="btn btn-rank active" data-rank="top" title="Top 10 停机"><i class="fas fa-arrow-up"></i> Top 10</button>
+                            <button class="btn btn-rank" data-rank="last" title="Last 10 停机"><i class="fas fa-arrow-down"></i> Last 10</button>
+                        </div>
+                        <button class="btn btn-icon btn-switch-view" title="切换视图"><i class="fas fa-table"></i></button>
+                        <button class="btn btn-icon btn-export" title="导出数据"><i class="fas fa-download"></i></button>
+                        <button class="btn btn-details" title="查看详情"><i class="fas fa-arrow-right"></i> 查看详情</button>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="chart-container" id="downtime-chart"></div>
+                    <div class="table-container" id="downtime-table" style="display: none;"></div>
+                </div>
+            </div>
+
+            <!-- 3. 能耗统计 -->
+            <div class="stats-card" id="energy-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-bolt"></i> 能耗统计</h3>
+                    <div class="card-actions">
+                        <div class="btn-group time-range-toggle">
+                            <button class="btn btn-time-range active" data-range="all" title="累计数据">累计</button>
+                            <button class="btn btn-time-range" data-range="day" title="今日数据">日</button>
+                            <button class="btn btn-time-range" data-range="week" title="本周数据">周</button>
+                            <button class="btn btn-time-range" data-range="month" title="本月数据">月</button>
+                            <button class="btn btn-time-range" data-range="year" title="本年数据">年</button>
+                        </div>
+                        <button class="btn btn-icon btn-custom-date" title="选择自定义日期"><i class="fas fa-calendar-alt"></i></button>
+                        <div class="btn-group rank-toggle">
+                            <button class="btn btn-rank active" data-rank="top" title="Top 10"><i class="fas fa-arrow-up"></i> Top 10</button>
+                            <button class="btn btn-rank" data-rank="last" title="Last 10"><i class="fas fa-arrow-down"></i> Last 10</button>
+                        </div>
+                        <button class="btn btn-icon btn-switch-view" title="切换视图"><i class="fas fa-table"></i></button>
+                        <button class="btn btn-icon btn-export" title="导出数据"><i class="fas fa-download"></i></button>
+                        <button class="btn btn-details" title="查看详情"><i class="fas fa-arrow-right"></i> 查看详情</button>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="chart-container" id="energy-chart"></div>
+                    <div class="table-container" id="energy-table" style="display: none;"></div>
+                </div>
+            </div>
+
+            <!-- 4. 收益统计 (将被删除) -->
+            <!-- 删除开始 -->
+            <!-- 删除结束 -->
+
+            <!-- 5. 告警统计 -->
+            <div class="stats-card" id="alarm-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-exclamation-triangle"></i> 告警统计</h3>
+                    <div class="card-actions">
+                        <div class="btn-group time-range-toggle">
+                            <button class="btn btn-time-range active" data-range="all" title="累计数据">累计</button>
+                            <button class="btn btn-time-range" data-range="day" title="今日数据">日</button>
+                            <button class="btn btn-time-range" data-range="week" title="本周数据">周</button>
+                            <button class="btn btn-time-range" data-range="month" title="本月数据">月</button>
+                            <button class="btn btn-time-range" data-range="year" title="本年数据">年</button>
+                        </div>
+                        <button class="btn btn-icon btn-custom-date" title="选择自定义日期"><i class="fas fa-calendar-alt"></i></button>
+
+                        <!-- 新增：排名维度切换 -->
+                        <div class="btn-group rank-dimension-toggle">
+                            <button class="btn btn-rank-dim active" data-dimension="site" title="按站点统计排名">按站点</button>
+                            <button class="btn btn-rank-dim" data-dimension="alarmName" title="按告警名称统计排名">按告警名称</button>
+                        </div>
+
+                        <div class="btn-group rank-toggle">
+                            <button class="btn btn-rank active" data-rank="top" title="Top 10 告警"><i class="fas fa-arrow-up"></i> Top 10</button>
+                            <button class="btn btn-rank" data-rank="last" title="Last 10 告警"><i class="fas fa-arrow-down"></i> Last 10</button>
+                        </div>
+
+                        <!-- 告警过滤按钮和下拉菜单 -->
+                        <div class="filter-container">
+                             <button class="btn btn-icon btn-filter-alarm" title="按类型过滤"><i class="fas fa-filter"></i></button>
+                             <div class="filter-dropdown" id="alarm-filter-dropdown">
+                                 <h4>告警类型过滤</h4>
+                                 <label><input type="checkbox" value="提示" checked> 提示</label>
+                                 <label><input type="checkbox" value="告警" checked> 告警</label>
+                                 <label><input type="checkbox" value="故障" checked> 故障</label>
+                                 <button class="btn btn-apply-filter">应用</button> 
+                             </div>
+                        </div>
+
+                        <button class="btn btn-icon btn-switch-view" title="切换视图"><i class="fas fa-table"></i></button>
+                        <button class="btn btn-icon btn-export" title="导出数据"><i class="fas fa-download"></i></button>
+                        <button class="btn btn-details" title="查看详情"><i class="fas fa-arrow-right"></i> 查看详情</button>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="chart-container" id="alarm-chart"></div>
+                    <div class="table-container" id="alarm-table" style="display: none;"></div>
+                </div>
+            </div>
+
+        </div> <!-- /stats-overview -->
+
+        <!-- Modal for Custom Date Range -->
+        <div id="custom-date-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>选择自定义时间范围</h3>
+                    <button id="close-custom-date" class="close-modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="custom-start-date">开始日期:</label>
+                        <input type="date" id="custom-start-date">
+                    </div>
+                    <div class="form-group">
+                        <label for="custom-end-date">结束日期:</label>
+                        <input type="date" id="custom-end-date">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="cancel-custom-date" class="btn btn-secondary btn-cancel">取消</button>
+                    <button id="confirm-custom-date" class="btn btn-primary btn-confirm">确认</button>
+                </div>
+            </div>
+        </div>
+
+    </div> <!-- /main-content -->
+
+    <!-- 页面脚本 -->
+    <script src="statistics.js"></script>
+</body>
+</html>

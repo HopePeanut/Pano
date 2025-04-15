@@ -1309,23 +1309,48 @@ function renderSeriesList() {
     const container = document.getElementById('compare-series-list');
     if (!container) return;
     
+    console.log("准备渲染系列列表，当前系列数据:", currentChartSeries); // 添加日志
+
+    // 检查 currentChartSeries 是否有效且包含元素
     if (!currentChartSeries || currentChartSeries.length === 0) {
-        container.innerHTML = '<p style="text-align: center; padding: 10px; color: #999;">暂无可对比的数据系列</p>';
+        container.innerHTML = '<p style="text-align: center; padding: 10px; color: #999;">暂无可对比的数据系列，请先查询数据。</p>'; // 明确提示需要先查询
         return;
     }
     
+    // 渲染列表项
     container.innerHTML = currentChartSeries.map((series, index) => {
-        const color = series.itemStyle?.color || chart.getVisual({seriesIndex: index}).color || '#ccc';
+        // 检查 series.name 是否存在
+        const seriesName = series.name || `系列 ${index + 1}`; 
+        // 获取颜色时增加健壮性检查
+        let color = '#ccc'; // Default color
+        try {
+             // 尝试从 series.itemStyle 获取颜色
+             if(series.itemStyle?.color) {
+                 color = series.itemStyle.color;
+             } else {
+                 // 尝试从 ECharts visual 获取颜色
+                 const visual = chart.getVisual({ seriesIndex: index });
+                 // 明确检查 visual 是否存在，并且 visual.color 是否存在
+                 if (visual && visual.color) { 
+                     color = visual.color;
+                 }
+             }
+        } catch (e) {
+            console.warn(`获取系列 ${index} 颜色时出错:`, e);
+        }
+
         return `
             <div class="series-item">
                 <div class="series-color" style="background-color: ${color};"></div>
-                <div class="series-name">${series.name || `系列 ${index+1}`}</div>
+                <div class="series-name" title="${seriesName}">${seriesName}</div> {/* 添加 title 属性显示完整名称 */}
                 <label style="margin-left: auto;">
-                    <input type="checkbox" value="${index}" class="series-checkbox" ${isCompareMode ? (compareData?.includes(index) ? 'checked' : '') : 'checked'}>
+                    {/* 检查 isCompareMode 和 compareData */}
+                    <input type="checkbox" value="${index}" class="series-checkbox" ${isCompareMode && compareData?.includes(index) ? 'checked' : (!isCompareMode ? 'checked' : '')}> {/* 默认选中，除非在对比模式下未被选中 */}
                 </label>
             </div>
         `;
     }).join('');
+    console.log("系列列表渲染完成."); // 添加日志
 }
 
 function setDefaultCompareTimeRange() {
