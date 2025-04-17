@@ -1,0 +1,201 @@
+/* 维护工具页面样式 */
+:root {
+    --primary-color: #49A18D;
+    --secondary-color: #3D8C7D;
+    --light-color: #F5F7F9;
+    --border-color: #E2E8F0;
+    --text-color: #333333;
+    --light-text: #FFFFFF;
+    --gray-text: #6C757D;
+    --radius: 8px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #FAFAFA;
+    color: var(--text-color);
+}
+
+.main-content {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* 面包屑导航 */
+.breadcrumb {
+    display: flex;
+    padding: 10px 0;
+    margin-bottom: 20px;
+    list-style: none;
+    font-size: 0.9rem;
+}
+
+.breadcrumb-item {
+    color: var(--gray-text);
+}
+
+.breadcrumb-item a {
+    color: var(--gray-text);
+    text-decoration: none;
+}
+
+.breadcrumb-item a:hover {
+    color: var(--primary-color);
+    text-decoration: underline;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    content: "/";
+    padding: 0 8px;
+    color: var(--gray-text);
+}
+
+.breadcrumb-item.active {
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
+/* 页面标题 */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.page-title {
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+/* 工具卡片网格 */
+.tools-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+/* 响应式调整 */
+@media (max-width: 1024px) {
+    .tools-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .tools-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* 工具卡片样式 */
+.tool-card {
+    background-color: white;
+    border-radius: var(--radius);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    padding: 25px;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    height: 250px;
+    position: relative;
+    overflow: hidden;
+}
+
+.tool-card:hover {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transform: translateY(-5px);
+}
+
+.tool-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 5px;
+    height: 100%;
+    background-color: var(--primary-color);
+}
+
+.tool-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: var(--light-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    color: var(--primary-color);
+    font-size: 1.5rem;
+}
+
+.tool-title {
+    font-size: 1.2rem;
+    font-weight: 500;
+    margin-bottom: 10px;
+    color: var(--text-color);
+}
+
+.tool-description {
+    font-size: 0.9rem;
+    color: var(--gray-text);
+    line-height: 1.6;
+    flex-grow: 1;
+}
+
+.tool-button {
+    margin-top: 20px;
+    padding: 8px 16px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    align-self: flex-start;
+}
+
+.tool-button:hover {
+    background-color: var(--secondary-color);
+}
+
+/* 扩展区域样式 */
+.coming-soon {
+    grid-column: 1 / -1;
+    background-color: #F0F7FF;
+    border-radius: var(--radius);
+    padding: 20px;
+    text-align: center;
+    margin-top: 20px;
+    border: 1px dashed var(--primary-color);
+}
+
+.coming-soon h3 {
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}
+
+.coming-soon p {
+    color: var(--gray-text);
+}
+
+/* 清安知识库卡片链接样式 */
+.tool-card-link {
+    text-decoration: none; /* 移除下划线 */
+    color: inherit;       /* 继承父元素颜色 */
+    display: block;       /* 让链接占据整个卡片区域 */
+}
+
+.tool-card-link:hover {
+    text-decoration: none; /* 悬停时也移除下划线 */
+    color: inherit;       /* 悬停时也继承父元素颜色 */
+} 

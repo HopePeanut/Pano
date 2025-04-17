@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>清安知识库 - 智慧运维系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- 引入Vue.js -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <!-- 引入marked.js用于Markdown渲染 -->
+    <script src="https://cdn.jsdelivr.net/npm/marked@4.0.0/marked.min.js"></script>
+    <!-- 引入highlight.js用于代码高亮 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.3.1/styles/github.css">
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.3.1/highlight.min.js"></script>
+    <!-- 引入外部CSS文件 -->
+    <link rel="stylesheet" href="knowledge-base.css">
+    <!-- 引入导航栏模板JS -->
+    <script src="navbar-template.js"></script>
+</head>
+<body>
+    <!-- 导航栏将由JS注入 -->
+    <div id="navbar-container"></div>
+
+    <div class="main-content">
+        <!-- 面包屑导航 -->
+        <ul class="breadcrumb">
+            <li class="breadcrumb-item"><a href="index.html">首页</a></li>
+            <li class="breadcrumb-item"><a href="#">工具平台</a></li>
+            <li class="breadcrumb-item"><a href="maintenance-tools.html">维护工具</a></li>
+            <li class="breadcrumb-item active">清安知识库</li>
+        </ul>
+
+        <!-- Vue应用容器 -->
+        <div id="knowledge-app">
+            <div class="page-header">
+                <h1 class="page-title">清安知识库</h1>
+                <span class="page-subtitle">智能问答与设备知识管理系统</span>
+            </div>
+
+            <!-- 主内容区域 -->
+            <div class="knowledge-container">
+                <!-- 左侧：智能问答区 -->
+                <div class="chat-section">
+                    <div class="chat-header">
+                        <h2><i class="fas fa-robot"></i> 智能问答</h2>
+                        <button class="btn btn-outline btn-sm" @click="clearConversation">
+                            <i class="fas fa-trash-alt"></i> 清空对话
+                        </button>
+                    </div>
+
+                    <!-- 聊天内容区域 -->
+                    <div class="chat-content" ref="chatContent">
+                        <!-- 欢迎消息 -->
+                        <div class="message system">
+                            <div class="message-content">
+                                <p>欢迎使用清安知识库！您可以向我询问任何关于设备、维护和故障处理的问题。</p>
+                            </div>
+                        </div>
+
+                        <!-- 消息列表 -->
+                        <div v-for="(message, index) in conversation" :key="index" 
+                             :class="['message', message.sender === 'user' ? 'user' : 'assistant']">
+                            <div class="message-avatar">
+                                <i :class="message.sender === 'user' ? 'fas fa-user' : 'fas fa-robot'"></i>
+                            </div>
+                            <div class="message-content">
+                                <!-- 用户消息 -->
+                                <template v-if="message.sender === 'user'">
+                                    <p>{{ message.text }}</p>
+                                    <div v-if="message.image" class="message-image">
+                                        <img :src="message.image" alt="用户上传图片">
+                                    </div>
+                                    <div v-if="message.tags && message.tags.length > 0" class="message-tags">
+                                        <span v-for="tag in message.tags" :key="tag" class="tag">{{ tag }}</span>
+                                    </div>
+                                </template>
+
+                                <!-- 助手消息 -->
+                                <template v-else>
+                                    <div v-html="renderMarkdown(message.text)"></div>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- 正在输入提示 -->
+                        <div v-if="isAssistantTyping" class="message assistant typing">
+                            <div class="message-avatar">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="message-content">
+                                <div class="typing-indicator">
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 输入区域 -->
+                    <div class="chat-input-container">
+                        <div class="input-wrapper">
+                            <textarea v-model="userInput" 
+                                      @keydown.enter.prevent="sendMessage" 
+                                      placeholder="输入您的问题..." 
+                                      ref="messageInput"
+                                      :disabled="isAssistantTyping"
+                                      rows="1"></textarea>
+                            
+                            <div class="input-tools">
+                                <button class="tool-btn" @click="showTagSelector = !showTagSelector">
+                                    <i class="fas fa-tag"></i>
+                                </button>
+                                <button class="tool-btn" @click="triggerImageUpload">
+                                    <i class="fas fa-image"></i>
+                                    <input type="file" ref="imageUpload" style="display: none" 
+                                           accept="image/*" @change="handleImageUpload">
+                                </button>
+                                <button class="submit-btn" @click="sendMessage" :disabled="!userInput.trim() || isAssistantTyping">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 标签选择器 -->
+                        <div class="tag-selector" v-if="showTagSelector">
+                            <div class="tag-groups">
+                                <div class="tag-group">
+                                    <h4>设备类型</h4>
+                                    <div class="tags">
+                                        <span v-for="tag in deviceTags" :key="tag" 
+                                             :class="['selectable-tag', selectedTags.includes(tag) ? 'selected' : '']"
+                                             @click="toggleTag(tag)">{{ tag }}</span>
+                                    </div>
+                                </div>
+                                <div class="tag-group">
+                                    <h4>故障场景</h4>
+                                    <div class="tags">
+                                        <span v-for="tag in faultTags" :key="tag" 
+                                             :class="['selectable-tag', selectedTags.includes(tag) ? 'selected' : '']"
+                                             @click="toggleTag(tag)">{{ tag }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右侧：知识投喂区 -->
+                <div class="knowledge-feed-section">
+                    <div class="feed-header">
+                        <h2><i class="fas fa-book"></i> 知识投喂</h2>
+                        <div class="feed-actions">
+                            <button class="btn btn-primary btn-sm" @click="showUploadModal = true">
+                                <i class="fas fa-upload"></i> 上传文档
+                            </button>
+                            <button class="btn btn-outline btn-sm" @click="showAddKnowledgeModal = true">
+                                <i class="fas fa-plus"></i> 手动新增
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 知识库文档列表 -->
+                    <div class="knowledge-list">
+                        <h3>最近投喂 <span class="count">({{ recentKnowledge.length }})</span></h3>
+                        <div class="knowledge-items">
+                            <div v-for="(item, index) in recentKnowledge" :key="index" class="knowledge-item">
+                                <div class="knowledge-item-header" @click="toggleKnowledgeItem(index)">
+                                    <div class="knowledge-item-info">
+                                        <i :class="getFileIcon(item.type)"></i>
+                                        <div class="knowledge-item-title">
+                                            <h4>{{ item.title }}</h4>
+                                            <span class="knowledge-item-meta">
+                                                <span class="time">{{ item.time }}</span>
+                                                <span class="size" v-if="item.size">{{ item.size }}</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="knowledge-item-status">
+                                        <span :class="['status-badge', getStatusClass(item.status)]">
+                                            {{ getStatusText(item.status) }}
+                                        </span>
+                                        <i class="fas fa-chevron-down toggle-icon" :class="{ 'rotated': expandedItems.includes(index) }"></i>
+                                    </div>
+                                </div>
+                                <div class="knowledge-item-body" v-show="expandedItems.includes(index)">
+                                    <div v-if="item.description" class="knowledge-item-description">
+                                        {{ item.description }}
+                                    </div>
+                                    <div v-if="item.tags && item.tags.length > 0" class="knowledge-item-tags">
+                                        <span v-for="tag in item.tags" :key="tag" class="tag">{{ tag }}</span>
+                                    </div>
+                                    <div class="knowledge-item-actions">
+                                        <button class="action-btn" @click="reprocessKnowledge(item.id)">
+                                            <i class="fas fa-sync-alt"></i> 重新解析
+                                        </button>
+                                        <button class="action-btn delete" @click="deleteKnowledge(item.id)">
+                                            <i class="fas fa-trash-alt"></i> 删除
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="knowledge-history">
+                            <div class="history-header" @click="showHistory = !showHistory">
+                                <h3>历史知识文档 <span class="count">({{ historyKnowledge.length }})</span></h3>
+                                <i class="fas fa-chevron-down toggle-icon" :class="{ 'rotated': showHistory }"></i>
+                            </div>
+                            <div class="history-content" v-show="showHistory">
+                                <div v-for="(item, index) in historyKnowledge" :key="index" class="knowledge-item compact">
+                                    <div class="knowledge-item-header">
+                                        <div class="knowledge-item-info">
+                                            <i :class="getFileIcon(item.type)"></i>
+                                            <div class="knowledge-item-title">
+                                                <h4>{{ item.title }}</h4>
+                                                <span class="knowledge-item-meta">
+                                                    <span class="time">{{ item.time }}</span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="knowledge-item-status">
+                                            <span :class="['status-badge', getStatusClass(item.status)]">
+                                                {{ getStatusText(item.status) }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 上传文档模态框 -->
+            <div class="modal" v-if="showUploadModal">
+                <div class="modal-backdrop" @click="showUploadModal = false"></div>
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3 class="modal-title"><i class="fas fa-upload"></i> 上传知识文档</h3>
+                            <button class="close-btn" @click="showUploadModal = false">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="upload-container" 
+                                 :class="{ 'drag-over': isDragging }"
+                                 @dragover.prevent="isDragging = true"
+                                 @dragleave.prevent="isDragging = false"
+                                 @drop.prevent="handleFileDrop">
+                                <div class="upload-icon">
+                                    <i class="fas fa-file-upload"></i>
+                                </div>
+                                <p>拖放文件到此处，或</p>
+                                <button class="btn btn-outline" @click="triggerFileUpload">
+                                    浏览文件
+                                </button>
+                                <input type="file" ref="fileUpload" style="display: none" 
+                                       accept=".pdf,.doc,.docx,.md,.txt" @change="handleFileSelect">
+                                <p class="support-text">支持 PDF、Word、Markdown 和文本文件</p>
+                            </div>
+
+                            <div v-if="uploadedFile" class="uploaded-file">
+                                <div class="file-info">
+                                    <i :class="getFileIcon(uploadedFile.type)"></i>
+                                    <div>
+                                        <p class="file-name">{{ uploadedFile.name }}</p>
+                                        <p class="file-size">{{ uploadedFile.size }}</p>
+                                    </div>
+                                </div>
+                                <button class="btn btn-sm btn-outline delete" @click="clearUploadedFile">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+
+                            <div class="form-group" v-if="uploadedFile">
+                                <label>文档标签 (可选)</label>
+                                <div class="tag-input-container">
+                                    <div class="selected-tags">
+                                        <span v-for="tag in uploadTags" :key="tag" class="tag">
+                                            {{ tag }}
+                                            <button class="tag-remove" @click="removeUploadTag(tag)">×</button>
+                                        </span>
+                                    </div>
+                                    <input type="text" v-model="tagInput" placeholder="输入标签名称并按回车" 
+                                           @keydown.enter.prevent="addUploadTag">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-outline" @click="showUploadModal = false">取消</button>
+                            <button class="btn btn-primary" @click="uploadDocument" :disabled="!uploadedFile">上传</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 手动添加知识模态框 -->
+            <div class="modal" v-if="showAddKnowledgeModal">
+                <div class="modal-backdrop" @click="showAddKnowledgeModal = false"></div>
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3 class="modal-title"><i class="fas fa-plus-circle"></i> 手动添加知识</h3>
+                            <button class="close-btn" @click="showAddKnowledgeModal = false">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label>标题 <span class="required">*</span></label>
+                                <input type="text" v-model="newKnowledge.title" class="form-input" placeholder="输入知识标题">
+                            </div>
+                            <div class="form-group">
+                                <label>内容 <span class="required">*</span></label>
+                                <textarea v-model="newKnowledge.content" class="form-textarea" rows="8" placeholder="输入知识内容，支持 Markdown 格式"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>标签</label>
+                                <div class="tag-input-container">
+                                    <div class="selected-tags">
+                                        <span v-for="tag in newKnowledge.tags" :key="tag" class="tag">
+                                            {{ tag }}
+                                            <button class="tag-remove" @click="removeKnowledgeTag(tag)">×</button>
+                                        </span>
+                                    </div>
+                                    <input type="text" v-model="knowledgeTagInput" placeholder="输入标签名称并按回车" 
+                                           @keydown.enter.prevent="addKnowledgeTag">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-outline" @click="showAddKnowledgeModal = false">取消</button>
+                            <button class="btn btn-primary" @click="addNewKnowledge" :disabled="!isNewKnowledgeValid">添加</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入页面JS脚本 -->
+    <script src="knowledge-base.js"></script>
+</body>
+</html>

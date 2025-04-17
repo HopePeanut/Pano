@@ -1,0 +1,460 @@
+/* dashboard-maintenance.css - 运维看板页面样式 */
+
+/* 全局变量 */
+:root {
+    --primary-color: #49A18D; /* 清安绿 */
+    --secondary-color: #2C7873;
+    --tertiary-color: #6FB3A8;
+    --light-color: #E0F5F0;
+    --accent-color: #F39C12;
+    --danger-color: #E74C3C;
+    --success-color: #2ECC71;
+    --warning-color: #F1C40F;
+    --text-color: #333333;
+    --light-text: #FFFFFF;
+    --border-color: #E0E0E0;
+    --bg-color: #F5F5F5; /* 页面背景色 */
+    --card-bg: #FFFFFF; /* 卡片背景色 */
+    --shadow: 0 4px 15px rgba(0, 0, 0, 0.08); /* 卡片阴影 */
+    --border-radius: 8px; /* 圆角 */
+    --transition: all 0.3s ease; /* 过渡效果 */
+}
+
+/* 基础样式 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'PingFang SC', '微软雅黑', sans-serif;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 主内容区 */
+.main-content {
+    flex: 1;
+    padding: 25px;
+    max-width: 1800px; /* 适当增加最大宽度以容纳更多卡片 */
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* 面包屑导航 */
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    margin-bottom: 25px; /* 增加底部间距 */
+    font-size: 14px;
+    color: #666;
+}
+
+.breadcrumb span {
+    display: flex;
+    align-items: center;
+}
+
+.breadcrumb span a {
+    text-decoration: none;
+    color: inherit;
+    transition: var(--transition);
+}
+.breadcrumb span a:hover {
+    color: var(--primary-color);
+}
+
+.breadcrumb span:not(:last-child)::after {
+    content: '/';
+    margin: 0 10px; /* 增加分隔符间距 */
+    color: #ccc;
+}
+
+.breadcrumb span:last-child {
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
+/* 仪表盘行布局 */
+.dashboard-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 每行四个卡片 */
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+/* 第一行指标卡片特殊样式 */
+.dashboard-row:first-of-type .stats-card {
+    background: linear-gradient(to bottom, #fff, #f9f9f9);
+    transition: all 0.4s ease;
+}
+
+.dashboard-row:first-of-type .stats-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-row:first-of-type .big-number {
+    font-size: 4rem;
+    font-weight: 700;
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 10px;
+}
+
+.dashboard-row:first-of-type .count-label {
+    font-size: 1.1rem;
+    color: #555;
+    font-weight: 500;
+}
+
+.dashboard-row:first-of-type .count-icon {
+    opacity: 0.08;
+    transform: scale(1.2);
+}
+
+/* 统计卡片样式 */
+.stats-card {
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+    overflow: hidden; /* 防止内容溢出 */
+    display: flex;
+    flex-direction: column; /* 使内容垂直排列 */
+    transition: var(--transition);
+    min-height: 280px; /* 确保所有卡片高度一致 */
+}
+
+.stats-card:hover {
+    transform: translateY(-3px); /* 轻微上移效果 */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+/* 卡片头部 */
+.card-header {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--border-color);
+    background: linear-gradient(to right, var(--light-color), #fff);
+    position: relative;
+}
+
+.card-header h3 {
+    font-size: 16px; /* 调整标题大小 */
+    font-weight: 500;
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    gap: 10px; /* 图标与文字间距 */
+    margin-right: auto; /* 保持标题在左侧 */
+}
+
+/* 放大按钮样式 */
+.btn-expand {
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    opacity: 0.7;
+    margin-left: 10px;
+}
+
+.btn-expand:hover {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+    opacity: 1;
+}
+
+.btn-expand i {
+    font-size: 14px;
+}
+
+/* 放大卡片的模态框样式 */
+.expand-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.expand-modal.active {
+    display: flex;
+}
+
+.expand-modal-content {
+    background-color: white;
+    width: 90%;
+    max-width: 1200px;
+    max-height: 90vh;
+    border-radius: 8px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.expand-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--border-color);
+    background: linear-gradient(to right, var(--light-color), #fff);
+}
+
+.expand-modal-header h3 {
+    font-size: 18px;
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.close-expand-modal {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: white;
+    border: 1px solid var(--border-color);
+    font-size: 20px;
+    line-height: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.close-expand-modal:hover {
+    background-color: #f8f8f8;
+    border-color: #ccc;
+}
+
+.expand-modal-body {
+    padding: 20px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+#expanded-chart-container {
+    width: 100%;
+    height: 70vh; /* 高度为视口高度的70% */
+    min-height: 400px;
+}
+
+/* 卡片内容区域 */
+.card-content {
+    padding: 15px;
+    flex: 1; /* 占据剩余空间 */
+    display: flex; /* 使图表/表格能撑开 */
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 图表容器 */
+.chart-container {
+    width: 100%;
+    height: 220px; /* 适中的图表高度 */
+    min-height: 180px; /* 最小高度 */
+}
+
+/* 大数字显示区域 */
+.count-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    text-align: center;
+    padding: 20px;
+    position: relative;
+}
+
+.big-number {
+    font-size: 3.5rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    line-height: 1.2;
+    margin-bottom: 5px;
+    display: flex;
+    align-items: baseline;
+}
+
+.big-number .unit {
+    font-size: 1.5rem;
+    font-weight: 400;
+    margin-left: 5px;
+    color: var(--secondary-color);
+}
+
+.count-label {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.count-icon {
+    color: var(--tertiary-color);
+    opacity: 0.15;
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
+}
+
+/* 特定卡片样式 - 售后成本费用统计 */
+#cost-analysis-card {
+    /* 不再占据整行 */
+    grid-column: auto;
+    background: linear-gradient(to bottom, #fff, #fafafa);
+    border-top: 3px solid var(--accent-color);
+}
+
+#cost-analysis-card .card-header {
+    background: linear-gradient(to right, #fff8e1, #fff);
+}
+
+#cost-analysis-card .chart-container {
+    height: 220px; /* 与其他图表保持一致 */
+}
+
+/* 特定数字指标卡片颜色 */
+#safe-days-card .big-number {
+    color: var(--success-color);
+}
+
+#downtime-rate-card .big-number {
+    color: var(--warning-color);
+}
+
+#transferred-projects-card .big-number {
+    color: var(--accent-color);
+}
+
+#weekly-issues-card .big-number {
+    color: var(--danger-color);
+}
+
+/* 响应式设计 */
+@media (max-width: 1400px) {
+    .dashboard-row {
+        grid-template-columns: repeat(3, 1fr); /* 每行三个卡片 */
+    }
+    
+    #cost-analysis-card {
+        grid-column: span 3; /* 适应新的列数 */
+    }
+}
+
+@media (max-width: 1100px) {
+    .dashboard-row {
+        grid-template-columns: repeat(2, 1fr); /* 每行两个卡片 */
+    }
+    
+    #cost-analysis-card {
+        grid-column: span 2; /* 适应新的列数 */
+    }
+}
+
+@media (max-width: 768px) {
+    .main-content {
+        padding: 15px;
+    }
+    
+    .dashboard-row {
+        grid-template-columns: 1fr; /* 单列布局 */
+        gap: 15px;
+    }
+    
+    #cost-analysis-card {
+        grid-column: span 1; /* 适应新的列数 */
+    }
+    
+    .card-header {
+        padding: 12px 15px;
+    }
+    
+    .card-header h3 {
+        font-size: 15px;
+    }
+    
+    .chart-container {
+        height: 200px;
+    }
+    
+    .big-number {
+        font-size: 2.8rem;
+    }
+}
+
+/* 本周设备停机时长及停机率卡片样式 */
+#weekly-downtime-duration-card {
+    border-top: 3px solid #F39C12; /* 橙色顶部边框 */
+}
+
+#weekly-downtime-duration-card .card-header {
+    background: linear-gradient(to right, #FFF3E0, #fff);
+}
+
+/* 调整卡片宽度比例，确保合理显示 */
+@media (min-width: 1401px) {
+    /* 大屏幕下的布局调整 */
+    .dashboard-row:nth-child(2) {
+        grid-template-columns: 1.1fr 0.9fr 1fr 1fr; /* 稍微调整第二行各卡片的宽度比例 */
+    }
+}
+
+/* 放大后的数字指标显示样式 */
+.expanded-count-display {
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+}
+
+.expanded-count-display .big-number {
+    font-size: 6rem;
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+.expanded-count-display .count-label {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+}
+
+.expanded-count-display .count-icon {
+    opacity: 0.1;
+    transform: scale(2);
+    bottom: 40px;
+    right: 40px;
+}
+
+.expanded-count-display .count-icon i {
+    font-size: 6rem;
+} 

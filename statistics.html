@@ -44,10 +44,13 @@
                         <div class="btn-group rank-toggle">
                             <button class="btn btn-rank active" data-rank="top" title="Top 10"><i class="fas fa-arrow-up"></i> Top 10</button>
                             <button class="btn btn-rank" data-rank="last" title="Last 10"><i class="fas fa-arrow-down"></i> Last 10</button>
+                            <button class="btn btn-rank" data-rank="all" title="全部站点"><i class="fas fa-list-ol"></i> 全部</button>
                         </div>
                         <button class="btn btn-icon btn-switch-view" title="切换视图"><i class="fas fa-table"></i></button>
                         <button class="btn btn-icon btn-export" title="导出数据"><i class="fas fa-download"></i></button>
-                        <button class="btn btn-details" title="查看详情"><i class="fas fa-arrow-right"></i> 查看详情</button>
+                        <a href="health-score-detail.html">
+                            <button class="btn btn-details">查看详情</button>
+                        </a>
                     </div>
                 </div>
                 <div class="card-content">
@@ -74,10 +77,13 @@
                         <div class="btn-group rank-toggle">
                             <button class="btn btn-rank active" data-rank="top" title="Top 10 停机"><i class="fas fa-arrow-up"></i> Top 10</button>
                             <button class="btn btn-rank" data-rank="last" title="Last 10 停机"><i class="fas fa-arrow-down"></i> Last 10</button>
+                            <button class="btn btn-rank" data-rank="all" title="全部站点"><i class="fas fa-list-ol"></i> 全部</button>
                         </div>
                         <button class="btn btn-icon btn-switch-view" title="切换视图"><i class="fas fa-table"></i></button>
                         <button class="btn btn-icon btn-export" title="导出数据"><i class="fas fa-download"></i></button>
-                        <button class="btn btn-details" title="查看详情"><i class="fas fa-arrow-right"></i> 查看详情</button>
+                        <a href="downtime-detail.html">
+                            <button class="btn btn-details">查看详情</button>
+                        </a>
                     </div>
                 </div>
                 <div class="card-content">
@@ -86,10 +92,10 @@
                 </div>
             </div>
 
-            <!-- 3. 能耗统计 -->
+            <!-- 3. 能效统计 -->
             <div class="stats-card" id="energy-card">
                 <div class="card-header">
-                    <h3><i class="fas fa-bolt"></i> 能耗统计</h3>
+                    <h3><i class="fas fa-bolt"></i> 能效统计(仅储能系统)</h3>
                     <div class="card-actions">
                         <div class="btn-group time-range-toggle">
                             <button class="btn btn-time-range active" data-range="all" title="累计数据">累计</button>
@@ -102,10 +108,13 @@
                         <div class="btn-group rank-toggle">
                             <button class="btn btn-rank active" data-rank="top" title="Top 10"><i class="fas fa-arrow-up"></i> Top 10</button>
                             <button class="btn btn-rank" data-rank="last" title="Last 10"><i class="fas fa-arrow-down"></i> Last 10</button>
+                            <button class="btn btn-rank" data-rank="all" title="全部站点"><i class="fas fa-list-ol"></i> 全部</button>
                         </div>
                         <button class="btn btn-icon btn-switch-view" title="切换视图"><i class="fas fa-table"></i></button>
                         <button class="btn btn-icon btn-export" title="导出数据"><i class="fas fa-download"></i></button>
-                        <button class="btn btn-details" title="查看详情"><i class="fas fa-arrow-right"></i> 查看详情</button>
+                        <a href="energy-detail.html">
+                            <button class="btn btn-details">查看详情</button>
+                        </a>
                     </div>
                 </div>
                 <div class="card-content">
@@ -141,6 +150,7 @@
                         <div class="btn-group rank-toggle">
                             <button class="btn btn-rank active" data-rank="top" title="Top 10 告警"><i class="fas fa-arrow-up"></i> Top 10</button>
                             <button class="btn btn-rank" data-rank="last" title="Last 10 告警"><i class="fas fa-arrow-down"></i> Last 10</button>
+                            <button class="btn btn-rank" data-rank="all" title="全部"><i class="fas fa-list-ol"></i> 全部</button>
                         </div>
 
                         <!-- 告警过滤按钮和下拉菜单 -->
@@ -157,7 +167,9 @@
 
                         <button class="btn btn-icon btn-switch-view" title="切换视图"><i class="fas fa-table"></i></button>
                         <button class="btn btn-icon btn-export" title="导出数据"><i class="fas fa-download"></i></button>
-                        <button class="btn btn-details" title="查看详情"><i class="fas fa-arrow-right"></i> 查看详情</button>
+                        <a href="alarm-statistics.html">
+                            <button class="btn btn-details">查看详情</button>
+                        </a>
                     </div>
                 </div>
                 <div class="card-content">

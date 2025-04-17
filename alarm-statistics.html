@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智慧运维系统 - 告警统计</title>
+    <!-- 引入Font Awesome图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 引入ECharts图表库 -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <!-- 引入导航栏模板 -->
+    <script src="navbar-template.js"></script>
+    <!-- 引入页面样式 -->
+    <link rel="stylesheet" href="alarm-statistics.css">
+</head>
+<body>
+    <!-- 导航栏容器 -->
+    <div id="navbar-container"></div>
+
+    <!-- 主内容区 -->
+    <div class="main-content">
+        <!-- 面包屑导航 -->
+        <div class="breadcrumb">
+            <span><a href="dashboard.html" style="text-decoration: none; color: inherit;"><i class="fas fa-home" style="margin-right: 5px;"></i>首页</a></span>
+            <span><a href="statistics.html" style="text-decoration: none; color: inherit;">数据分析</a></span>
+            <span><a href="statistics.html" style="text-decoration: none; color: inherit;">统计对比</a></span>
+            <span>告警统计</span>
+        </div>
+
+        <!-- 时间筛选控件 -->
+        <div class="filter-container">
+            <div class="time-filter">
+                <div class="btn-group time-range-toggle">
+                    <button class="btn btn-time-range active" data-range="7days" title="最近7天">最近7天</button>
+                    <button class="btn btn-time-range" data-range="day" title="按日统计">按日</button>
+                    <button class="btn btn-time-range" data-range="week" title="按周统计">按周</button>
+                    <button class="btn btn-time-range" data-range="month" title="按月统计">按月</button>
+                </div>
+                <button class="btn btn-icon btn-custom-date" title="选择自定义日期"><i class="fas fa-calendar-alt"></i></button>
+            </div>
+            
+            <div class="advanced-filters">
+                <div class="filter-dropdown site-filter">
+                    <button class="btn btn-filter"><i class="fas fa-map-marker-alt"></i> 站点筛选 <i class="fas fa-chevron-down"></i></button>
+                    <div class="dropdown-content" id="site-filter-content">
+                        <!-- 站点筛选选项将由JS动态生成 -->
+                    </div>
+                </div>
+
+                <div class="filter-dropdown device-filter">
+                    <button class="btn btn-filter"><i class="fas fa-microchip"></i> 设备筛选 <i class="fas fa-chevron-down"></i></button>
+                    <div class="dropdown-content" id="device-filter-content">
+                        <!-- 设备筛选选项将由JS动态生成 -->
+                    </div>
+                </div>
+
+                <div class="filter-dropdown alarm-level-filter">
+                    <button class="btn btn-filter"><i class="fas fa-exclamation-triangle"></i> 告警等级 <i class="fas fa-chevron-down"></i></button>
+                    <div class="dropdown-content" id="alarm-level-content">
+                        <label><input type="checkbox" value="故障" checked> 故障</label>
+                        <label><input type="checkbox" value="告警" checked> 告警</label>
+                        <label><input type="checkbox" value="提示" checked> 提示</label>
+                    </div>
+                </div>
+                
+                <div class="filter-dropdown alarm-status-filter">
+                    <button class="btn btn-filter"><i class="fas fa-check-circle"></i> 告警状态 <i class="fas fa-chevron-down"></i></button>
+                    <div class="dropdown-content" id="alarm-status-content">
+                        <label><input type="checkbox" value="unrecovered" checked> 未恢复</label>
+                        <label><input type="checkbox" value="recovered" checked> 已恢复</label>
+                    </div>
+                </div>
+
+                <div class="search-box">
+                    <input type="text" placeholder="搜索站点/设备/告警名称..." id="search-input">
+                    <button class="btn btn-search"><i class="fas fa-search"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 告警概览卡片 -->
+        <div class="alarm-overview">
+            <div class="overview-card total-alarms">
+                <div class="card-icon"><i class="fas fa-bell"></i></div>
+                <div class="card-content">
+                    <h3>总告警数</h3>
+                    <p class="counter" id="total-alarm-count">0</p>
+                    <p class="description">所选时间范围内的总告警数量</p>
+                </div>
+            </div>
+            
+            <div class="overview-card fault-alarms">
+                <div class="card-icon"><i class="fas fa-times-circle"></i></div>
+                <div class="card-content">
+                    <h3>故障</h3>
+                    <p class="counter" id="fault-alarm-count">0</p>
+                    <p class="description">所选时间范围内的故障级别告警</p>
+                </div>
+            </div>
+            
+            <div class="overview-card warning-alarms">
+                <div class="card-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                <div class="card-content">
+                    <h3>告警</h3>
+                    <p class="counter" id="warning-alarm-count">0</p>
+                    <p class="description">所选时间范围内的告警级别告警</p>
+                </div>
+            </div>
+            
+            <div class="overview-card info-alarms">
+                <div class="card-icon"><i class="fas fa-info-circle"></i></div>
+                <div class="card-content">
+                    <h3>提示</h3>
+                    <p class="counter" id="info-alarm-count">0</p>
+                    <p class="description">所选时间范围内的提示级别告警</p>
+                </div>
+            </div>
+            
+            <div class="overview-card unprocessed-alarms">
+                <div class="card-icon"><i class="fas fa-hourglass-half"></i></div>
+                <div class="card-content">
+                    <h3>未处理告警</h3>
+                    <p class="counter" id="unprocessed-alarm-count">0</p>
+                    <p class="description">当前未处理的告警数量</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 主要统计内容模块 -->
+        <div class="statistics-content">
+            <!-- 告警趋势图 -->
+            <div class="stats-card" id="alarm-trend-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-chart-line"></i> 告警趋势分析</h3>
+                    <div class="card-actions">
+                        <div class="btn-group chart-type-toggle">
+                            <button class="btn btn-chart-type active" data-type="bar" title="柱状图"><i class="fas fa-chart-bar"></i></button>
+                            <button class="btn btn-chart-type" data-type="line" title="折线图"><i class="fas fa-chart-line"></i></button>
+                        </div>
+                        <button class="btn btn-icon btn-switch-view" title="切换视图"><i class="fas fa-table"></i></button>
+                        <button class="btn btn-icon btn-export" title="导出数据"><i class="fas fa-download"></i></button>
+                        <span class="data-update-time">数据更新时间: <span id="trend-update-time">2023-10-01 12:00:00</span></span>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="chart-container" id="alarm-trend-chart"></div>
+                    <div class="table-container" id="alarm-trend-table" style="display: none;"></div>
+                </div>
+            </div>
+
+            <!-- 告警类型占比图 -->
+            <div class="stats-card" id="alarm-type-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-chart-pie"></i> 告警类型占比</h3>
+                    <div class="card-actions">
+                        <div class="btn-group chart-type-toggle">
+                            <button class="btn btn-chart-type active" data-type="pie" title="饼图"><i class="fas fa-chart-pie"></i></button>
+                            <button class="btn btn-chart-type" data-type="rose" title="玫瑰图"><i class="fas fa-chart-pie"></i></button>
+                        </div>
+                        <button class="btn btn-icon btn-switch-view" title="切换视图"><i class="fas fa-table"></i></button>
+                        <button class="btn btn-icon btn-export" title="导出数据"><i class="fas fa-download"></i></button>
+                        <span class="data-update-time">数据更新时间: <span id="type-update-time">2023-10-01 12:00:00</span></span>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="chart-container" id="alarm-type-chart"></div>
+                    <div class="table-container" id="alarm-type-table" style="display: none;"></div>
+                </div>
+            </div>
+
+            <!-- 告警TOP榜 -->
+            <div class="stats-card" id="alarm-top-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-list-ol"></i> 告警TOP榜</h3>
+                    <div class="card-actions">
+                        <div class="btn-group rank-dimension-toggle">
+                            <button class="btn btn-rank-dim active" data-dimension="alarm" title="按告警名称">按告警名称</button>
+                            <button class="btn btn-rank-dim" data-dimension="site" title="按站点">按站点</button>
+                        </div>
+                        <button class="btn btn-icon btn-switch-view" title="切换视图"><i class="fas fa-table"></i></button>
+                        <button class="btn btn-icon btn-export" title="导出数据"><i class="fas fa-download"></i></button>
+                        <span class="data-update-time">数据更新时间: <span id="top-update-time">2023-10-01 12:00:00</span></span>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="chart-container" id="alarm-top-chart"></div>
+                    <div class="table-container" id="alarm-top-table" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 自定义日期选择模态框 -->
+        <div id="custom-date-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>选择自定义时间范围</h3>
+                    <button id="close-custom-date" class="close-modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="custom-start-date">开始日期:</label>
+                        <input type="date" id="custom-start-date">
+                    </div>
+                    <div class="form-group">
+                        <label for="custom-end-date">结束日期:</label>
+                        <input type="date" id="custom-end-date">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="cancel-custom-date" class="btn btn-secondary">取消</button>
+                    <button id="confirm-custom-date" class="btn btn-primary">确认</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页面脚本 -->
+    <script src="alarm-statistics.js"></script>
+</body>
+</html> 

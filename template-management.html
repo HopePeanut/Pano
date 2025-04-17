@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>模板管理 - 智慧运维系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- 引入导航栏模板JS -->
+    <script src="navbar-template.js"></script>
+    <style>
+        :root {
+            --primary-color: #49A18D;
+            --secondary-color: #3D8C7D;
+            --light-color: #F5F7F9;
+            --border-color: #E2E8F0;
+            --text-color: #333333;
+            --light-text: #FFFFFF;
+            --gray-text: #6C757D;
+            --radius: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #FAFAFA;
+            color: var(--text-color);
+        }
+
+        .main-content {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* 面包屑导航 */
+        .breadcrumb {
+            display: flex;
+            padding: 10px 0;
+            margin-bottom: 20px;
+            list-style: none;
+            font-size: 0.9rem;
+        }
+
+        .breadcrumb-item {
+            color: var(--gray-text);
+        }
+
+        .breadcrumb-item + .breadcrumb-item::before {
+            content: "/";
+            padding: 0 8px;
+            color: var(--gray-text);
+        }
+
+        .breadcrumb-item.active {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        /* 页面标题 */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        /* 模板卡片网格 */
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .template-card {
+            background-color: white;
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .template-card:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transform: translateY(-3px);
+        }
+
+        .template-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--light-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            font-size: 1.5rem;
+        }
+
+        .template-title {
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+
+        .template-description {
+            font-size: 0.9rem;
+            color: var(--gray-text);
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .template-count {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+        }
+
+        .template-count i {
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏将通过JS注入 -->
+    <div id="navbar-container"></div>
+
+    <div class="main-content">
+        <!-- 面包屑导航 -->
+        <ul class="breadcrumb">
+            <li class="breadcrumb-item"><a href="index.html">首页</a></li>
+            <li class="breadcrumb-item">后台管理</li>
+            <li class="breadcrumb-item active">模板管理</li>
+        </ul>
+
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <h1 class="page-title">模板管理</h1>
+        </div>
+
+        <!-- 模板卡片网格 -->
+        <div class="template-grid">
+            <!-- 点表模板 -->
+            <div class="template-card" onclick="location.href='point-templates.html'">
+                <div class="template-icon">
+                    <i class="fas fa-table"></i>
+                </div>
+                <h3 class="template-title">点表模板</h3>
+                <p class="template-description">管理各类设备的点表模板，用于配置站点设备的数据点位和采集规则</p>
+                <div class="template-count">
+                    <i class="fas fa-file-alt"></i>
+                    <span>当前共 8 个模板</span>
+                </div>
+            </div>
+
+            <!-- 告警推送模板 -->
+            <div class="template-card" onclick="location.href='alarm-templates.html'">
+                <div class="template-icon">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <h3 class="template-title">告警推送模板</h3>
+                <p class="template-description">配置各类告警的推送规则，包括推送渠道、接收人员和告警触发条件</p>
+                <div class="template-count">
+                    <i class="fas fa-file-alt"></i>
+                    <span>当前共 5 个模板</span>
+                </div>
+            </div>
+
+            <!-- 参数校验模板 -->
+            <div class="template-card" onclick="location.href='validation-templates.html'">
+                <div class="template-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h3 class="template-title">参数校验模板</h3>
+                <p class="template-description">用于定义设备参数的有效范围和校验规则，确保数据的准确性和有效性</p>
+                <div class="template-count">
+                    <i class="fas fa-file-alt"></i>
+                    <span>当前共 12 个模板</span>
+                </div>
+            </div>
+
+            <!-- 电价模板 -->
+            <div class="template-card" onclick="location.href='price-templates.html'">
+                <div class="template-icon">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <h3 class="template-title">电价模板</h3>
+                <p class="template-description">管理不同地区的电价方案，包括峰谷分时价格和季节性价格变化</p>
+                <div class="template-count">
+                    <i class="fas fa-file-alt"></i>
+                    <span>当前共 6 个模板</span>
+                </div>
+            </div>
+
+            <!-- 智能报表模板 -->
+            <div class="template-card" onclick="location.href='report-templates.html'">
+                <div class="template-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3 class="template-title">智能报表模板</h3>
+                <p class="template-description">配置各类统计报表的生成规则，包括日报、周报、月报的内容和格式</p>
+                <div class="template-count">
+                    <i class="fas fa-file-alt"></i>
+                    <span>当前共 9 个模板</span>
+                </div>
+            </div>
+
+            <!-- 设备档案模板 -->
+            <div class="template-card" onclick="location.href='device-templates.html'">
+                <div class="template-icon">
+                    <i class="fas fa-microchip"></i>
+                </div>
+                <h3 class="template-title">设备档案模板</h3>
+                <p class="template-description">管理不同类型设备的档案模板，包括设备参数、维护记录等信息结构</p>
+                <div class="template-count">
+                    <i class="fas fa-file-alt"></i>
+                    <span>当前共 7 个模板</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 初始化导航栏
+        document.addEventListener('DOMContentLoaded', function() {
+            // 如果存在导航栏初始化函数，则调用
+            if (typeof initNavbar === 'function') {
+                initNavbar();
+                
+                // 设置活动菜单项
+                if (typeof setActiveMenuItem === 'function') {
+                    // 设置"后台管理"为活动菜单
+                    setActiveMenuItem('menu-admin', 'submenu-template-management');
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!-- 标签管理对话框 -->
+<div class="tag-modal" id="tag-management-modal">
+    <div class="tag-modal-content">
+        <div class="tag-header">
+            <h2 class="tag-title">站点列表 > 标签管理</h2>
+            <span class="close-tag-modal">&times;</span>
+        </div>
+        <div class="tag-search-add">
+            <span class="tag-count">共 3 条信息</span>
+            <button class="btn btn-primary" id="add-tag-btn">
+                <i class="fas fa-plus"></i> 新增标签
+            </button>
+        </div>
+        <table class="tag-table">
+            <thead>
+                <tr>
+                    <th width="10%">序号</th>
+                    <th width="40%">标签名</th>
+                    <th width="20%">使用/禁用</th>
+                    <th width="15%">最近修改日期</th>
+                    <th width="15%">操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>用户侧</td>
+                    <td>
+                        <label class="switch">
+                            <input type="checkbox" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </td>
+                    <td>2024-04-24 10:01:07</td>
+                    <td>
+                        <button class="tag-edit-btn" title="修改"><i class="fas fa-edit"></i> 修改</button>
+                        <button class="tag-delete-btn" title="删除"><i class="fas fa-trash-alt"></i> 删除</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>源网侧</td>
+                    <td>
+                        <label class="switch">
+                            <input type="checkbox" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </td>
+                    <td>2024-04-24 10:00:16</td>
+                    <td>
+                        <button class="tag-edit-btn" title="修改"><i class="fas fa-edit"></i> 修改</button>
+                        <button class="tag-delete-btn" title="删除"><i class="fas fa-trash-alt"></i> 删除</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>台区配储</td>
+                    <td>
+                        <label class="switch">
+                            <input type="checkbox" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </td>
+                    <td>2024-05-28 10:58:31</td>
+                    <td>
+                        <button class="tag-edit-btn" title="修改"><i class="fas fa-edit"></i> 修改</button>
+                        <button class="tag-delete-btn" title="删除"><i class="fas fa-trash-alt"></i> 删除</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- 编辑标签对话框 -->
+<div class="edit-tag-modal" id="edit-tag-modal">
+    <div class="edit-tag-content">
+        <div class="edit-tag-header">
+            <h3 class="edit-tag-title">编辑标签</h3>
+            <span class="close-edit-tag">&times;</span>
+        </div>
+        <div class="edit-tag-form">
+            <div class="form-field">
+                <label for="tag-name" class="required">标签名</label>
+                <input type="text" id="tag-name" class="tag-input" value="用户侧">
+            </div>
+            <div class="form-field">
+                <label for="tag-color" class="required">颜色</label>
+                <div class="color-picker">
+                    <div class="color-box" style="background-color: #7DBE1C;"></div>
+                    <span class="color-value">#7DBE1C</span>
+                </div>
+            </div>
+            <div class="form-field">
+                <label>是否启用</label>
+                <label class="switch">
+                    <input type="checkbox" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="tag-actions">
+                <button class="btn btn-secondary" id="cancel-tag-edit">取消</button>
+                <button class="btn btn-primary" id="confirm-tag-edit">确定</button>
+            </div>
+        </div>
+    </div>
+</div> 

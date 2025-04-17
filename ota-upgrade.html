@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>远程OTA升级 - 智慧运维系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- 引入Vue.js -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <!-- 引入外部CSS文件 -->
+    <link rel="stylesheet" href="ota-upgrade.css">
+    <!-- 引入导航栏模板JS -->
+    <script src="navbar-template.js"></script>
+</head>
+<body>
+    <!-- 导航栏将由JS注入 -->
+    <div id="navbar-container"></div>
+
+    <div class="main-content">
+        <!-- 面包屑导航 -->
+        <ul class="breadcrumb">
+            <li class="breadcrumb-item"><a href="index.html">首页</a></li>
+            <li class="breadcrumb-item"><a href="#">运维管理</a></li>
+            <li class="breadcrumb-item"><a href="maintenance-tools.html">维护工具</a></li>
+            <li class="breadcrumb-item active">远程OTA升级</li>
+        </ul>
+
+        <!-- Vue应用容器 -->
+        <div id="ota-app">
+            <div class="page-header">
+                <h1 class="page-title">远程OTA升级</h1>
+                <span class="page-subtitle">为设备进行软件更新和配置升级</span>
+            </div>
+
+            <!-- 主内容区域 -->
+            <div class="ota-container">
+                <!-- 模块一：升级任务配置区域 -->
+                <div class="card config-card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-cog"></i> 升级任务配置</h2>
+                    </div>
+                    <div class="card-body">
+                        <form @submit.prevent="submitUpgradeTask" class="config-form">
+                            <!-- 站点选择 -->
+                            <div class="form-group">
+                                <label>站点选择<span class="required">*</span></label>
+                                <div class="selection-container">
+                                    <div class="multi-select">
+                                        <div class="selected-items" @click="toggleDropdown('sites')">
+                                            <span v-if="selectedSites.length === 0">请选择站点</span>
+                                            <span v-else>已选择 {{ selectedSites.length }} 个站点</span>
+                                            <i class="fas fa-chevron-down"></i>
+                                        </div>
+                                        <div class="dropdown-menu" v-show="dropdowns.sites">
+                                            <div class="search-box">
+                                                <input type="text" placeholder="搜索站点" v-model="siteSearchText">
+                                            </div>
+                                            <div class="select-all">
+                                                <label>
+                                                    <input type="checkbox" 
+                                                           :checked="selectedSites.length === filteredSites.length && filteredSites.length > 0" 
+                                                           @click="toggleAllSites">
+                                                    <span>全选</span>
+                                                </label>
+                                            </div>
+                                            <div class="options-container">
+                                                <label v-for="site in filteredSites" :key="site.id" class="option">
+                                                    <input type="checkbox" 
+                                                           :value="site.id" 
+                                                           v-model="selectedSites">
+                                                    <span>{{ site.name }}</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 设备类型筛选 -->
+                            <div class="form-group">
+                                <label>设备类型<span class="required">*</span></label>
+                                <div class="selection-container">
+                                    <div class="multi-select">
+                                        <div class="selected-items" @click="toggleDropdown('deviceTypes')">
+                                            <span v-if="selectedDeviceTypes.length === 0">请选择设备类型</span>
+                                            <span v-else>已选择 {{ selectedDeviceTypes.length }} 种设备类型</span>
+                                            <i class="fas fa-chevron-down"></i>
+                                        </div>
+                                        <div class="dropdown-menu" v-show="dropdowns.deviceTypes">
+                                            <div class="select-all">
+                                                <label>
+                                                    <input type="checkbox" 
+                                                           :checked="selectedDeviceTypes.length === deviceTypes.length" 
+                                                           @click="toggleAllDeviceTypes">
+                                                    <span>全选</span>
+                                                </label>
+                                            </div>
+                                            <div class="options-container">
+                                                <label v-for="type in deviceTypes" :key="type.id" class="option">
+                                                    <input type="checkbox" 
+                                                           :value="type.id" 
+                                                           v-model="selectedDeviceTypes">
+                                                    <span>{{ type.name }}</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 软件版本选择 -->
+                            <div class="form-group">
+                                <label>软件版本<span class="required">*</span></label>
+                                <div class="selection-container">
+                                    <select v-model="selectedFirmware" class="form-select">
+                                        <option value="">请选择软件版本</option>
+                                        <option v-for="firmware in firmwareVersions" :key="firmware.id" :value="firmware.id">
+                                            {{ firmware.name }} ({{ firmware.version }})
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- 升级策略选项 -->
+                            <div class="form-group">
+                                <label>升级策略</label>
+                                <div class="strategy-options">
+                                    <label class="radio-option">
+                                        <input type="radio" name="upgradeStrategy" v-model="upgradeStrategy" value="immediate">
+                                        <span>立即执行</span>
+                                    </label>
+                                    <label class="radio-option">
+                                        <input type="radio" name="upgradeStrategy" v-model="upgradeStrategy" value="scheduled">
+                                        <span>定时任务</span>
+                                    </label>
+                                    <label class="radio-option">
+                                        <input type="radio" name="upgradeStrategy" v-model="upgradeStrategy" value="batch">
+                                        <span>分批升级</span>
+                                    </label>
+                                </div>
+
+                                <!-- 定时任务选项 -->
+                                <div class="strategy-detail" v-if="upgradeStrategy === 'scheduled'">
+                                    <label>计划执行时间</label>
+                                    <input type="datetime-local" v-model="scheduledTime" class="form-input">
+                                </div>
+
+                                <!-- 分批升级选项 -->
+                                <div class="strategy-detail" v-if="upgradeStrategy === 'batch'">
+                                    <label>批次间隔（小时）</label>
+                                    <input type="number" v-model="batchInterval" min="1" max="24" class="form-input">
+                                    <label>每批设备数量</label>
+                                    <input type="number" v-model="batchSize" min="1" class="form-input">
+                                </div>
+                            </div>
+
+                            <!-- 升级说明备注 -->
+                            <div class="form-group">
+                                <label>升级说明备注</label>
+                                <textarea v-model="upgradeNotes" class="form-textarea" placeholder="请输入升级说明和备注信息"></textarea>
+                            </div>
+
+                            <!-- 提交按钮 -->
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary btn-submit" :disabled="!isFormValid">
+                                    <i class="fas fa-upload"></i> 下发升级任务
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- 模块二：待升级设备列表 -->
+                <div class="card devices-card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-microchip"></i> 待升级设备列表</h2>
+                        <div class="card-tools">
+                            <div class="search-box">
+                                <input type="text" placeholder="搜索设备" v-model="deviceSearchText">
+                                <i class="fas fa-search"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th width="40">
+                                            <input type="checkbox" 
+                                                   :checked="selectedDevices.length === filteredDevices.length && filteredDevices.length > 0" 
+                                                   @click="toggleAllDevices">
+                                        </th>
+                                        <th>设备ID</th>
+                                        <th>所属站点</th>
+                                        <th>设备类型</th>
+                                        <th>当前版本</th>
+                                        <th>目标版本</th>
+                                        <th>连接状态</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="device in paginatedDevices" :key="device.id">
+                                        <td>
+                                            <input type="checkbox" 
+                                                   :value="device.id" 
+                                                   v-model="selectedDevices"
+                                                   :disabled="device.connectionStatus === 'offline'">
+                                        </td>
+                                        <td>{{ device.id }}</td>
+                                        <td>{{ device.siteName }}</td>
+                                        <td>{{ device.deviceTypeName }}</td>
+                                        <td>{{ device.currentVersion }}</td>
+                                        <td>
+                                            <select v-model="device.targetVersion" class="form-select-sm" :disabled="device.connectionStatus === 'offline'">
+                                                <option value="">请选择版本</option>
+                                                <option v-for="firmware in compatibleFirmware(device)" :key="firmware.id" :value="firmware.id">
+                                                    {{ firmware.version }}
+                                                </option>
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <span class="status-badge" :class="getStatusClass(device.connectionStatus)">
+                                                {{ getStatusText(device.connectionStatus) }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline" 
+                                                   @click="removeDevice(device.id)"
+                                                   :disabled="device.connectionStatus === 'offline'">
+                                                移除
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr v-if="paginatedDevices.length === 0">
+                                        <td colspan="8" class="no-data">
+                                            {{ selectedSites.length > 0 ? '没有找到匹配的设备' : '请先选择站点和设备类型' }}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- 分页控制 -->
+                        <div class="pagination" v-if="filteredDevices.length > 0">
+                            <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1" class="btn btn-sm">
+                                <i class="fas fa-angle-left"></i>
+                            </button>
+                            <span>第 {{ currentPage }} 页，共 {{ totalPages }} 页</span>
+                            <button @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages" class="btn btn-sm">
+                                <i class="fas fa-angle-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 模块三：升级任务状态追踪 -->
+                <div class="card tasks-card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-tasks"></i> 升级任务状态追踪</h2>
+                    </div>
+                    <div class="card-body">
+                        <!-- 任务状态标签页 -->
+                        <div class="tabs">
+                            <div class="tab-header">
+                                <div class="tab" 
+                                     v-for="tab in taskTabs" 
+                                     :key="tab.id"
+                                     :class="{ active: currentTab === tab.id }"
+                                     @click="currentTab = tab.id">
+                                    {{ tab.name }}
+                                    <span class="badge" v-if="getTaskCount(tab.id) > 0">{{ getTaskCount(tab.id) }}</span>
+                                </div>
+                            </div>
+
+                            <div class="tab-content">
+                                <div class="task-list">
+                                    <div v-for="task in filteredTasks" :key="task.id" class="task-item">
+                                        <div class="task-header">
+                                            <div class="task-info">
+                                                <div class="task-id">任务ID: {{ task.id }}</div>
+                                                <div class="task-meta">
+                                                    <span><i class="fas fa-calendar-alt"></i> {{ task.createdTime }}</span>
+                                                    <span><i class="fas fa-user"></i> {{ task.creator }}</span>
+                                                </div>
+                                            </div>
+                                            <div class="task-actions">
+                                                <button class="btn btn-sm btn-outline" @click="viewTaskDetail(task.id)">
+                                                    <i class="fas fa-eye"></i> 查看详情
+                                                </button>
+                                                <button class="btn btn-sm btn-danger" 
+                                                        v-if="task.status === 'in_progress'"
+                                                        @click="stopTask(task.id)">
+                                                    <i class="fas fa-stop"></i> 停止任务
+                                                </button>
+                                                <button class="btn btn-sm btn-outline" @click="exportTaskReport(task.id)">
+                                                    <i class="fas fa-download"></i> 导出报告
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="task-body">
+                                            <div class="task-stats">
+                                                <div class="stat-item">
+                                                    <span class="stat-label">站点数量:</span>
+                                                    <span class="stat-value">{{ task.siteCount }}</span>
+                                                </div>
+                                                <div class="stat-item">
+                                                    <span class="stat-label">设备数量:</span>
+                                                    <span class="stat-value">{{ task.deviceCount }}</span>
+                                                </div>
+                                                <div class="stat-item" v-if="task.status === 'scheduled'">
+                                                    <span class="stat-label">计划执行时间:</span>
+                                                    <span class="stat-value">{{ task.scheduledTime }}</span>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="progress-section">
+                                                <div class="progress-label">
+                                                    <span>升级进度:</span>
+                                                    <span>{{ getProgressPercentage(task) }}%</span>
+                                                </div>
+                                                <div class="progress-bar">
+                                                    <div class="progress-segment success" :style="{width: getSuccessPercentage(task) + '%'}"></div>
+                                                    <div class="progress-segment fail" :style="{width: getFailPercentage(task) + '%'}"></div>
+                                                    <div class="progress-segment pending" :style="{width: getPendingPercentage(task) + '%'}"></div>
+                                                </div>
+                                                <div class="progress-stats">
+                                                    <div class="progress-stat">
+                                                        <span class="dot success"></span>
+                                                        <span>成功: {{ task.successCount }}</span>
+                                                    </div>
+                                                    <div class="progress-stat">
+                                                        <span class="dot fail"></span>
+                                                        <span>失败: {{ task.failCount }}</span>
+                                                    </div>
+                                                    <div class="progress-stat">
+                                                        <span class="dot pending"></span>
+                                                        <span>未响应: {{ task.pendingCount }}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div v-if="filteredTasks.length === 0" class="no-data">
+                                        没有{{ getTabName(currentTab) }}任务
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 确认模态框 -->
+            <div class="modal" v-if="showConfirmModal">
+                <div class="modal-backdrop" @click="showConfirmModal = false"></div>
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3 class="modal-title"><i class="fas fa-exclamation-triangle"></i> 确认升级任务</h3>
+                            <button class="close-btn" @click="showConfirmModal = false">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <strong>风险提示：</strong> 
+                                <p>软件升级过程中可能导致设备临时离线或功能异常，请确保在合适的时间进行操作。</p>
+                            </div>
+                            
+                            <h4>升级任务信息确认</h4>
+                            <div class="confirm-details">
+                                <div class="confirm-item">
+                                    <span class="label">选择站点:</span>
+                                    <span class="value">{{ selectedSiteNames.join(', ') }}</span>
+                                </div>
+                                <div class="confirm-item">
+                                    <span class="label">设备类型:</span>
+                                    <span class="value">{{ selectedDeviceTypeNames.join(', ') }}</span>
+                                </div>
+                                <div class="confirm-item">
+                                    <span class="label">软件版本:</span>
+                                    <span class="value">{{ selectedFirmwareName }}</span>
+                                </div>
+                                <div class="confirm-item">
+                                    <span class="label">升级策略:</span>
+                                    <span class="value">{{ getStrategyText }}</span>
+                                </div>
+                                <div class="confirm-item">
+                                    <span class="label">设备数量:</span>
+                                    <span class="value">{{ selectedDevices.length }} 台</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-outline" @click="showConfirmModal = false">取消</button>
+                            <button class="btn btn-primary" @click="confirmUpgrade">确认升级</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入页面JS脚本 -->
+    <script src="ota-upgrade.js"></script>
+</body>
+</html> 

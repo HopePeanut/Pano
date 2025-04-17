@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>点表模板管理 - 智慧运维系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- 引入导航栏模板JS -->
+    <script src="navbar-template.js"></script>
+    <link rel="stylesheet" href="point-templates.css">
+</head>
+<body>
+    <!-- 导航栏将通过JS注入 -->
+    <div id="navbar-container"></div>
+
+    <div class="main-content">
+        <!-- 面包屑导航 -->
+        <ul class="breadcrumb">
+            <li class="breadcrumb-item"><a href="index.html">首页</a></li>
+            <li class="breadcrumb-item"><a href="#">后台管理</a></li>
+            <li class="breadcrumb-item"><a href="maintenance-tools.html">维护工具</a></li>
+            <li class="breadcrumb-item active">点表模板</li>
+        </ul>
+
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <h1 class="page-title">点表模板管理</h1>
+            <div class="page-description">
+                <p>管理各类设备的点表模板，支持模板生成、导入导出和标签归类，方便交付工程师快速部署</p>
+            </div>
+        </div>
+
+        <!-- 筛选与查询区 -->
+        <div class="filter-container">
+            <div class="filter-header">
+                <h2>筛选条件</h2>
+                <div class="filter-toggle">
+                    <i class="fas fa-chevron-up"></i>
+                </div>
+            </div>
+            <div class="filter-body">
+                <div class="filter-row">
+                    <div class="filter-item">
+                        <label>模板名称</label>
+                        <input type="text" id="nameFilter" placeholder="模糊搜索模板名称">
+                    </div>
+                    <div class="filter-item">
+                        <label>创建人</label>
+                        <select id="creatorFilter">
+                            <option value="">全部</option>
+                            <option value="admin">系统管理员</option>
+                            <option value="engineer1">交付工程师A</option>
+                            <option value="engineer2">交付工程师B</option>
+                        </select>
+                    </div>
+                    <div class="filter-item">
+                        <label>创建时间</label>
+                        <div class="date-range">
+                            <input type="date" id="startDate">
+                            <span>至</span>
+                            <input type="date" id="endDate">
+                        </div>
+                    </div>
+                    <div class="filter-item">
+                        <label>标签筛选</label>
+                        <div class="tag-filter">
+                            <div class="tag-select" id="tagSelect">
+                                <div class="selected-tags" id="selectedTags">
+                                    <!-- 已选标签将在此显示 -->
+                                </div>
+                                <input type="text" id="tagInput" placeholder="选择或输入标签">
+                                <div class="dropdown-icon">
+                                    <i class="fas fa-chevron-down"></i>
+                                </div>
+                            </div>
+                            <div class="tag-dropdown" id="tagDropdown">
+                                <div class="tag-option" data-value="CC00">储能-CC00</div>
+                                <div class="tag-option" data-value="LS00">储能-LS00</div>
+                                <div class="tag-option" data-value="LS01">储能-LS01</div>
+                                <div class="tag-option" data-value="LS02">储能-LS02</div>
+                                <div class="tag-option" data-value="custom">+ 自定义标签</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="filter-actions">
+                    <button class="btn btn-primary" id="searchBtn">
+                        <i class="fas fa-search"></i> 查询
+                    </button>
+                    <button class="btn btn-outline" id="resetBtn">
+                        <i class="fas fa-redo"></i> 重置
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 模板管理区 -->
+        <div class="table-container">
+            <div class="table-header">
+                <div class="table-title">
+                    <h2>模板列表</h2>
+                    <span class="table-count">共 <span id="totalTemplates">12</span> 个模板</span>
+                </div>
+                <div class="table-actions">
+                    <button class="btn btn-sm btn-primary" id="importBtn">
+                        <i class="fas fa-file-import"></i> 导入点表
+                    </button>
+                    <button class="btn btn-sm btn-outline" id="batchExportBtn">
+                        <i class="fas fa-file-export"></i> 批量导出
+                    </button>
+                    <button class="btn btn-sm btn-danger" id="batchDeleteBtn">
+                        <i class="fas fa-trash-alt"></i> 批量删除
+                    </button>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th width="40px">
+                                <label class="checkbox-container">
+                                    <input type="checkbox" id="selectAll">
+                                    <span class="checkmark"></span>
+                                </label>
+                            </th>
+                            <th class="sortable" data-sort="name">模板名称 <i class="fas fa-sort"></i></th>
+                            <th class="sortable" data-sort="creator">创建人 <i class="fas fa-sort"></i></th>
+                            <th class="sortable" data-sort="createTime">创建时间 <i class="fas fa-sort"></i></th>
+                            <th class="sortable" data-sort="itemCount">点表条目数 <i class="fas fa-sort"></i></th>
+                            <th class="sortable" data-sort="lastUsed">最近使用时间 <i class="fas fa-sort"></i></th>
+                            <th>标签</th>
+                            <th width="180px">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="templateTableBody">
+                        <!-- 表格数据将由JS动态生成 -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- 表格分页控件 -->
+            <div class="pagination-container">
+                <div class="page-size-selector">
+                    每页显示：
+                    <select id="pageSizeSelect">
+                        <option value="10">10条</option>
+                        <option value="20">20条</option>
+                        <option value="50">50条</option>
+                        <option value="100">100条</option>
+                    </select>
+                </div>
+                <div class="pagination" id="pagination">
+                    <button class="page-btn" data-page="prev">
+                        <i class="fas fa-angle-left"></i>
+                    </button>
+                    <div class="page-numbers" id="pageNumbers">
+                        <!-- 页码按钮将通过JavaScript动态生成 -->
+                    </div>
+                    <button class="page-btn" data-page="next">
+                        <i class="fas fa-angle-right"></i>
+                    </button>
+                </div>
+                <div class="page-info">
+                    当前 <span id="currentPage">1</span>/<span id="totalPages">2</span> 页，共 <span id="totalRecords">12</span> 条记录
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 导入点表模态框 -->
+    <div class="modal" id="importModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>导入点表</h3>
+                <button class="close-btn" id="closeImportModalBtn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="upload-container">
+                    <div class="upload-area" id="uploadArea">
+                        <i class="fas fa-file-excel"></i>
+                        <p>点击或拖拽文件到此处</p>
+                        <p class="small">支持 .xlsx, .xls 格式</p>
+                        <input type="file" id="fileInput" accept=".xlsx, .xls" hidden>
+                    </div>
+                    <div class="file-info" id="fileInfo" style="display: none;">
+                        <div class="file-preview">
+                            <i class="fas fa-file-excel"></i>
+                            <div class="file-details">
+                                <span class="file-name" id="fileName">文件名.xlsx</span>
+                                <span class="file-size" id="fileSize">1.2MB</span>
+                            </div>
+                            <button class="remove-file" id="removeFileBtn">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="import-options">
+                    <h4>导入选项</h4>
+                    <div class="option-item">
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="autoGenerateTemplate" checked>
+                            <span class="checkmark"></span>
+                            <span>自动生成模板名称</span>
+                        </label>
+                    </div>
+                    <div class="template-name-input" id="templateNameInput" style="display: none;">
+                        <label>模板名称</label>
+                        <input type="text" id="templateName" placeholder="请输入模板名称">
+                    </div>
+                    <div class="option-item">
+                        <label>数据起始行</label>
+                        <select id="dataStartRow">
+                            <option value="1">第1行</option>
+                            <option value="2" selected>第2行 (有表头)</option>
+                            <option value="3">第3行</option>
+                            <option value="4">第4行</option>
+                        </select>
+                    </div>
+                    <div class="option-item">
+                        <label>添加标签</label>
+                        <div class="tag-select-mini">
+                            <input type="text" id="importTagInput" placeholder="选择或输入标签">
+                            <div class="dropdown-icon">
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                        </div>
+                        <div class="selected-tags-container" id="importSelectedTags">
+                            <!-- 已选标签将在此显示 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="cancelImportBtn">取消</button>
+                <button class="btn btn-primary" id="confirmImportBtn" disabled>导入</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新建/编辑模板模态框 -->
+    <div class="modal large-modal" id="templateModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="templateModalTitle">新建模板</h3>
+                <button class="close-btn" id="closeTemplateModalBtn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-section">
+                    <div class="form-row">
+                        <div class="form-item">
+                            <label>模板名称 <span class="required">*</span></label>
+                            <input type="text" id="editTemplateName" placeholder="请输入模板名称">
+                        </div>
+                        <div class="form-item">
+                            <label>适用设备类型</label>
+                            <select id="deviceType">
+                                <option value="storage">储能设备</option>
+                                <option value="inverter">逆变器</option>
+                                <option value="pcs">PCS</option>
+                                <option value="bms">BMS</option>
+                                <option value="charger">充电桩</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item">
+                            <label>添加标签</label>
+                            <div class="tag-select-mini">
+                                <input type="text" id="editTagInput" placeholder="选择或输入标签">
+                                <div class="dropdown-icon">
+                                    <i class="fas fa-chevron-down"></i>
+                                </div>
+                            </div>
+                            <div class="selected-tags-container" id="editSelectedTags">
+                                <!-- 已选标签将在此显示 -->
+                            </div>
+                        </div>
+                        <div class="form-item">
+                            <label>模板描述</label>
+                            <textarea id="templateDescription" placeholder="请输入模板描述信息"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-section">
+                    <h4>点表数据</h4>
+                    <div class="table-editor-toolbar">
+                        <button class="btn btn-sm btn-outline" id="addRowBtn">
+                            <i class="fas fa-plus"></i> 添加行
+                        </button>
+                        <button class="btn btn-sm btn-outline" id="removeSelectedBtn">
+                            <i class="fas fa-trash"></i> 删除所选
+                        </button>
+                        <button class="btn btn-sm btn-outline" id="bulkEditBtn">
+                            <i class="fas fa-table"></i> 批量编辑
+                        </button>
+                        <div class="copy-paste-hint-sm">
+                            <i class="fas fa-info-circle"></i>
+                            <span>支持复制粘贴 / Ctrl+C / Ctrl+V</span>
+                        </div>
+                    </div>
+                    <div class="table-editor-container">
+                        <table class="editor-table">
+                            <thead>
+                                <tr>
+                                    <th width="40px">
+                                        <label class="checkbox-container">
+                                            <input type="checkbox" id="editorSelectAll">
+                                            <span class="checkmark"></span>
+                                        </label>
+                                    </th>
+                                    <th>点位ID</th>
+                                    <th>点位名称</th>
+                                    <th>单位</th>
+                                    <th>数据类型</th>
+                                    <th>地址</th>
+                                    <th>描述</th>
+                                </tr>
+                            </thead>
+                            <tbody id="editorTableBody">
+                                <!-- 编辑表格内容将由JS动态生成 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="cancelTemplateBtn">取消</button>
+                <button class="btn btn-primary" id="saveTemplateBtn">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 生成模板模态框 -->
+    <div class="modal" id="generateModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>生成模板</h3>
+                <button class="close-btn" id="closeGenerateModalBtn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-description">从已上传的点表记录中快速生成模板，提升配置效率</p>
+                
+                <div class="upload-history">
+                    <h4>最近上传记录</h4>
+                    <div class="history-list">
+                        <div class="history-item">
+                            <div class="file-icon">
+                                <i class="fas fa-file-excel"></i>
+                            </div>
+                            <div class="file-info-detail">
+                                <div class="file-title">储能电站A区点表.xlsx</div>
+                                <div class="file-meta">上传时间: 2023-10-15 14:30:25 | 大小: 1.2MB | 点位数: 256</div>
+                            </div>
+                            <div class="file-select">
+                                <label class="radio-container">
+                                    <input type="radio" name="selectFile" value="file1">
+                                    <span class="radiobtn"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="history-item">
+                            <div class="file-icon">
+                                <i class="fas fa-file-excel"></i>
+                            </div>
+                            <div class="file-info-detail">
+                                <div class="file-title">BMS点表模板.xlsx</div>
+                                <div class="file-meta">上传时间: 2023-10-14 09:15:42 | 大小: 0.8MB | 点位数: 185</div>
+                            </div>
+                            <div class="file-select">
+                                <label class="radio-container">
+                                    <input type="radio" name="selectFile" value="file2">
+                                    <span class="radiobtn"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="history-item">
+                            <div class="file-icon">
+                                <i class="fas fa-file-excel"></i>
+                            </div>
+                            <div class="file-info-detail">
+                                <div class="file-title">变流器点表V2.0.xlsx</div>
+                                <div class="file-meta">上传时间: 2023-10-12 16:45:10 | 大小: 1.5MB | 点位数: 320</div>
+                            </div>
+                            <div class="file-select">
+                                <label class="radio-container">
+                                    <input type="radio" name="selectFile" value="file3">
+                                    <span class="radiobtn"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <div class="form-row">
+                        <div class="form-item">
+                            <label>模板名称 <span class="required">*</span></label>
+                            <input type="text" id="genTemplateName" placeholder="请输入模板名称">
+                        </div>
+                        <div class="form-item">
+                            <label>适用设备类型</label>
+                            <select id="genDeviceType">
+                                <option value="storage">储能设备</option>
+                                <option value="inverter">逆变器</option>
+                                <option value="pcs">PCS</option>
+                                <option value="bms">BMS</option>
+                                <option value="charger">充电桩</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item">
+                            <label>添加标签</label>
+                            <div class="tag-select-mini">
+                                <input type="text" id="genTagInput" placeholder="选择或输入标签">
+                                <div class="dropdown-icon">
+                                    <i class="fas fa-chevron-down"></i>
+                                </div>
+                            </div>
+                            <div class="selected-tags-container" id="genSelectedTags">
+                                <!-- 已选标签将在此显示 -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="cancelGenerateBtn">取消</button>
+                <button class="btn btn-primary" id="confirmGenerateBtn">生成模板</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 操作成功/失败的提示 -->
+    <div class="toast" id="toast">
+        <div class="toast-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="toast-message" id="toastMessage">操作成功</div>
+        <button class="toast-close" id="toastClose">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+    <!-- 删除确认对话框 -->
+    <div class="confirm-dialog" id="confirmDialog">
+        <div class="confirm-content">
+            <div class="confirm-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="confirm-message" id="confirmMessage">确定要删除所选项吗？此操作不可恢复。</div>
+            <div class="confirm-buttons">
+                <button class="btn btn-outline" id="cancelConfirmBtn">取消</button>
+                <button class="btn btn-danger" id="confirmActionBtn">确认删除</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 加载脚本 -->
+    <script src="point-templates.js"></script>
+</body>
+</html> 
+ 
+ 

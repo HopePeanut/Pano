@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智慧运维系统 - 运维看板</title>
+    <!-- 引入Font Awesome图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 引入ECharts图表库 -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <!-- 引入导航栏模板 -->
+    <script src="navbar-template.js"></script>
+    <!-- 引入页面样式 -->
+    <link rel="stylesheet" href="dashboard-maintenance.css">
+</head>
+<body>
+    <!-- 导航栏容器 -->
+    <div id="navbar-container"></div>
+
+    <!-- 主内容区 -->
+    <div class="main-content">
+        <!-- 面包屑导航 -->
+        <div class="breadcrumb">
+            <span><a href="dashboard.html" style="text-decoration: none; color: inherit;"><i class="fas fa-home" style="margin-right: 5px;"></i>首页</a></span>
+            <span>运维看板</span>
+        </div>
+
+        <!-- 第一行：数字指标卡片 -->
+        <div class="dashboard-row">
+            <!-- 安全运行天数 -->
+            <div class="stats-card" id="safe-days-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-shield-alt"></i> 安全运行天数</h3>
+                    <button class="btn-expand" title="放大查看"><i class="fas fa-expand-alt"></i></button>
+                </div>
+                <div class="card-content">
+                    <div class="count-display">
+                        <div class="big-number">86<span class="unit">天</span></div>
+                        <div class="count-label">安全运行天数</div>
+                        <div class="count-icon">
+                            <i class="fas fa-clock fa-4x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 非计划停机率 -->
+            <div class="stats-card" id="downtime-rate-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-percentage"></i> 非计划停机率</h3>
+                    <button class="btn-expand" title="放大查看"><i class="fas fa-expand-alt"></i></button>
+                </div>
+                <div class="card-content">
+                    <div class="count-display">
+                        <div class="big-number">0.56<span class="unit">%</span></div>
+                        <div class="count-label">非计划停机率</div>
+                        <div class="count-icon">
+                            <i class="fas fa-exclamation-triangle fa-4x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 转售后项目数 -->
+            <div class="stats-card" id="transferred-projects-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-exchange-alt"></i> 站点总数</h3>
+                    <button class="btn-expand" title="放大查看"><i class="fas fa-expand-alt"></i></button>
+                </div>
+                <div class="card-content">
+                    <div class="count-display">
+                        <div class="big-number">54</div>
+                        <div class="count-label">站点总数</div>
+                        <div class="count-icon">
+                            <i class="fas fa-project-diagram fa-4x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 本周工单数 -->
+            <div class="stats-card" id="weekly-issues-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-exclamation-circle"></i> 本周工单数</h3>
+                    <button class="btn-expand" title="放大查看"><i class="fas fa-expand-alt"></i></button>
+                </div>
+                <div class="card-content">
+                    <div class="count-display">
+                        <div class="big-number">29</div>
+                        <div class="count-label">本周工单数</div>
+                        <div class="count-icon">
+                            <i class="fas fa-bug fa-4x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 第二行：核心指标卡片 -->
+        <div class="dashboard-row">
+            <!-- 工单问题概况 -->
+            <div class="stats-card" id="issues-count-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-clipboard-list"></i> 工单问题概况</h3>
+                    <button class="btn-expand" title="放大查看"><i class="fas fa-expand-alt"></i></button>
+                </div>
+                <div class="card-content">
+                    <div class="chart-container" id="issues-count-chart"></div>
+                </div>
+            </div>
+            
+            <!-- 本周设备停机时长及停机率 -->
+            <div class="stats-card" id="weekly-downtime-duration-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-power-off"></i> 本周设备停机时长及停机率</h3>
+                    <button class="btn-expand" title="放大查看"><i class="fas fa-expand-alt"></i></button>
+                </div>
+                <div class="card-content">
+                    <div class="chart-container" id="weekly-downtime-duration-chart"></div>
+                </div>
+            </div>
+            
+            <!-- 本周非计划停机站点 -->
+            <div class="stats-card" id="weekly-downtime-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-calendar-week"></i> 本周非计划停机站点</h3>
+                    <button class="btn-expand" title="放大查看"><i class="fas fa-expand-alt"></i></button>
+                </div>
+                <div class="card-content">
+                    <div class="chart-container" id="weekly-downtime-chart"></div>
+                </div>
+            </div>
+
+            <!-- 当前站点运行状态 -->
+            <div class="stats-card" id="site-status-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-signal"></i> 当前站点运行状态</h3>
+                    <button class="btn-expand" title="放大查看"><i class="fas fa-expand-alt"></i></button>
+                </div>
+                <div class="card-content">
+                    <div class="chart-container" id="site-status-chart"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 第三行：数据统计卡片 -->
+        <div class="dashboard-row">
+            <!-- 月度异常数量趋势 -->
+            <div class="stats-card" id="monthly-issues-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-chart-line"></i> 月度异常数量趋势（月/年）</h3>
+                    <button class="btn-expand" title="放大查看"><i class="fas fa-expand-alt"></i></button>
+                </div>
+                <div class="card-content">
+                    <div class="chart-container" id="monthly-issues-chart"></div>
+                </div>
+            </div>
+            
+            <!-- 工单问题类型 -->
+            <div class="stats-card" id="issue-type-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-tags"></i> 工单问题类型</h3>
+                    <button class="btn-expand" title="放大查看"><i class="fas fa-expand-alt"></i></button>
+                </div>
+                <div class="card-content">
+                    <div class="chart-container" id="issue-type-chart"></div>
+                </div>
+            </div>
+            
+            <!-- 近3月非计划停机小时对比 -->
+            <div class="stats-card" id="unplanned-downtime-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-stopwatch"></i> 月度非计划停机小时对比</h3>
+                    <button class="btn-expand" title="放大查看"><i class="fas fa-expand-alt"></i></button>
+                </div>
+                <div class="card-content">
+                    <div class="chart-container" id="unplanned-downtime-chart"></div>
+                </div>
+            </div>
+            
+            <!-- 售后成本费用统计 -->
+            <div class="stats-card" id="cost-analysis-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-coins"></i> 售后成本费用统计</h3>
+                    <button class="btn-expand" title="放大查看"><i class="fas fa-expand-alt"></i></button>
+                </div>
+                <div class="card-content">
+                    <div class="chart-container" id="cost-analysis-chart"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 放大卡片的模态框 -->
+        <div id="expand-modal" class="expand-modal">
+            <div class="expand-modal-content">
+                <div class="expand-modal-header">
+                    <h3 id="expand-modal-title"></h3>
+                    <button class="close-expand-modal">&times;</button>
+                </div>
+                <div class="expand-modal-body">
+                    <div id="expanded-chart-container"></div>
+                </div>
+            </div>
+        </div>
+    </div> <!-- /main-content -->
+
+    <!-- 页面脚本 -->
+    <script src="dashboard-maintenance.js"></script>
+</body>
+</html> 

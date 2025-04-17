@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智慧运维系统 - 能效统计详情</title>
+    <!-- 引入Font Awesome图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 引入ECharts图表库 -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <!-- 引入Moment.js日期处理库 -->
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/locale/zh-cn.js"></script>
+    <!-- 引入通用样式和导航栏模板 -->
+    <script src="navbar-template.js"></script>
+    <link rel="stylesheet" href="statistics.css">
+    <!-- 引入页面专属样式 -->
+    <link rel="stylesheet" href="energy-detail.css">
+</head>
+<body>
+    <!-- 导航栏容器 -->
+    <div id="navbar-container"></div>
+
+    <!-- 主内容区 -->
+    <div class="main-content">
+        <!-- 面包屑导航 -->
+        <div class="breadcrumb">
+            <span><a href="dashboard.html"><i class="fas fa-home" style="margin-right: 5px;"></i>首页</a></span>
+            <span><a href="#">数据分析</a></span>
+            <span><a href="statistics.html">统计对比</a></span>
+            <span>能效统计</span>
+        </div>
+
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <h1><i class="fas fa-bolt"></i> 能效统计详情</h1>
+            <p>查看各类电表能效数据变化情况，支持多维度筛选与自动差值计算</p>
+            <!-- 字段说明按钮 -->
+            <button id="field-info-btn" class="btn btn-icon" title="字段说明"><i class="fas fa-info-circle"></i> 字段说明</button>
+        </div>
+
+        <!-- 筛选区域 -->
+        <div class="filter-section" id="filter-section">
+            <!-- 第一行: 时间筛选和查询按钮 -->
+            <div class="filter-row">
+                <!-- 时间选择 -->
+                <div class="filter-group">
+                    <label>时间范围:</label>
+                    <div class="btn-group time-range-toggle">
+                        <button class="btn btn-time-range active" data-range="7d">近7天</button>
+                        <button class="btn btn-time-range" data-range="30d">近30天</button>
+                        <button class="btn btn-custom-date" title="选择自定义时间范围"><i class="bi bi-calendar3"></i> 自定义</button>
+                    </div>
+                </div>
+                
+                <!-- 时间维度 -->
+                <div class="filter-group">
+                    <label>时间维度:</label>
+                    <div class="btn-group time-dimension-toggle">
+                        <button class="btn btn-time-dimension" data-dimension="hour">小时</button>
+                        <button class="btn btn-time-dimension active" data-dimension="day">天</button>
+                        <button class="btn btn-time-dimension" data-dimension="week">周</button>
+                        <button class="btn btn-time-dimension" data-dimension="month">月</button>
+                    </div>
+                </div>
+                
+                <!-- 查询按钮 (自动右对齐) -->
+                <button id="query-button" class="btn btn-primary"><i class="fas fa-search"></i> 查询</button>
+            </div>
+            
+            <!-- 第二行: 站点选择 -->
+            <div class="filter-row">
+                <!-- 站点选择 -->
+                <div class="filter-group site-select-group">
+                    <label>站点选择:</label>
+                    <div class="select-search-container">
+                        <input type="text" id="site-search" placeholder="搜索站点名称...">
+                        <div class="select-dropdown" id="site-dropdown">
+                            <!-- 站点选项将由JS动态生成 -->
+                        </div>
+                    </div>
+                    <button id="clear-site-select" class="btn" title="清空选择">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="filter-row">
+                <div class="filter-group" style="width: 100%;">
+                    <div class="selected-items" id="selected-sites">
+                        <!-- 已选站点标签将由JS动态生成 -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 第三行: 电表类型 -->
+            <div class="filter-row">
+                <!-- 电表类型选择 -->
+                <div class="filter-group">
+                    <label>电表类型:</label>
+                    <div class="meter-type-toggle">
+                        <button class="btn-meter-type active" data-meter-type="main">站点关口表</button>
+                        <button class="btn-meter-type" data-meter-type="storage">储能系统并网点电表</button>
+                        <button class="btn-meter-type" data-meter-type="charging">充电桩并网点电表</button>
+                        <button class="btn-meter-type" data-meter-type="photovoltaic">光伏电表</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 第四行: 字段选择 -->
+            <div class="filter-row">
+                <!-- 字段选择 -->
+                <div class="filter-group" style="width: 100%;">
+                    <label>点位选择:</label>
+                    <div class="field-checkboxes">
+                        <label class="field-checkbox"><input type="checkbox" name="fields" value="positive" checked> 正向有功电能</label>
+                        <label class="field-checkbox"><input type="checkbox" name="fields" value="negative" checked> 反向有功电能</label>
+                        <label class="field-checkbox"><input type="checkbox" name="fields" value="tip_pos" checked> 尖电能(正向)</label>
+                        <label class="field-checkbox"><input type="checkbox" name="fields" value="tip_neg" checked> 尖电能(反向)</label>
+                        <label class="field-checkbox"><input type="checkbox" name="fields" value="peak_pos" checked> 峰电能(正向)</label>
+                        <label class="field-checkbox"><input type="checkbox" name="fields" value="peak_neg" checked> 峰电能(反向)</label>
+                        <label class="field-checkbox"><input type="checkbox" name="fields" value="flat_pos" checked> 平电能(正向)</label>
+                        <label class="field-checkbox"><input type="checkbox" name="fields" value="flat_neg" checked> 平电能(反向)</label>
+                        <label class="field-checkbox"><input type="checkbox" name="fields" value="valley_pos" checked> 谷电能(正向)</label>
+                        <label class="field-checkbox"><input type="checkbox" name="fields" value="valley_neg" checked> 谷电能(反向)</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 数据展示区 -->
+        <div class="section-card energy-data-section" id="energy-data-section">
+            <div class="section-header">
+                <h2><i class="bi bi-graph-up"></i> 电表差值数据</h2>
+                <div class="section-actions">
+                    <button class="btn btn-icon btn-switch-view" title="切换视图"><i class="fas fa-table"></i></button>
+                    <button class="btn btn-icon btn-export" title="导出数据"><i class="fas fa-download"></i></button>
+                </div>
+            </div>
+            <div class="section-content">
+                <!-- 图表容器 -->
+                <div class="chart-container" id="energy-chart"></div>
+                <!-- 表格容器 (默认隐藏) -->
+                <div class="table-container" id="energy-table" style="display: none;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>时间</th>
+                                <th>站点名称</th>
+                                <th>电表类型</th>
+                                <th>正向有功差值 (kWh)</th>
+                                <th>反向有功差值 (kWh)</th>
+                                <th>正向尖电能 (kWh)</th>
+                                <th>反向尖电能 (kWh)</th>
+                                <th>正向峰电能 (kWh)</th>
+                                <th>反向峰电能 (kWh)</th>
+                                <th>正向平电能 (kWh)</th>
+                                <th>反向平电能 (kWh)</th>
+                                <th>正向谷电能 (kWh)</th>
+                                <th>反向谷电能 (kWh)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- 表格数据将由JS动态填充 -->
+                            <tr><td colspan="13" class="text-center">暂无数据</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- 分页器 -->
+                <div class="pagination" id="table-pagination">
+                    <button class="btn btn-page" data-page="prev"><i class="fas fa-chevron-left"></i></button>
+                    <span class="page-info">第 <span class="current-page">1</span> 页 / 共 <span class="total-pages">1</span> 页</span>
+                    <button class="btn btn-page" data-page="next"><i class="fas fa-chevron-right"></i></button>
+                </div>
+            </div>
+        </div>
+
+    </div> <!-- /main-content -->
+
+    <!-- 自定义日期模态框 -->
+    <div id="custom-date-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>选择自定义时间范围</h3>
+                <button id="close-custom-date" class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="custom-start-date">开始日期:</label>
+                    <input type="date" id="custom-start-date">
+                </div>
+                <div class="form-group">
+                    <label for="custom-end-date">结束日期:</label>
+                    <input type="date" id="custom-end-date">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="cancel-custom-date" class="btn btn-secondary">取消</button>
+                <button id="confirm-custom-date" class="btn btn-primary">确认</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 字段说明模态框 -->
+    <div id="field-info-modal" class="modal">
+        <div class="modal-content modal-lg">
+            <div class="modal-header">
+                <h3>字段说明</h3>
+                <button id="close-field-info" class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <h4><i class="bi bi-bar-chart-line"></i> 分析字段说明</h4>
+                <dl>
+                    <dt>正向有功电能 (kWh)</dt>
+                    <dd>电网向用户输送的有功电能。</dd>
+                    <dt>反向有功电能 (kWh)</dt>
+                    <dd>用户向电网输送的有功电能（如光伏发电上网）。</dd>
+                    <dt>尖/峰/平/谷电能 (kWh)</dt>
+                    <dd>根据当地分时电价政策，在不同时段（尖、峰、平、谷）累计的有功电能（区分正向和反向）。用于计算分时电费。</dd>
+                </dl>
+
+                <h4><i class="bi bi-clock-history"></i> 时间维度说明</h4>
+                <p>选择不同的时间维度，图表和表格将按对应的时间粒度（时、日、周、月）聚合展示数据。</p>
+
+                <h4><i class="bi bi-speedometer2"></i> 电表类型说明</h4>
+                <ul>
+                    <li><strong>站点关口表:</strong> 计量整个站点与电网交互总电能的电表。</li>
+                    <li><strong>储能并网表:</strong> 计量储能系统与电网/负载之间交互电能的电表。</li>
+                    <li><strong>充电桩并网表:</strong> 计量充电桩群与电网交互电能的电表。</li>
+                    <li><strong>光伏电表:</strong> 计量光伏发电系统发电量的电表。</li>
+                </ul>
+                <hr>
+                <p><strong>注意:</strong> 如果在筛选或数据展示中没有看到您期望的电表，这通常意味着该站点下尚未配置相应类型的电表信息。</p>
+            </div>
+            <div class="modal-footer">
+                <button id="close-field-info-btn" class="btn btn-primary">我知道了</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页面脚本 -->
+    <script src="energy-detail.js"></script>
+</body>
+</html>

@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>参数校验总览 - 智慧运维系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- 引入外部CSS文件 -->
+    <link rel="stylesheet" href="parameter-validation.css">
+    <!-- 引入导航栏模板JS -->
+    <script src="navbar-template.js"></script>
+    <!-- 引入Chart.js图表库 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- 导航栏将由JS注入 -->
+    <div id="navbar-container"></div>
+
+    <div class="main-content">
+        <!-- 面包屑导航 -->
+        <ul class="breadcrumb">
+            <li class="breadcrumb-item"><a href="index.html">首页</a></li>
+            <li class="breadcrumb-item"><a href="#">工具平台</a></li>
+            <li class="breadcrumb-item"><a href="maintenance-tools.html">维护工具</a></li>
+            <li class="breadcrumb-item active">参数校验</li>
+        </ul>
+
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <h1 class="page-title">参数校验总览</h1>
+            <div class="page-actions">
+                <button class="btn btn-primary" id="triggerValidationBtn">
+                    <i class="fas fa-sync-alt"></i> 立即触发参数校验
+                </button>
+            </div>
+        </div>
+
+        <!-- 总览卡片区域 -->
+        <div class="overview-container">
+            <div class="overview-cards">
+                <div class="card">
+                    <div class="card-icon normal-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-value" id="normalDevices">342</div>
+                        <div class="card-title">正常设备数量</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-icon error-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-value" id="abnormalDevices">26</div>
+                        <div class="card-title">异常设备数量</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-icon time-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-value" id="lastCheckTime">2023-09-25 14:30:45</div>
+                        <div class="card-title">最近一次校验时间</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-icon update-icon">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-value" id="lastUpdateDate">今日已更新</div>
+                        <div class="card-title">更新状态</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 筛选条件区域 -->
+        <div class="filter-container">
+            <div class="filter-header">
+                <h2>筛选条件</h2>
+                <div class="filter-toggle">
+                    <i class="fas fa-chevron-up"></i>
+                </div>
+            </div>
+            <div class="filter-body">
+                <div class="filter-row">
+                    <div class="filter-item">
+                        <label>站点名称</label>
+                        <input type="text" id="siteSearchInput" class="filter-search-input" placeholder="搜索站点...">
+                        <select id="siteSelect">
+                            <option value="">全部站点</option>
+                            <option value="site1">清安储能电站A区</option>
+                            <option value="site2">清安储能电站B区</option>
+                            <option value="site3">沿海风电储能站</option>
+                            <option value="site4">城市快充站东区</option>
+                            <option value="site5">高速公路充电站</option>
+                        </select>
+                    </div>
+                    <div class="filter-item">
+                        <label>设备类型</label>
+                        <input type="text" id="deviceTypeSearchInput" class="filter-search-input" placeholder="搜索类型...">
+                        <select id="deviceTypeSelect">
+                            <option value="">全部类型</option>
+                            <option value="storage">储能柜</option>
+                            <option value="charger">充电桩</option>
+                        </select>
+                    </div>
+                    <div class="filter-item">
+                        <label>设备编号</label>
+                        <input type="text" id="deviceIdInput" placeholder="请输入设备编号">
+                    </div>
+                    <div class="filter-item">
+                        <label>校验状态</label>
+                        <input type="text" id="statusSearchInput" class="filter-search-input" placeholder="搜索状态...">
+                        <select id="statusSelect">
+                            <option value="">全部状态</option>
+                            <option value="normal">正常</option>
+                            <option value="error">异常</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="filter-actions">
+                    <button class="btn btn-primary" id="searchBtn">
+                        <i class="fas fa-search"></i> 查询
+                    </button>
+                    <button class="btn btn-outline" id="resetBtn">
+                        <i class="fas fa-redo"></i> 重置
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 结果展示区域 -->
+        <div class="result-container">
+            <div class="result-header">
+                <div class="result-summary">
+                    <span>校验结果：共 <span id="totalCount">0</span> 条记录，其中异常 <span id="errorCount" class="text-danger">0</span> 条</span>
+                </div>
+                <div class="result-actions">
+                    <button class="btn btn-outline btn-sm" id="refreshBtn">
+                        <i class="fas fa-sync-alt"></i> 刷新
+                    </button>
+                    <button class="btn btn-primary btn-sm" id="exportBtn">
+                        <i class="fas fa-download"></i> 导出结果
+                    </button>
+                </div>
+            </div>
+            <div class="result-table-wrapper">
+                <table class="result-table">
+                    <thead>
+                        <tr>
+                            <th class="sortable" data-sort="site">站点名称 <i class="fas fa-sort"></i></th>
+                            <th class="sortable" data-sort="type">设备类型 <i class="fas fa-sort"></i></th>
+                            <th class="sortable" data-sort="id">设备编号 <i class="fas fa-sort"></i></th>
+                            <th class="sortable" data-sort="template">使用模板 <i class="fas fa-sort"></i></th>
+                            <th class="sortable" data-sort="status">校验状态 <i class="fas fa-sort"></i></th>
+                            <th class="sortable" data-sort="time">最近校验时间 <i class="fas fa-sort"></i></th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultTableBody">
+                        <!-- 表格内容将通过JavaScript动态生成 -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- 无数据提示 -->
+            <div class="no-data-tip" id="noDataTip">
+                <i class="fas fa-search"></i>
+                <p>暂无校验结果数据，请调整筛选条件后重试</p>
+            </div>
+            
+            <!-- 分页控件 -->
+            <div class="pagination-container">
+                <div class="page-size-selector">
+                    每页显示：
+                    <select id="pageSizeSelect">
+                        <option value="10">10条</option>
+                        <option value="20">20条</option>
+                        <option value="50">50条</option>
+                        <option value="100">100条</option>
+                    </select>
+                </div>
+                <div class="pagination" id="pagination">
+                    <button class="page-btn" data-page="prev">
+                        <i class="fas fa-angle-left"></i>
+                    </button>
+                    <div class="page-numbers" id="pageNumbers">
+                        <!-- 页码按钮将通过JavaScript动态生成 -->
+                    </div>
+                    <button class="page-btn" data-page="next">
+                        <i class="fas fa-angle-right"></i>
+                    </button>
+                </div>
+                <div class="page-info">
+                    当前 <span id="currentPage">1</span>/<span id="totalPages">1</span> 页，共 <span id="totalRecords">0</span> 条记录
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 站点/设备选择弹窗 -->
+    <div class="modal" id="siteDeviceSelectionModal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h3>选择要校验的站点和设备</h3>
+                <button class="close-btn" id="closeSelectionModalBtn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body selection-body">
+                <div class="selection-container">
+                    <h4>选择站点</h4>
+                    <div class="selection-actions">
+                        <button class="btn btn-link btn-sm" id="selectAllSitesBtn">全选</button>
+                        <button class="btn btn-link btn-sm" id="clearAllSitesBtn">清除</button>
+                    </div>
+                    <div class="selection-list" id="siteSelectionList">
+                        <!-- 站点列表将通过JS动态生成 -->
+                    </div>
+                </div>
+                <div class="selection-container">
+                    <h4>选择设备 (<span id="selectedDeviceCount">0</span>)</h4>
+                    <div class="selection-actions">
+                        <button class="btn btn-link btn-sm" id="selectAllDevicesBtn">全选</button>
+                        <button class="btn btn-link btn-sm" id="clearAllDevicesBtn">清除</button>
+                    </div>
+                    <div class="selection-list" id="deviceSelectionList">
+                        <!-- 设备列表将根据选择的站点动态生成 -->
+                        <p class="placeholder-text">请先选择站点以加载设备列表</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="cancelSelectionBtn">取消</button>
+                <button class="btn btn-primary" id="startValidationBtn">开始校验</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 校验进度弹窗 -->
+    <div class="modal" id="validationModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>参数校验进度</h3>
+                <button class="close-btn" id="closeModalBtn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-bar-inner" id="progressBar"></div>
+                    </div>
+                    <div class="progress-text">校验中... <span id="progressPercent">0</span>%</div>
+                </div>
+                <div class="progress-detail">
+                    <div>已校验设备：<span id="validatedCount">0</span>/<span id="totalToValidate">0</span></div>
+                    <div>预计剩余时间：<span id="remainingTime">计算中...</span></div>
+                </div>
+                <div class="validation-result" id="validationResult">
+                    <!-- 校验结果将在完成后显示 -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="cancelValidationBtn">取消</button>
+                <button class="btn btn-primary" id="confirmBtn" disabled>确定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 参数详情对比弹窗 -->
+    <div class="modal" id="parameterDetailModal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h3>参数对比详情 - <span id="detailDeviceID"></span></h3>
+                <button class="close-btn" id="closeDetailModalBtn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="detail-controls">
+                    <label class="checkbox-inline">
+                        <input type="checkbox" id="showAllParamsCheckbox">
+                        显示所有参数（包括匹配项）
+                    </label>
+                </div>
+                <div class="comparison-table-container">
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>参数名称</th>
+                                <th>模板值 (预期)</th>
+                                <th>设备值 (实际)</th>
+                                <th>状态</th>
+                            </tr>
+                        </thead>
+                        <tbody id="parameterComparisonBody">
+                            <!-- 参数对比结果将通过JS动态生成 -->
+                        </tbody>
+                    </table>
+                     <div class="no-data-tip" id="noComparisonDataTip" style="display: none; padding: 20px;">
+                        <i class="fas fa-info-circle"></i>
+                        <p>未发现参数差异，或无参数进行对比。</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="closeDetailModalFooterBtn">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入页面JS脚本 -->
+    <script src="parameter-validation.js"></script>
+</body>
+</html> 

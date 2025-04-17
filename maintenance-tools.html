@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>维护工具 - 智慧运维系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- 引入外部CSS文件 -->
+    <link rel="stylesheet" href="maintenance-tools.css">
+    <!-- 引入导航栏模板JS -->
+    <script src="navbar-template.js"></script>
+</head>
+<body>
+    <!-- 导航栏将由JS注入 -->
+    <div id="navbar-container"></div>
+
+    <div class="main-content">
+        <!-- 面包屑导航 -->
+        <ul class="breadcrumb">
+            <li class="breadcrumb-item"><a href="index.html">首页</a></li>
+            <li class="breadcrumb-item"><a href="#">运维管理</a></li>
+            <li class="breadcrumb-item active">维护工具</li>
+        </ul>
+
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <h1 class="page-title">维护工具</h1>
+        </div>
+
+        <!-- 工具卡片网格 -->
+        <div class="tools-grid">
+            <!-- 远程OTA升级 -->
+            <div class="tool-card">
+                <div class="tool-icon">
+                    <i class="fas fa-cloud-download-alt"></i>
+                </div>
+                <h2 class="tool-title">远程OTA升级</h2>
+                <p class="tool-description">为终端设备提供无线固件更新和软件升级服务，支持远程批量推送和进度监控。</p>
+                <button class="tool-button">立即进入</button>
+            </div>
+
+            <!-- 清安知识库 -->
+            <a href="knowledge-base.html" class="tool-card-link">
+                <div class="tool-card">
+                    <div class="tool-icon">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <h2 class="tool-title">清安知识库</h2>
+                    <p class="tool-description">接入了deepseek r1，整合设备手册、故障处理指南和常见问题解答，提供高效的运维知识检索与分享。</p>
+                    <button class="tool-button">立即进入</button>
+                </div>
+            </a>
+
+            <!-- 参数校验 -->
+            <a href="parameter-validation.html" class="tool-card-link">
+                <div class="tool-card">
+                    <div class="tool-icon">
+                        <i class="fas fa-sliders-h"></i>
+                    </div>
+                    <h2 class="tool-title">参数校验</h2>
+                    <p class="tool-description">对重要设备参数进行校验和调整，确保系统处于最佳运行状态，提升设备可靠性。</p>
+                    <button class="tool-button">立即进入</button>
+                </div>
+            </a>
+
+            <!-- 智能诊断 -->
+            <div class="tool-card">
+                <div class="tool-icon">
+                    <i class="fas fa-stethoscope"></i>
+                </div>
+                <h2 class="tool-title">智能诊断</h2>
+                <p class="tool-description">基于AI技术的系统健康分析与故障诊断工具，提供智能化故障预测和解决方案。</p>
+                <button class="tool-button">立即进入</button>
+            </div>
+
+            <!-- 运维报表 -->
+            <div class="tool-card">
+                <div class="tool-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h2 class="tool-title">运维报表</h2>
+                <p class="tool-description">生成各类运维数据报表和分析图表，支持自定义报表内容和格式，便于决策分析。</p>
+                <button class="tool-button">立即进入</button>
+            </div>
+
+            <!-- 扩展区域 -->
+            <div class="coming-soon">
+                <h3>敬请期待更多运维工具</h3>
+                <p>我们正在开发更多功能强大的维护工具，为您的运维工作提供更全面的支持。</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入页面JS脚本 -->
+    <script src="maintenance-tools.js"></script>
+</body>
+</html> 

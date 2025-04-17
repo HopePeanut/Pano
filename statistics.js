@@ -28,6 +28,26 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (error) {
         console.error("初始化统计对比模块时出错:", error);
     }
+
+    // --- 开始添加：为能效统计详情按钮添加跳转 ---
+    const energyCard = document.getElementById('energy-card');
+    if (energyCard) {
+        const energyDetailsButton = energyCard.querySelector('.btn-details');
+        if (energyDetailsButton) {
+            // 检查是否已有监听器，或者直接覆盖
+            energyDetailsButton.onclick = function() { // 使用 .onclick 可能更简单地覆盖旧监听器
+                console.log("点击能效统计的查看详情按钮，跳转到 energy-detail.html");
+
+                // 执行页面跳转
+                window.location.href = 'energy-detail.html';
+            };
+        } else {
+            console.warn("在 #energy-card 中未找到 .btn-details 按钮。");
+        }
+        } else {
+        console.warn("未找到 #energy-card 元素。");
+    }
+    // --- 结束添加 ---
 });
 
 // ==================================
@@ -368,15 +388,89 @@ function getDowntimeChartOption(data) {
     };
 }
 
+/**
+ * 获取告警统计图表配置 (新增)
+ * @param {Array} data - generateAlarmData 处理后的数据
+ * @param {string} dimension - 当前排名维度 ('site' 或 'alarmName')
+ * @returns {object} ECharts option 配置
+ */
+function getAlarmChartOption(data, dimension = 'site') {
+    const axisName = dimension === 'site' ? '站点名称' : '告警名称';
+    return {
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: { type: 'shadow' }, // 柱状图用阴影指示器
+            formatter: (params) => {
+                if (!params || params.length === 0) return '';
+                const p = params[0];
+                const nameLabel = dimension === 'site' ? '站点' : '告警名称';
+                // 使用 p.marker 获取图例颜色标记
+                return `${nameLabel}: ${p.name}<br/>${p.marker}告警次数: ${p.value}`;
+            }
+        },
+        grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '15%', // 为旋转的X轴标签留出更多空间
+            containLabel: true
+        },
+        xAxis: {
+            type: 'category',
+            data: data.map(item => item.name),
+            axisLabel: {
+                interval: 0, // 显示所有标签
+                rotate: 30, // 旋转标签防止重叠
+                fontSize: 10, // 标签可能变长，稍微缩小字号
+                formatter: function (value) { // 防止标签过长，进行截断
+                    return value.length > 8 ? value.substring(0, 8) + '...' : value;
+                }
+            }
+        },
+        yAxis: {
+            type: 'value',
+            name: '告警次数',
+            splitLine: { lineStyle: { type: 'dashed', color: '#eee' } } // 添加网格线
+        },
+             series: [
+            {
+                name: '告警次数',
+                type: 'bar',
+                barMaxWidth: 40,
+                itemStyle: {
+                    // 使用醒目的颜色，例如橙红色渐变
+                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                        { offset: 0, color: '#FFA07A' }, // LightSalmon
+                        { offset: 1, color: '#FF7F50' }  // Coral
+                    ])
+                },
+                label: {
+                    show: true, // 在柱子顶部显示数值
+                    position: 'top',
+                    formatter: '{c}', // 显示数值本身
+                    color: '#333',
+                    fontSize: 10
+                },
+                emphasis: {
+                    focus: 'series',
+                    itemStyle: {
+                         color: '#E9967A' // DarkSalmon，高亮颜色
+                     }
+                },
+                data: data.map(item => item.count)
+            }
+        ]
+    };
+}
+
 // ==================================
-// 表格渲染函数 (更新以反映排名)
+// 表格渲染函数 (更新以反映排名，支持 'all')
 // ==================================
 
 /**
- * 渲染健康评分表格 (增加排名列)
+ * 渲染健康评分表格 (增加排名列, 支持 'all')
  * @param {HTMLElement} tableContainer - 表格容器元素
- * @param {Array} data - 经过排序和切片的 Top/Last 10 数据
- * @param {string} rankType - 'top' 或 'last'
+ * @param {Array} data - 经过排序的数据 (可能是 Top 10, Last 10, 或全部)
+ * @param {string} rankType - 'top', 'last', 或 'all'
  * @param {number} fullDataLength - 完整数据长度，用于计算 Last 10 的排名
  */
 function renderHealthScoreTable(tableContainer, data, rankType = 'top', fullDataLength = data.length) {
@@ -392,9 +486,13 @@ function renderHealthScoreTable(tableContainer, data, rankType = 'top', fullData
             </thead>
             <tbody>
     `;
+    if (data.length === 0) {
+        tableHTML += `<tr><td colspan="4" style="text-align:center;">暂无数据</td></tr>`;
+    }
     data.forEach((item, index) => {
         // 根据 rankType 计算正确排名
-        const rank = rankType === 'top' ? index + 1 : fullDataLength - data.length + index + 1;
+        // 注意: 'all' 模式下，data 就是 fullData (已排序)，所以直接用 index+1 即可
+        const rank = rankType === 'last' ? fullDataLength - data.length + index + 1 : index + 1;
         const trendIcon = item.trend[item.trend.length - 1] > item.trend[0]
             ? '<i class="fas fa-arrow-up" style="color: var(--success-color);"></i>'
             : item.trend[item.trend.length - 1] < item.trend[0]
@@ -414,14 +512,17 @@ function renderHealthScoreTable(tableContainer, data, rankType = 'top', fullData
 }
 
 /**
- * 渲染非计划停机表格 (移除granularity参数)
+ * 渲染非计划停机表格 (支持 'all')
  * @param {HTMLElement} tableContainer - 表格容器元素
- * @param {Array} data - 经过排序和切片的 Top/Last 10 数据
- * @param {string} rankType - 'top' (停机最多) 或 'last' (停机最少)
+ * @param {Array} data - 经过排序的数据
+ * @param {string} rankType - 'top', 'last', 或 'all'
  */
 function renderDowntimeTable(tableContainer, data, rankType = 'top') {
-    const nameHeader = '站点名称'; // 固定表头
-    const rankHeader = rankType === 'top' ? '停机排名 (高->低)' : '停机排名 (低->高)';
+    const nameHeader = '站点名称';
+    let rankHeader = '排名'; // 默认排名表头
+    if (rankType === 'top') rankHeader = '停机排名 (高->低)';
+    else if (rankType === 'last') rankHeader = '停机排名 (低->高)';
+
     let tableHTML = `
         <table>
             <thead>
@@ -435,8 +536,11 @@ function renderDowntimeTable(tableContainer, data, rankType = 'top') {
             </thead>
             <tbody>
     `;
+    if (data.length === 0) {
+        tableHTML += `<tr><td colspan="5" style="text-align:center;">暂无数据</td></tr>`;
+    }
     data.forEach((item, index) => {
-        const rank = index + 1; // 因为数据已经按需排序并切片
+        const rank = index + 1; // 排名直接基于传入的已排序数组
         const abnormalClass = item.isAbnormal ? 'class="abnormal-row"' : '';
         const statusText = item.isAbnormal ? '关注' : '正常';
         const statusColor = item.isAbnormal ? 'var(--warning-color)' : 'var(--success-color)';
@@ -475,34 +579,34 @@ function renderDowntimeTable(tableContainer, data, rankType = 'top') {
 }
 
 // ==================================
-// 模块初始化函数 (重大修改 - 添加排名逻辑)
+// 模块初始化函数 (更新 - 支持 'all' 排名)
 // ==================================
 
 /**
- * 初始化健康评分模块
+ * 初始化健康评分模块 (支持 'all')
  */
 function initHealthScoreModule() {
-    const cardId = 'health-score-card'; // 定义卡片ID
+    const cardId = 'health-score-card';
     const chartContainer = document.getElementById('health-score-chart');
     const tableContainer = document.getElementById('health-score-table');
     const card = document.getElementById(cardId);
+    // !! 修改选择器以包含新的 'all' 按钮 !!
     const rankToggleBtns = card?.querySelectorAll('.rank-toggle .btn-rank');
     const timeRangeToggleBtns = card?.querySelectorAll('.time-range-toggle .btn-time-range');
     const customDateBtn = card?.querySelector('.btn-custom-date');
 
     if (!chartContainer || !tableContainer || !card || !rankToggleBtns || rankToggleBtns.length === 0 || !timeRangeToggleBtns || timeRangeToggleBtns.length === 0 || !customDateBtn) {
         console.error(`${cardId} 所需元素未找到！`);
-        return;
-    }
+            return;
+        }
 
     charts.healthScore = echarts.init(chartContainer);
-    let currentRankType = 'top';
-    let currentTimeRange = 'all'; // 包含 'all', 'day', ..., 'custom'
+    let currentRankType = 'top'; // 默认 Top 10
+    let currentTimeRange = 'all';
     let currentStartDate = null;
     let currentEndDate = null;
     let fullData = [];
 
-    // 定义加载数据的函数
     const loadHealthScoreData = (rankType = currentRankType, timeRange = currentTimeRange, startDate = currentStartDate, endDate = currentEndDate) => {
         console.log(`加载健康评分数据，排名: ${rankType}, 时间范围: ${timeRange}${startDate ? ` (${startDate} to ${endDate})` : ''}`);
         currentRankType = rankType;
@@ -510,51 +614,46 @@ function initHealthScoreModule() {
         currentStartDate = startDate;
         currentEndDate = endDate;
 
-        // 1. 生成数据
         fullData = generateMockHealthScoreData(timeRange, startDate, endDate);
         const fullDataLength = fullData.length;
 
-        // 2. 排序
+        let displayData;
+        // 根据 rankType 排序和切片
         if (rankType === 'top') {
             fullData.sort((a, b) => b.score - a.score);
-            } else {
+            displayData = fullData.slice(0, 10);
+        } else if (rankType === 'last') {
             fullData.sort((a, b) => a.score - b.score);
+            displayData = fullData.slice(0, 10); // Last 10 也是取排序后的前10个
+        } else { // rankType === 'all'
+            fullData.sort((a, b) => b.score - a.score); // 全部数据默认按降序排
+            displayData = fullData; // 不切片
         }
 
-        // 3. 切片
-        const displayData = fullData.slice(0, 10);
-
-        // 4. 更新图表和表格
+        // 更新图表和表格
+        // 注意：当 displayData 过多时，图表可能变得拥挤
         const chartOption = getHealthScoreChartOption(displayData);
         let titleText = `站点健康评分 (${getDisplayTimeRangeText(timeRange, startDate, endDate)})`;
         chartOption.title = { text: titleText, left: 'center', textStyle: { fontSize: 16 } };
         charts.healthScore.setOption(chartOption, true);
         renderHealthScoreTable(tableContainer, displayData, rankType, fullDataLength);
 
-        // 6. 更新按钮状态
+        // 更新按钮状态
         rankToggleBtns.forEach(btn => {
             btn.classList.toggle('active', btn.dataset.rank === rankType);
         });
         timeRangeToggleBtns.forEach(btn => {
-            // 自定义日期时不激活任何预设按钮
             btn.classList.toggle('active', btn.dataset.range === timeRange && timeRange !== 'custom');
         });
-        // 如果是自定义时间，给日历按钮添加激活样式 (可选)
         customDateBtn.classList.toggle('active', timeRange === 'custom');
     };
 
-    // 将加载函数添加到全局更新器对象
-    moduleUpdaters['health-score-card'] = loadHealthScoreData;
+    moduleUpdaters[cardId] = loadHealthScoreData;
+    loadHealthScoreData('top', 'all'); // 初始加载 Top 10
 
-    // 初始加载
-    loadHealthScoreData('top', 'all');
+    window.addEventListener('resize', () => { if (charts.healthScore) charts.healthScore.resize(); });
 
-    // 窗口大小调整
-    window.addEventListener('resize', () => {
-        if (charts.healthScore) charts.healthScore.resize();
-    });
-
-    // 排名切换
+    // 排名切换 (包括 'all' 按钮)
     rankToggleBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             const rankType = btn.dataset.rank;
@@ -564,12 +663,12 @@ function initHealthScoreModule() {
         });
     });
 
-    // 预设时间范围切换
+    // 时间范围切换 (逻辑不变)
     timeRangeToggleBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             const timeRange = btn.dataset.range;
             if (timeRange !== currentTimeRange) {
-                loadHealthScoreData(currentRankType, timeRange, null, null); // 清空自定义日期
+                loadHealthScoreData(currentRankType, timeRange, currentStartDate, currentEndDate);
             }
         });
     });
@@ -588,14 +687,14 @@ function initHealthScoreModule() {
 }
 
 /**
- * 初始化非计划停机模块
+ * 初始化非计划停机模块 (支持 'all')
  */
 function initDowntimeModule() {
-    const cardId = 'downtime-card'; // 定义卡片ID
+    const cardId = 'downtime-card';
     const chartContainer = document.getElementById('downtime-chart');
     const tableContainer = document.getElementById('downtime-table');
     const card = document.getElementById(cardId);
-    const rankToggleBtns = card?.querySelectorAll('.rank-toggle .btn-rank');
+    const rankToggleBtns = card?.querySelectorAll('.rank-toggle .btn-rank'); // 选择所有排名按钮
     const timeRangeToggleBtns = card?.querySelectorAll('.time-range-toggle .btn-time-range');
     const customDateBtn = card?.querySelector('.btn-custom-date');
 
@@ -611,7 +710,6 @@ function initDowntimeModule() {
     let currentEndDate = null;
     let fullData = [];
 
-    // 定义加载数据的函数
     const loadDowntimeData = (rankType = currentRankType, timeRange = currentTimeRange, startDate = currentStartDate, endDate = currentEndDate) => {
         console.log(`加载停机数据，排名: ${rankType}, 时间范围: ${timeRange}${startDate ? ` (${startDate} to ${endDate})` : ''}`);
         currentRankType = rankType;
@@ -619,27 +717,27 @@ function initDowntimeModule() {
         currentStartDate = startDate;
         currentEndDate = endDate;
 
-        // 1. 生成数据
         fullData = generateMockDowntimeData(timeRange, startDate, endDate);
 
-        // 2. 排序
+        let displayData;
         if (rankType === 'top') {
             fullData.sort((a, b) => b.downtimeHours - a.downtimeHours);
-        } else {
-            fullData.sort((a, b) => a.downtimeHours - b.downtimeHours);
+            displayData = fullData.slice(0, 10);
+        } else if (rankType === 'last') {
+            fullData.sort((a, b) => a.downtimeHours - b.downtimeHours); // 按升序排
+            displayData = fullData.slice(0, 10);
+        } else { // rankType === 'all'
+            fullData.sort((a, b) => b.downtimeHours - a.downtimeHours); // 全部默认按降序排
+            displayData = fullData;
         }
 
-        // 3. 切片
-        const displayData = fullData.slice(0, 10);
-
-        // 4. 更新图表和表格
         const chartOption = getDowntimeChartOption(displayData);
         let titleText = `非计划停机率 (${getDisplayTimeRangeText(timeRange, startDate, endDate)})`;
         chartOption.title = { text: titleText, left: 'center', textStyle: { fontSize: 16 } };
         charts.downtime.setOption(chartOption, true);
         renderDowntimeTable(tableContainer, displayData, rankType);
 
-        // 6. 更新按钮状态
+        // 更新按钮状态
         rankToggleBtns.forEach(btn => {
             btn.classList.toggle('active', btn.dataset.rank === rankType);
         });
@@ -649,18 +747,12 @@ function initDowntimeModule() {
         customDateBtn.classList.toggle('active', timeRange === 'custom');
     };
 
-    // 将加载函数添加到全局更新器对象
-    moduleUpdaters['downtime-card'] = loadDowntimeData;
-
-    // 初始加载
+    moduleUpdaters[cardId] = loadDowntimeData;
     loadDowntimeData('top', 'all');
 
-    // 窗口大小调整
-    window.addEventListener('resize', () => {
-        if (charts.downtime) charts.downtime.resize();
-    });
+    window.addEventListener('resize', () => { if (charts.downtime) charts.downtime.resize(); });
 
-    // 排名切换
+    // 排名切换 (包括 'all')
     rankToggleBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             const rankType = btn.dataset.rank;
@@ -670,12 +762,12 @@ function initDowntimeModule() {
         });
     });
 
-    // 预设时间范围切换
+    // 时间范围切换 (逻辑不变)
     timeRangeToggleBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             const timeRange = btn.dataset.range;
             if (timeRange !== currentTimeRange) {
-                loadDowntimeData(currentRankType, timeRange, null, null);
+                loadDowntimeData(currentRankType, timeRange, currentStartDate, currentEndDate);
             }
         });
     });
@@ -693,172 +785,168 @@ function initDowntimeModule() {
     });
 }
 
-// --- 其他模块的初始化函数 (后续添加) ---
+// --- 能耗和告警模块的修改逻辑类似 ---
+
+/**
+ * 初始化能效统计模块 (支持 'all')
+ */
 function initEnergyModule() {
-    console.log("初始化能耗统计模块");
     const cardId = 'energy-card';
     const card = document.getElementById(cardId);
-    if (!card) {
-        console.error(`未找到卡片元素: ${cardId}`);
-        return;
-    }
+    if (!card) { console.error(`未找到卡片元素: ${cardId}`); return; }
     const chartContainer = card.querySelector('.chart-container');
     const tableContainer = card.querySelector('.table-container');
-    if (!chartContainer || !tableContainer) {
-        console.error('未找到能耗统计的图表或表格容器');
-        return;
-    }
-
-    // 初始化 ECharts 实例
-    try {
-        charts.energy = echarts.init(chartContainer);
-    } catch (e) {
-        console.error("初始化能耗图表失败:", e);
-        return;
-    }
-
-    // 定义能耗数据加载函数 (此函数将注册到 moduleUpdaters)
-    const loadEnergyData = (rankType = null, timeRange = null, startDate = null, endDate = null) => {
-        const currentRank = rankType || card.querySelector('.rank-toggle .btn-rank.active')?.dataset.rank || 'top';
-        const currentTimeRange = timeRange || card.querySelector('.time-range-toggle .btn-time-range.active')?.dataset.range || 'all';
-
-        // 移除对未定义的 updateButtonStates 的调用
-        // updateButtonStates(card, currentRank, currentTimeRange);
-
-        // --- 新增：直接在此处更新按钮状态 --- 
-        const rankToggleBtns = card.querySelectorAll('.rank-toggle .btn-rank');
-        const timeRangeToggleBtns = card.querySelectorAll('.time-range-toggle .btn-time-range');
-        const customDateBtn = card.querySelector('.btn-custom-date');
-
-        rankToggleBtns.forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.rank === currentRank);
-        });
-        timeRangeToggleBtns.forEach(btn => {
-            // 自定义日期时不激活任何预设按钮
-            btn.classList.toggle('active', btn.dataset.range === currentTimeRange && currentTimeRange !== 'custom');
-        });
-        if (customDateBtn) { // 检查按钮是否存在
-             customDateBtn.classList.toggle('active', currentTimeRange === 'custom');
-        }
-        // --- 按钮状态更新结束 --- 
-
-        // 获取模拟数据
-        const data = generateEnergyData(currentRank, currentTimeRange, startDate, endDate);
-
-        // 更新图表
-        if (charts.energy) {
-            charts.energy.setOption(getEnergyChartOption(data), true);
-        }
-
-        // 更新表格
-        tableContainer.innerHTML = generateEnergyTable(data);
-
-        console.log(`能耗数据加载完成: ${cardId}, 排名: ${currentRank}, 时间范围: ${currentTimeRange}`);
-    };
-
-    // 将加载函数注册到全局更新器中
-    moduleUpdaters[cardId] = loadEnergyData;
-
-    // 初始加载数据
-    loadEnergyData('top', 'all');
-
-    // --- 新增：为能耗卡片的按钮绑定事件 --- 
-    const rankToggleBtns = card.querySelectorAll('.rank-toggle .btn-rank');
+    const rankToggleBtns = card.querySelectorAll('.rank-toggle .btn-rank'); // Updated selector
     const timeRangeToggleBtns = card.querySelectorAll('.time-range-toggle .btn-time-range');
     const customDateBtn = card.querySelector('.btn-custom-date');
 
-    // 排名切换事件
+    if (!chartContainer || !tableContainer || !rankToggleBtns || rankToggleBtns.length === 0 || !timeRangeToggleBtns || !customDateBtn) {
+        console.error(`能耗卡片 (${cardId}) 部分必需元素未找到!`); return;
+    }
+
+    try { charts.energy = echarts.init(chartContainer); } catch (e) { /* ... */ }
+
+    let currentRankType = 'top';
+    let currentTimeRange = 'all';
+    let currentStartDate = null;
+    let currentEndDate = null;
+
+    const loadEnergyData = (rankType = currentRankType, timeRange = currentTimeRange, startDate = currentStartDate, endDate = currentEndDate) => {
+        currentRankType = rankType;
+        currentTimeRange = timeRange;
+        currentStartDate = startDate;
+        currentEndDate = endDate;
+
+        let fullData = generateEnergyData(timeRange, startDate, endDate); // Generate all data first
+
+        let displayData;
+        if (rankType === 'top') {
+            fullData.sort((a, b) => b.charge - a.charge); // Sort by charge desc
+            displayData = fullData.slice(0, 10);
+        } else if (rankType === 'last') {
+            fullData.sort((a, b) => a.charge - b.charge); // Sort by charge asc
+            displayData = fullData.slice(0, 10);
+        } else { // rankType === 'all'
+            fullData.sort((a, b) => b.charge - a.charge); // Default sort for 'all'
+            displayData = fullData;
+        }
+
+        // Update buttons state
+        rankToggleBtns.forEach(btn => { btn.classList.toggle('active', btn.dataset.rank === rankType); });
+        timeRangeToggleBtns.forEach(btn => { btn.classList.toggle('active', btn.dataset.range === timeRange && timeRange !== 'custom'); });
+        if (customDateBtn) { customDateBtn.classList.toggle('active', timeRange === 'custom'); }
+
+        // Update chart & table
+        if (charts.energy) { charts.energy.setOption(getEnergyChartOption(displayData), true); }
+        tableContainer.innerHTML = generateEnergyTable(displayData, rankType); // Pass rankType to table render
+
+        console.log(`能耗数据加载完成: ${cardId}, 排名: ${rankType}, 时间范围: ${currentTimeRange}`);
+    };
+
+    moduleUpdaters[cardId] = loadEnergyData;
+    loadEnergyData('top', 'all');
+
+    // Event listeners for rank buttons (including 'all')
     rankToggleBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             const rankType = btn.dataset.rank;
-            const currentActiveRank = card.querySelector('.rank-toggle .btn-rank.active')?.dataset.rank;
-            if (rankType !== currentActiveRank) {
-                // 注意：这里需要获取当前的时间范围等参数
-                const currentTimeRange = card.querySelector('.time-range-toggle .btn-time-range.active')?.dataset.range || 
-                                     (customDateBtn.classList.contains('active') ? 'custom' : 'all');
-                 // 获取当前的自定义日期 (如果适用)
-                const startDateInput = document.getElementById('custom-start-date');
-                const endDateInput = document.getElementById('custom-end-date');
-                const currentStartDate = currentTimeRange === 'custom' ? startDateInput.value : null;
-                const currentEndDate = currentTimeRange === 'custom' ? endDateInput.value : null;
+            if (rankType !== currentRankType) {
                 loadEnergyData(rankType, currentTimeRange, currentStartDate, currentEndDate);
             }
         });
     });
 
-    // 预设时间范围切换事件
+    // Event listeners for time range buttons
     timeRangeToggleBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             const timeRange = btn.dataset.range;
-            const currentActiveTime = card.querySelector('.time-range-toggle .btn-time-range.active')?.dataset.range;
-             if (timeRange !== currentActiveTime || customDateBtn.classList.contains('active')) {
-                const currentRankType = card.querySelector('.rank-toggle .btn-rank.active')?.dataset.rank || 'top';
-                loadEnergyData(currentRankType, timeRange, null, null); // 切换预设范围时清除自定义日期
+            if (timeRange !== currentTimeRange) {
+                loadEnergyData(currentRankType, timeRange, currentStartDate, currentEndDate);
             }
         });
     });
 
-    // 自定义日期按钮点击事件 (打开模态框)
+    // 自定义日期按钮点击
     if (customDateBtn) {
         customDateBtn.addEventListener('click', () => {
-            currentCardIdForModal = cardId; // 设置全局变量，告知模态框是哪个卡片触发的
-            // 可以选择性地预设日期，或保持模态框的默认/上次选择
-             const endDateInput = document.getElementById('custom-end-date');
-             const startDateInput = document.getElementById('custom-start-date');
-             if (!startDateInput.value || !endDateInput.value) { // 如果为空，设置默认值
-                 const today = new Date();
-                 const weekAgo = new Date(today.getTime() - 6 * 24 * 60 * 60 * 1000);
-                 endDateInput.value = today.toISOString().split('T')[0];
-                 startDateInput.value = weekAgo.toISOString().split('T')[0];
-             }
-            showCustomDateModal(); // 调用显示模态框的函数
+            currentCardIdForModal = cardId;
+            const endDateInput = document.getElementById('custom-end-date');
+            const startDateInput = document.getElementById('custom-start-date');
+            if (!startDateInput.value || !endDateInput.value) { // 如果为空，设置默认值
+                const today = new Date();
+                const weekAgo = new Date(today.getTime() - 6 * 24 * 60 * 60 * 1000);
+                endDateInput.value = today.toISOString().split('T')[0];
+                startDateInput.value = weekAgo.toISOString().split('T')[0];
+            }
+            showCustomDateModal();
         });
     }
-    // --- 事件绑定结束 --- 
 
-    console.log(`能耗统计模块 (${cardId}) 初始化完成`);
+    console.log(`能效统计模块 (${cardId}) 初始化完成 (含 'all')`);
 }
 
+// Helper function for generating energy table (adjust for rankType)
+function generateEnergyTable(data, rankType = 'top') { // Added rankType
+    let tableHtml = `<table class="stats-table">
+                        <thead>
+                            <tr>
+                                <th>排名</th>
+                                <th>站点名称</th>
+                                <th>单位充电量 (kWh)</th>
+                                <th>单位放电量 (kWh)</th>
+                                <th>综合效率 (%)</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+    if (data.length === 0) {
+        tableHtml += `<tr><td colspan="5" style="text-align:center;">暂无数据</td></tr>`;
+    }
+    data.forEach((item, index) => {
+        const rank = index + 1; // Rank is based on the sorted & sliced data
+        tableHtml += `<tr>
+                        <td>${rank}</td>
+                        <td>${item.name}</td>
+                        <td>${item.charge}</td>
+                        <td>${item.discharge}</td>
+                        <td>${item.efficiency}</td>
+                      </tr>`;
+    });
+    tableHtml += `   </tbody>
+                    </table>`;
+    return tableHtml;
+}
+
+/**
+ * 初始化告警统计模块 (支持 'all')
+ */
 function initAlarmModule() {
-    console.log("初始化告警统计模块");
     const cardId = 'alarm-card';
     const card = document.getElementById(cardId);
-    if (!card) {
-        console.error(`未找到卡片元素: ${cardId}`);
-        return;
-    }
+    if (!card) { console.error(`未找到卡片元素: ${cardId}`); return; }
     const chartContainer = card.querySelector('.chart-container');
     const tableContainer = card.querySelector('.table-container');
-    const rankToggleBtns = card.querySelectorAll('.rank-toggle .btn-rank');
+    const rankToggleBtns = card.querySelectorAll('.rank-toggle .btn-rank'); // Updated selector
     const timeRangeToggleBtns = card.querySelectorAll('.time-range-toggle .btn-time-range');
     const customDateBtn = card.querySelector('.btn-custom-date');
-    const rankDimensionBtns = card.querySelectorAll('.rank-dimension-toggle .btn-rank-dim'); // 获取维度按钮
+    const rankDimensionBtns = card.querySelectorAll('.rank-dimension-toggle .btn-rank-dim');
     const filterBtn = card.querySelector('.btn-filter-alarm');
     const filterDropdown = document.getElementById('alarm-filter-dropdown');
     const filterCheckboxes = filterDropdown?.querySelectorAll('input[type="checkbox"]');
     const applyFilterBtn = filterDropdown?.querySelector('.btn-apply-filter');
 
     if (!chartContainer || !tableContainer || !rankToggleBtns || !timeRangeToggleBtns || !customDateBtn || !rankDimensionBtns || !filterBtn || !filterDropdown || !filterCheckboxes || !applyFilterBtn) {
-        console.error(`告警卡片 (${cardId}) 部分必需元素未找到!`);
-        return;
+        console.error(`告警卡片 (${cardId}) 部分必需元素未找到!`); return;
     }
 
     let currentRankType = 'top';
     let currentTimeRange = 'all';
     let currentStartDate = null;
     let currentEndDate = null;
-    let currentDimension = 'site'; // 新增：当前排名维度
-    let currentSelectedTypes = ['提示', '告警', '故障']; // 新增：当前选中的过滤类型
+    let currentDimension = 'site';
+    let currentSelectedTypes = ['提示', '告警', '故障'];
 
-    // 初始化 ECharts 实例
-    try {
-        charts.alarm = echarts.init(chartContainer);
-            } catch (e) {
-        console.error("初始化告警图表失败:", e);
-        return;
-    }
+    try { charts.alarm = echarts.init(chartContainer); } catch (e) { /* ... */ }
 
-    // 定义告警数据加载函数 (更新参数)
     const loadAlarmData = (rankType = currentRankType, timeRange = currentTimeRange, startDate = currentStartDate, endDate = currentEndDate, dimension = currentDimension, selectedTypes = currentSelectedTypes) => {
         currentRankType = rankType;
         currentTimeRange = timeRange;
@@ -869,39 +957,43 @@ function initAlarmModule() {
 
         console.log(`加载告警数据 - 排名:${rankType}, 时间:${timeRange}, 维度:${dimension}, 类型:${selectedTypes.join(',')}`);
 
-        // 更新按钮状态
+        // Update button states (including rank)
         rankToggleBtns.forEach(btn => { btn.classList.toggle('active', btn.dataset.rank === rankType); });
         timeRangeToggleBtns.forEach(btn => { btn.classList.toggle('active', btn.dataset.range === timeRange && timeRange !== 'custom'); });
         if (customDateBtn) { customDateBtn.classList.toggle('active', timeRange === 'custom'); }
-        rankDimensionBtns.forEach(btn => { btn.classList.toggle('active', btn.dataset.dimension === dimension); }); // 更新维度按钮状态
+        rankDimensionBtns.forEach(btn => { btn.classList.toggle('active', btn.dataset.dimension === dimension); });
 
-        // 获取模拟数据 (传入新参数)
-        const data = generateAlarmData(rankType, timeRange, startDate, endDate, selectedTypes, dimension);
+        // Generate/aggregate data first
+        let aggregatedData = generateAlarmData(timeRange, startDate, endDate, selectedTypes, dimension);
 
-        // 更新图表 (传入维度)
-        if (charts.alarm) {
-             const chartOption = getAlarmChartOption(data, dimension);
-             let titleText = `告警统计 (${getDisplayTimeRangeText(timeRange, startDate, endDate)}) - ${dimension === 'site' ? '按站点' : '按告警名称'}`;
-             chartOption.title = { text: titleText, left: 'center', textStyle: { fontSize: 14 } }; // 调整标题字号
-            charts.alarm.setOption(chartOption, true);
+        let displayData;
+        if (rankType === 'top') {
+            aggregatedData.sort((a, b) => b.count - a.count);
+            displayData = aggregatedData.slice(0, 10);
+        } else if (rankType === 'last') {
+            aggregatedData.sort((a, b) => a.count - b.count);
+            displayData = aggregatedData.slice(0, 10);
+        } else { // rankType === 'all'
+            aggregatedData.sort((a, b) => b.count - a.count); // Default sort for 'all'
+            displayData = aggregatedData;
         }
 
-        // 更新表格 (传入维度)
-        tableContainer.innerHTML = generateAlarmTable(data, rankType, dimension);
+        // Update chart & table
+        if (charts.alarm) {
+            const chartOption = getAlarmChartOption(displayData, dimension);
+            let titleText = `告警统计 (${getDisplayTimeRangeText(timeRange, startDate, endDate)}) - ${dimension === 'site' ? '按站点' : '按告警名称'}`;
+            chartOption.title = { text: titleText, left: 'center', textStyle: { fontSize: 14 } };
+            charts.alarm.setOption(chartOption, true);
+        }
+        tableContainer.innerHTML = generateAlarmTable(displayData, rankType, dimension); // Pass rankType
     };
 
-    // 将加载函数注册到全局更新器中 (注意自定义日期回调只传时间参数)
-     moduleUpdaters[cardId] = (rt, tr, sd, ed) => {
-         // 自定义日期确认时，保持当前的排名类型、维度和过滤类型不变
+    moduleUpdaters[cardId] = (rt, tr, sd, ed) => {
          loadAlarmData(currentRankType, 'custom', sd, ed, currentDimension, currentSelectedTypes);
      };
-
-    // 初始加载数据
     loadAlarmData('top', 'all', null, null, 'site', ['提示', '告警', '故障']);
 
-    // --- 绑定按钮事件 (更新) --- 
-
-    // 排名切换事件 (保持不变)
+    // Rank button events (including 'all')
     rankToggleBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             const rankType = btn.dataset.rank;
@@ -911,43 +1003,41 @@ function initAlarmModule() {
         });
     });
 
-     // 排名维度切换事件 (新增)
-     rankDimensionBtns.forEach(btn => {
-         btn.addEventListener('click', () => {
-             const dimension = btn.dataset.dimension;
-             if (dimension !== currentDimension) {
-                 loadAlarmData(currentRankType, currentTimeRange, currentStartDate, currentEndDate, dimension, currentSelectedTypes);
-             }
-         });
-     });
-
-    // 预设时间范围切换事件 (保持不变)
-    timeRangeToggleBtns.forEach(btn => {
+    // Other event listeners (dimension, time, filter) remain largely the same
+    rankDimensionBtns.forEach(btn => {
         btn.addEventListener('click', () => {
-            const timeRange = btn.dataset.range;
-            // 点击当前激活按钮或从自定义切回预设时触发
-            if (timeRange !== currentTimeRange || currentTimeRange === 'custom') {
-                loadAlarmData(currentRankType, timeRange, null, null, currentDimension, currentSelectedTypes);
+            const dimension = btn.dataset.dimension;
+            if (dimension !== currentDimension) {
+                loadAlarmData(currentRankType, currentTimeRange, currentStartDate, currentEndDate, dimension, currentSelectedTypes);
             }
         });
     });
-
-    // 自定义日期按钮点击事件 (保持不变)
+    timeRangeToggleBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const timeRange = btn.dataset.range;
+            if (timeRange !== currentTimeRange) {
+                loadAlarmData(currentRankType, timeRange, currentStartDate, currentEndDate, currentDimension, currentSelectedTypes);
+            }
+        });
+    });
     if (customDateBtn) {
         customDateBtn.addEventListener('click', () => {
-             currentCardIdForModal = cardId;
-             // ... (省略设置默认日期的代码) ...
-             showCustomDateModal();
+            currentCardIdForModal = cardId;
+            const endDateInput = document.getElementById('custom-end-date');
+            const startDateInput = document.getElementById('custom-start-date');
+            if (!startDateInput.value || !endDateInput.value) {
+                const today = new Date();
+                const weekAgo = new Date(today.getTime() - 6 * 24 * 60 * 60 * 1000);
+                endDateInput.value = today.toISOString().split('T')[0];
+                startDateInput.value = weekAgo.toISOString().split('T')[0];
+            }
+            showCustomDateModal();
         });
     }
-
-    // 过滤按钮点击事件 (切换下拉菜单显示)
     filterBtn.addEventListener('click', (event) => {
-        event.stopPropagation(); // 阻止事件冒泡到 document
+        event.stopPropagation();
         filterDropdown.classList.toggle('show');
     });
-
-    // 应用过滤按钮点击事件
     applyFilterBtn.addEventListener('click', () => {
         const selectedTypes = Array.from(filterCheckboxes)
                                    .filter(cb => cb.checked)
@@ -957,34 +1047,24 @@ function initAlarmModule() {
             return;
         }
         loadAlarmData(currentRankType, currentTimeRange, currentStartDate, currentEndDate, currentDimension, selectedTypes);
-        filterDropdown.classList.remove('show'); // 应用后关闭下拉菜单
+        filterDropdown.classList.remove('show');
     });
-
-    // 点击下拉菜单内部不关闭
     filterDropdown.addEventListener('click', (event) => {
          event.stopPropagation();
     });
-
-    // 点击页面其他地方关闭下拉菜单
     document.addEventListener('click', () => {
          if (filterDropdown.classList.contains('show')) {
              filterDropdown.classList.remove('show');
          }
     });
 
-    // --- 事件绑定结束 --- 
-
-    // 窗口大小调整
-    window.addEventListener('resize', () => {
-        if (charts.alarm) charts.alarm.resize();
-    });
-
-    console.log(`告警统计模块 (${cardId}) 初始化完成 (含过滤和维度切换)`);
+    window.addEventListener('resize', () => { if (charts.alarm) charts.alarm.resize(); });
+    console.log(`告警统计模块 (${cardId}) 初始化完成 (含 'all', 过滤和维度切换)`);
 }
 
-// 更新：模拟生成更详细的告警数据，支持过滤和按维度聚合
-function generateAlarmData(rankType = 'top', timeRange = 'all', startDate = null, endDate = null, selectedTypes = ['提示', '告警', '故障'], dimension = 'site') {
-    console.log(`生成告警数据, 排名: ${rankType}, 时间范围: ${timeRange}, 类型: ${selectedTypes.join(',')}, 维度: ${dimension}`);
+// Updated helper function to generate alarm data (returns aggregated data before slicing)
+function generateAlarmData(timeRange = 'all', startDate = null, endDate = null, selectedTypes = ['提示', '告警', '故障'], dimension = 'site') {
+    console.log(`生成告警数据, 时间范围: ${timeRange}, 类型: ${selectedTypes.join(',')}, 维度: ${dimension}`);
     const sites = [
         '北京昌平站', '上海嘉定站', '深圳宝安站', '广州南沙站', '天津滨海站',
         '杭州西湖站', '南京江北站', '成都天府站', '武汉光谷站', '西安高新站',
@@ -1035,112 +1115,34 @@ function generateAlarmData(rankType = 'top', timeRange = 'all', startDate = null
         });
     });
 
-    // 1. 根据选中的类型过滤
+    // 1. Filter by selectedTypes
     const filteredData = detailedData.filter(item => selectedTypes.includes(item.alarmType));
 
-    // 2. 根据维度进行聚合
+    // 2. Aggregate by dimension
     let aggregatedData = [];
     if (dimension === 'site') {
         const siteMap = {};
         filteredData.forEach(item => {
-            if (!siteMap[item.siteName]) {
-                siteMap[item.siteName] = { name: item.siteName, count: 0 };
-            }
+            if (!siteMap[item.siteName]) siteMap[item.siteName] = { name: item.siteName, count: 0 };
             siteMap[item.siteName].count += item.count;
         });
         aggregatedData = Object.values(siteMap);
     } else { // dimension === 'alarmName'
         const alarmMap = {};
         filteredData.forEach(item => {
-            if (!alarmMap[item.alarmName]) {
-                alarmMap[item.alarmName] = { name: item.alarmName, count: 0 };
-            }
+            if (!alarmMap[item.alarmName]) alarmMap[item.alarmName] = { name: item.alarmName, count: 0 };
             alarmMap[item.alarmName].count += item.count;
         });
         aggregatedData = Object.values(alarmMap);
     }
 
-    // 3. 排序
-    if (rankType === 'top') {
-        aggregatedData.sort((a, b) => b.count - a.count);
-    } else {
-        aggregatedData.sort((a, b) => a.count - b.count);
-    }
-
-    // 4. 切片
-    return aggregatedData.slice(0, 10);
+    // !! Return aggregated data WITHOUT sorting or slicing here !!
+    return aggregatedData;
 }
 
-// 更新：获取告警统计图表配置，支持不同维度
-function getAlarmChartOption(data, dimension = 'site') {
-    const axisName = dimension === 'site' ? '站点名称' : '告警名称';
-    return {
-        tooltip: {
-            trigger: 'axis',
-            axisPointer: { type: 'shadow' },
-            formatter: (params) => {
-                 if (!params || params.length === 0) return '';
-                 const p = params[0];
-                 // 根据维度显示不同的提示信息
-                 const nameLabel = dimension === 'site' ? '站点' : '告警名称';
-                 return `${nameLabel}: ${p.name}<br/><span style="display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:${p.color};"></span>告警次数: ${p.value}`;
-            }
-        },
-        grid: {
-            left: '3%',
-            right: '4%',
-            bottom: '15%', // 为旋转的X轴标签留出更多空间
-            containLabel: true
-        },
-        xAxis: {
-            type: 'category',
-            data: data.map(item => item.name),
-            axisLabel: {
-                interval: 0,
-                rotate: 30,
-                fontSize: 10, // 标签可能变长，稍微缩小字号
-                formatter: function (value) { // 防止标签过长
-                    return value.length > 8 ? value.substring(0, 8) + '...' : value;
-                }
-            }
-        },
-        yAxis: {
-            type: 'value',
-            name: '告警次数'
-        },
-        series: [
-            {
-                name: '告警次数',
-                type: 'bar',
-                barMaxWidth: 40,
-                itemStyle: {
-                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                        { offset: 0, color: '#FFA07A' },
-                        { offset: 1, color: '#FF7F50' }
-                    ])
-                },
-                 label: {
-                    show: true,
-                    position: 'top',
-                    formatter: '{c}',
-                    color: '#333',
-                    fontSize: 10
-                },
-                emphasis: {
-                    focus: 'series',
-                     itemStyle: {
-                         color: '#E9967A'
-                     }
-                },
-                data: data.map(item => item.count)
-            }
-        ]
-    };
-}
-
-// 更新：生成告警统计表格，支持不同维度
+// Updated helper function for alarm table (adjust for rankType)
 function generateAlarmTable(data, rankType = 'top', dimension = 'site') {
-    const rankHeader = rankType === 'top' ? '排名 (高->低)' : '排名 (低->高)';
+    const rankHeader = rankType === 'all' ? '排名' : (rankType === 'top' ? '排名 (高->低)' : '排名 (低->高)');
     const nameHeader = dimension === 'site' ? '站点名称' : '告警名称';
     let tableHtml = `
         <table>
@@ -1153,10 +1155,14 @@ function generateAlarmTable(data, rankType = 'top', dimension = 'site') {
             </thead>
             <tbody>
     `;
+    if (data.length === 0) {
+        tableHtml += `<tr><td colspan="3" style="text-align:center;">暂无数据</td></tr>`;
+    }
     data.forEach((item, index) => {
+        const rank = index + 1; // Rank based on the sorted data passed in
         tableHtml += `
             <tr>
-                <td>${index + 1}</td>
+                <td>${rank}</td>
                 <td>${item.name}</td>
                 <td>${item.count}</td>
             </tr>
@@ -1218,10 +1224,11 @@ function initCommonCardActions() {
                 if (cardId === 'health-score-card') {
                     // 健康评分卡片 - 跳转到健康评分详情页面
                     window.location.href = 'health-score-detail.html';
-                } else {
-                    // 其他卡片暂时显示提示信息
-                    alert('详情功能正在开发中，敬请期待！');
-                }
+                } else if (cardId === 'downtime-card') {
+                    // !!! 跳转到非计划停机率详情页 !!!
+                    console.log('跳转到非计划停机率详情页: downtime-detail.html');
+                    window.location.href = 'downtime-detail.html'; // 执行页面跳转
+                } 
             });
         }
     });
@@ -1292,12 +1299,12 @@ function getDisplayTimeRangeText(timeRange, startDate, endDate) {
 }
 
 // ==================================
-// 能耗统计模块 (Energy Consumption)
+// 能效统计模块 (Energy Consumption)
 // ==================================
 
 // 模拟生成能耗数据 (储能系统：充电量、放电量、效率)
-function generateEnergyData(rankType = 'top', timeRange = 'all') {
-    console.log(`生成能耗数据, 排名: ${rankType}, 时间范围: ${timeRange}`);
+function generateEnergyData(timeRange = 'all', startDate = null, endDate = null) {
+    console.log(`生成能耗数据, 时间范围: ${timeRange}${startDate ? ` (${startDate} to ${endDate})` : ''}`);
     const sites = [
         '北京未来科学城站', '长沙岳麓站', '郑州航空港站', '武汉光谷站',
         '天津滨海站', '南京江北站', '合肥高新站', '杭州西湖站',
@@ -1338,19 +1345,14 @@ function generateEnergyData(rankType = 'top', timeRange = 'all') {
     data.sort((a, b) => b.charge - a.charge);
 
     // 根据排名类型选择 Top 10 或 Last 10
-    if (rankType === 'top') {
-        data = data.slice(0, 10);
-    } else { // rankType === 'last'
-        // 如果需要 Last 10，则取排序后的后10个；如果总数不足，则取全部
-        data = data.slice(-10);
-        // Last 10 通常也期望按升序显示，所以反转一下
+    if (timeRange === 'last') {
         data.reverse();
     }
 
     return data;
 }
 
-// 获取能耗统计图表配置 (储能)
+// 获取能效统计图表配置 (储能)
 function getEnergyChartOption(data) {
     const siteNames = data.map(item => item.name);
     const chargeData = data.map(item => item.charge);
@@ -1365,9 +1367,9 @@ function getEnergyChartOption(data) {
                 let tooltip = `${params[0].name}<br/>`;
                 params.forEach(p => {
                     let unit = '';
-                    if (p.seriesName === '充电量' || p.seriesName === '放电量') {
+                    if (p.seriesName === '单位充电量' || p.seriesName === '单位放电量') {
                         unit = ' kWh';
-                    } else if (p.seriesName === '系统效率') {
+                    } else if (p.seriesName === '综合效率') {
                         unit = ' %';
                     }
                     tooltip += `<span style="display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:${p.color};"></span>${p.seriesName}: ${p.value}${unit}<br/>`;
@@ -1376,7 +1378,7 @@ function getEnergyChartOption(data) {
             }
         },
         legend: {
-            data: ['充电量', '放电量', '系统效率'],
+            data: ['单位充电量', '单位放电量', '综合效率'],
             bottom: 5
         },
         grid: {
@@ -1415,21 +1417,21 @@ function getEnergyChartOption(data) {
         ],
         series: [
             {
-                name: '充电量',
+                name: '单位充电量',
                 type: 'bar',
                 yAxisIndex: 0, // 使用左侧Y轴
                 itemStyle: { color: '#5470C6' }, // 示例颜色
                 data: chargeData
             },
             {
-                name: '放电量',
+                name: '单位放电量',
                 type: 'bar',
                 yAxisIndex: 0, // 使用左侧Y轴
                 itemStyle: { color: '#91CC75' }, // 示例颜色
                 data: dischargeData
             },
             {
-                name: '系统效率',
+                name: '综合效率',
                 type: 'line',
                 yAxisIndex: 1, // 使用右侧Y轴
                 itemStyle: { color: '#EE6666' }, // 示例颜色
@@ -1439,33 +1441,6 @@ function getEnergyChartOption(data) {
             }
         ]
     };
-}
-
-// 生成能耗统计表格 (储能)
-function generateEnergyTable(data) {
-    let tableHtml = `<table class="stats-table">
-                        <thead>
-                            <tr>
-                                <th>排名</th>
-                                <th>站点名称</th>
-                                <th>充电量 (kWh)</th>
-                                <th>放电量 (kWh)</th>
-                                <th>系统效率 (%)</th>
-                            </tr>
-                        </thead>
-                        <tbody>`;
-    data.forEach((item, index) => {
-        tableHtml += `<tr>
-                        <td>${index + 1}</td>
-                        <td>${item.name}</td>
-                        <td>${item.charge}</td>
-                        <td>${item.discharge}</td>
-                        <td>${item.efficiency}</td>
-                      </tr>`;
-    });
-    tableHtml += `   </tbody>
-                    </table>`;
-    return tableHtml;
 }
 
 // 加载并更新能耗卡片数据
@@ -1480,7 +1455,7 @@ function loadEnergyData(cardId = 'energy-card', rankType = null, timeRange = nul
     updateButtonStates(card, currentRank, currentTimeRange);
 
     // 获取或生成数据
-    const data = generateEnergyData(currentRank, currentTimeRange, startDate, endDate);
+    const data = generateEnergyData(currentTimeRange, startDate, endDate);
 
     // 获取图表和表格容器
     const chartContainer = card.querySelector('.chart-container');
@@ -1496,7 +1471,7 @@ function loadEnergyData(cardId = 'energy-card', rankType = null, timeRange = nul
     chartInstance.setOption(getEnergyChartOption(data), true); // true 表示不合并配置
 
     // 更新表格
-    tableContainer.innerHTML = generateEnergyTable(data);
+    tableContainer.innerHTML = generateEnergyTable(data, currentRank);
 
     // 更新时间范围显示文本 (如果需要的话，可以添加一个 .time-range-display 元素)
     // const displayElement = card.querySelector('.time-range-display');
@@ -1507,19 +1482,19 @@ function loadEnergyData(cardId = 'energy-card', rankType = null, timeRange = nul
     console.log(`能耗数据加载完成: ${cardId}, 排名: ${currentRank}, 时间范围: ${currentTimeRange}`);
 }
 
-// 初始化能耗统计卡片
+// 初始化能效统计卡片
 function initEnergyCard() {
-    console.log('初始化能耗统计卡片');
+    console.log('初始化能效统计卡片');
     const card = document.getElementById('energy-card');
     if (!card) {
-        console.error('未找到能耗统计卡片元素');
+        console.error('未找到能效统计卡片元素');
         return;
     }
 
     const chartContainer = card.querySelector('.chart-container');
     const tableContainer = card.querySelector('.table-container');
     if (!chartContainer || !tableContainer) {
-        console.error('未找到能耗统计卡片的图表或表格容器');
+        console.error('未找到能效统计卡片的图表或表格容器');
         return;
     }
 

@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设备管理 - 智慧运维系统</title>
+    <!-- 引入 Font Awesome 图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 引入导航栏模板JS -->
+    <script src="navbar-template.js"></script>
+    <style>
+        :root {
+            --primary-color: #49A18D; /* 清安绿 */
+            --secondary-color: #3D8C7D;
+            --light-color: #F5F7F9;
+            --border-color: #E2E8F0;
+            --text-color: #333333;
+            --light-text: #FFFFFF;
+            --gray-text: #6C757D;
+            --light-gray: #E9ECEF;
+            --success-color: #28A745;
+            --warning-color: #FFC107;
+            --danger-color: #DC3545;
+            --info-color: #17A2B8;
+            --radius: 8px;
+            --shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #FAFAFA;
+            color: var(--text-color);
+            font-size: 14px;
+        }
+
+        .main-content {
+            padding: 20px;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        /* 面包屑导航 */
+        .breadcrumb {
+            display: flex;
+            padding: 10px 0;
+            margin-bottom: 20px;
+            list-style: none;
+            font-size: 0.9rem;
+        }
+
+        .breadcrumb-item {
+            color: var(--gray-text);
+        }
+
+        .breadcrumb-item a {
+            color: var(--gray-text);
+            text-decoration: none;
+        }
+
+        .breadcrumb-item a:hover {
+            color: var(--primary-color);
+        }
+
+        .breadcrumb-item + .breadcrumb-item::before {
+            content: "/";
+            padding: 0 8px;
+            color: var(--gray-text);
+        }
+
+        .breadcrumb-item.active {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        /* 站点信息卡片 */
+        .site-info-card {
+            background-color: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .site-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .site-avatar {
+            width: 60px;
+            height: 60px;
+            background-color: var(--light-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+            color: var(--primary-color);
+            font-size: 24px;
+        }
+
+        .site-details h2 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .site-meta {
+            display: flex;
+            gap: 15px;
+            color: var(--gray-text);
+            font-size: 0.9rem;
+        }
+
+        .site-meta-item {
+            display: flex;
+            align-items: center;
+        }
+
+        .site-meta-item i {
+            margin-right: 5px;
+        }
+
+        .site-status {
+            background-color: #E7F7F4;
+            color: var(--primary-color);
+            padding: 4px 12px;
+            border-radius: var(--radius);
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .site-status i {
+            margin-right: 5px;
+        }
+
+        /* 按钮样式 */
+        .btn {
+            padding: 8px 16px;
+            border-radius: var(--radius);
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            transition: all 0.2s ease;
+            border: none;
+        }
+
+        .btn i {
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--light-color);
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        /* 设备列表样式 */
+        .device-list-container {
+            background-color: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .list-title {
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .device-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .device-table th, .device-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+            font-size: 14px;
+        }
+
+        .device-table th {
+            background-color: var(--light-color);
+            color: var(--gray-text);
+            font-weight: 500;
+        }
+
+        .device-table tbody tr:hover {
+            background-color: var(--table-hover-bg, rgba(73, 161, 141, 0.05));
+        }
+
+        /* 开关样式 */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 20px;
+        }
+        .switch input { 
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+        input:checked + .slider {
+            background-color: var(--primary-color);
+        }
+        input:focus + .slider {
+            box-shadow: 0 0 1px var(--primary-color);
+        }
+        input:checked + .slider:before {
+            -webkit-transform: translateX(20px);
+            -ms-transform: translateX(20px);
+            transform: translateX(20px);
+        }
+        .slider.round {
+            border-radius: 20px;
+        }
+        .slider.round:before {
+            border-radius: 50%;
+        }
+
+        /* 徽章样式 */
+        .badge {
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            display: inline-block;
+            white-space: nowrap;
+        }
+        .type-storage {
+            background-color: #E7F7F4;
+            color: var(--primary-color);
+        }
+        .type-charger {
+             background-color: #FEF6E6;
+             color: #D97706;
+        }
+        .type-solar {
+             background-color: #ECFDF5;
+             color: #059669;
+        }
+        .protocol-ems2 {
+            background-color: #EBF5FF;
+            color: #3B82F6;
+        }
+        .protocol-ems15 {
+             background-color: #F0F9FF;
+             color: #0EA5E9;
+        }
+        .protocol-yunkuaichong {
+             background-color: #F3E8FF;
+             color: #9333EA;
+        }
+
+        /* 表格操作按钮 */
+        .action-cell {
+            display: flex;
+            gap: 8px;
+        }
+        .btn-icon {
+            background: none;
+            border: none;
+            padding: 5px;
+            font-size: 16px;
+            color: var(--gray-text);
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .btn-icon:hover {
+             color: var(--primary-color);
+        }
+        .btn-edit:hover { color: #3B82F6; }
+        .btn-detail:hover { color: #10B981; }
+        .btn-reuse:hover { color: #8B5CF6; }
+        .btn-transfer:hover { color: #F59E0B; }
+        .btn-delete:hover { color: #EF4444; }
+
+        /* 设备复用功能 */
+        .device-reuse {
+            background-color: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 20px;
+            margin-bottom: 20px;
+            display: none; /* 默认隐藏 */
+        }
+
+        .reuse-header {
+            margin-bottom: 20px;
+        }
+
+        .reuse-title {
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+
+        .reuse-description {
+            color: var(--gray-text);
+            line-height: 1.5;
+        }
+
+        .reuse-options {
+            display: flex;
+            gap: 20px;
+        }
+
+        .reuse-option {
+            flex: 1;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 15px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .reuse-option:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 2px 10px rgba(73, 161, 141, 0.1);
+        }
+
+        .reuse-option-title {
+            font-weight: 500;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            color: var(--primary-color);
+        }
+
+        .reuse-option-title i {
+            margin-right: 8px;
+        }
+
+        .reuse-option-description {
+            color: var(--gray-text);
+            line-height: 1.5;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .reuse-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* 设备复用 SN 输入框 */
+        .device-sn-input {
+            flex: 1;
+            padding: 8px 10px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            font-size: 14px;
+            outline: none;
+        }
+        .device-sn-input:focus {
+            border-color: var(--primary-color);
+        }
+        .device-sn-input:disabled {
+             background-color: var(--light-gray);
+             cursor: not-allowed;
+        }
+
+        .reuse-action {
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        /* 单选按钮 */
+        .radio-button {
+            position: relative;
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 2px solid var(--border-color);
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+
+        .radio-button.selected::before {
+            content: "";
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* 页面底部操作按钮 */
+        .page-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        /* 模态框样式 */
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: var(--radius);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            width: 500px;
+            max-width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: var(--gray-text);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            padding: 15px 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* 表单样式 */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            font-size: 14px;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            font-size: 14px;
+            background-color: white;
+        }
+
+        .form-select:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏容器 -->
+    <div id="navbar-container"></div>
+
+    <!-- 主内容区域 -->
+    <div class="main-content">
+        <!-- 面包屑导航 -->
+        <ul class="breadcrumb">
+            <li class="breadcrumb-item"><a href="site-homepage.html">首页</a></li>
+            <li class="breadcrumb-item"><a href="#">后台管理</a></li>
+            <li class="breadcrumb-item"><a href="site-config.html">站点管理</a></li>
+            <li class="breadcrumb-item"><a href="site-config-detail.html">站点配置</a></li>
+            <li class="breadcrumb-item active">设备管理</li>
+        </ul>
+
+        <!-- 站点信息卡片 -->
+        <div class="site-info-card">
+            <div class="site-info">
+                <div class="site-avatar">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <div class="site-details">
+                    <h2>金华电器储能电站 - 设备管理</h2>
+                    <div class="site-meta">
+                        <div class="site-meta-item">
+                            <i class="fas fa-building"></i>
+                            <span>重庆金华电器成套有限公司</span>
+                        </div>
+                        <div class="site-meta-item">
+                            <i class="fas fa-server"></i>
+                            <span>设备数量: 4</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="site-status">
+                <i class="fas fa-cog fa-spin"></i>
+                <span>配置中</span>
+            </div>
+        </div>
+
+        <!-- 设备列表 -->
+        <div class="device-list-container">
+            <div class="list-header">
+                <h3 class="list-title">设备列表</h3>
+                <button class="btn btn-primary btn-sm" id="add-device-btn">
+                    <i class="fas fa-plus"></i> 添加设备
+                </button>
+            </div>
+            <table class="device-table">
+                <thead>
+                    <tr>
+                        <th>设备名称</th>
+                        <th>设备SN</th>
+                        <th>是否启用</th>
+                        <th>设备类型</th>
+                        <th>设备协议</th>
+                        <th width="280px">操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- 模拟设备数据 -->
+                    <tr>
+                        <td>1#储能柜</td>
+                        <td>SN: QA20240530001</td>
+                        <td>
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </td>
+                        <td><span class="badge type-storage">储能设备</span></td>
+                        <td><span class="badge protocol-ems2">EMS2.0</span></td>
+                        <td class="action-cell">
+                            <button class="btn btn-icon btn-edit" title="编辑"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-icon btn-detail" title="详情"><i class="fas fa-info-circle"></i></button>
+                            <button class="btn btn-icon btn-reuse" title="设备复用"><i class="fas fa-copy"></i></button>
+                            <button class="btn btn-icon btn-transfer" title="设备转移"><i class="fas fa-exchange-alt"></i></button>
+                            <button class="btn btn-icon btn-delete" title="删除"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2#储能柜</td>
+                        <td>SN: QB20240530002</td>
+                        <td>
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </td>
+                        <td><span class="badge type-storage">储能设备</span></td>
+                        <td><span class="badge protocol-ems15">EMS1.5</span></td>
+                        <td class="action-cell">
+                            <button class="btn btn-icon btn-edit" title="编辑"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-icon btn-detail" title="详情"><i class="fas fa-info-circle"></i></button>
+                            <button class="btn btn-icon btn-reuse" title="设备复用"><i class="fas fa-copy"></i></button>
+                            <button class="btn btn-icon btn-transfer" title="设备转移"><i class="fas fa-exchange-alt"></i></button>
+                            <button class="btn btn-icon btn-delete" title="删除"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>3#储能柜</td>
+                        <td>SN: QA20240530004</td>
+                        <td>
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </td>
+                        <td><span class="badge type-storage">储能设备</span></td>
+                        <td><span class="badge protocol-ems2">EMS2.0</span></td>
+                        <td class="action-cell">
+                            <button class="btn btn-icon btn-edit" title="编辑"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-icon btn-detail" title="详情"><i class="fas fa-info-circle"></i></button>
+                            <button class="btn btn-icon btn-reuse" title="设备复用"><i class="fas fa-copy"></i></button>
+                            <button class="btn btn-icon btn-transfer" title="设备转移"><i class="fas fa-exchange-alt"></i></button>
+                            <button class="btn btn-icon btn-delete" title="删除"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>1#充电桩</td>
+                        <td>SN: QC20240530003</td>
+                        <td>
+                            <label class="switch">
+                                <input type="checkbox">
+                                <span class="slider round"></span>
+                            </label>
+                        </td>
+                        <td><span class="badge type-charger">充电桩</span></td>
+                        <td><span class="badge protocol-yunkuaichong">云快充1.5</span></td>
+                        <td class="action-cell">
+                            <button class="btn btn-icon btn-edit" title="编辑"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-icon btn-detail" title="详情"><i class="fas fa-info-circle"></i></button>
+                            <button class="btn btn-icon btn-reuse" title="设备复用"><i class="fas fa-copy"></i></button>
+                            <button class="btn btn-icon btn-transfer" title="设备转移"><i class="fas fa-exchange-alt"></i></button>
+                            <button class="btn btn-icon btn-delete" title="删除"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 设备复用功能 -->
+        <div class="device-reuse">
+            <div class="reuse-header">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <h3 class="reuse-title">设备复用</h3>
+                    <button class="btn btn-sm btn-outline" id="close-reuse-btn">
+                        <i class="fas fa-times"></i> 关闭
+                    </button>
+                </div>
+                <p class="reuse-description">通过设备复用功能，可以快速配置同类型设备，提高配置效率。</p>
+            </div>
+            <div class="reuse-options">
+                <!-- 选项1: 绑定母设备 -->
+                <div class="reuse-option">
+                    <div class="reuse-option-title">
+                        <div class="radio-button selected"></div>
+                        <i class="fas fa-link"></i>
+                        <span>绑定母设备</span>
+                    </div>
+                    <p class="reuse-option-description">绑定后，母设备的配置变更将自动同步更新到子设备，保持配置的一致性。</p>
+                    <div class="reuse-selector">
+                        <input type="text" class="device-sn-input" placeholder="输入母设备SN码">
+                    </div>
+                </div>
+
+                <!-- 选项2: 一次性复制 -->
+                <div class="reuse-option">
+                    <div class="reuse-option-title">
+                        <div class="radio-button"></div>
+                        <i class="fas fa-copy"></i>
+                        <span>一次性复制母设备配置</span>
+                    </div>
+                    <p class="reuse-option-description">复制一次母设备的全部配置，后续母设备变更不会影响子设备配置。</p>
+                    <div class="reuse-selector">
+                        <input type="text" class="device-sn-input" placeholder="输入母设备SN码" disabled>
+                    </div>
+                </div>
+            </div>
+            <div class="reuse-action">
+                <button class="btn btn-primary" id="apply-reuse-btn">
+                    <i class="fas fa-check"></i> 应用
+                </button>
+            </div>
+        </div>
+
+        <!-- 页面底部操作按钮 -->
+        <div class="page-actions">
+            <button class="btn btn-outline" id="cancel-btn">
+                <i class="fas fa-times"></i> 取消
+            </button>
+            <button class="btn btn-primary" id="save-btn">
+                <i class="fas fa-save"></i> 保存
+            </button>
+        </div>
+    </div>
+
+    <!-- 设备编辑模态框 -->
+    <div class="modal-backdrop" id="edit-device-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">编辑设备</h4>
+                <button class="modal-close" id="close-edit-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="edit-device-form">
+                    <div class="form-group">
+                        <label for="device-name" class="form-label">设备名称</label>
+                        <input type="text" id="device-name" class="form-control" placeholder="请输入设备名称">
+                    </div>
+                    <div class="form-group">
+                        <label for="device-code" class="form-label">设备编码</label>
+                        <input type="text" id="device-code" class="form-control" placeholder="请输入设备编码">
+                    </div>
+                    <div class="form-group">
+                        <label for="device-type" class="form-label">设备类型</label>
+                        <select id="device-type" class="form-select">
+                            <option value="storage">储能柜</option>
+                            <option value="charger">充电桩</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="device-site" class="form-label">归属站点</label>
+                        <input type="text" id="device-site" class="form-control" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label for="device-protocol" class="form-label">设备协议</label>
+                        <select id="device-protocol" class="form-select">
+                            <option value="ems15">EMS1.5</option>
+                            <option value="ems2">EMS2.0</option>
+                            <option value="yunkuaichong">云快充1.5</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="cancel-edit-btn">取消</button>
+                <button class="btn btn-primary" id="save-edit-btn">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页面交互脚本 -->
+    <script>
+        // 初始化导航栏
+        document.addEventListener('DOMContentLoaded', function() {
+            // 如果存在导航栏初始化函数，则调用
+            if (typeof initNavbar === 'function') {
+                initNavbar();
+                
+                // 设置活动菜单项
+                if (typeof setActiveMenuItem === 'function') {
+                    // 设置"后台管理"和"站点管理"为活动菜单
+                    setActiveMenuItem('menu-admin', 'submenu-site-config');
+                }
+            }
+
+            // 从URL中获取站点名称参数
+            const urlParams = new URLSearchParams(window.location.search);
+            const siteName = urlParams.get('siteName');
+            
+            // 如果有站点名称参数，更新页面标题
+            if (siteName) {
+                document.querySelector('.site-details h2').textContent = `${siteName} - 设备管理`;
+            }
+
+            // 设备复用区域相关
+            const closeReuseBtn = document.getElementById('close-reuse-btn');
+            if (closeReuseBtn) {
+                closeReuseBtn.addEventListener('click', function() {
+                    // 隐藏设备复用区域
+                    document.querySelector('.device-reuse').style.display = 'none';
+                });
+            }
+
+            // 应用复用按钮点击事件
+            document.getElementById('apply-reuse-btn').addEventListener('click', function() {
+                const selectedOption = document.querySelector('.radio-button.selected');
+                const selectedIndex = Array.from(document.querySelectorAll('.radio-button')).indexOf(selectedOption);
+                // 获取激活的输入框的值
+                const selectedSnInput = document.querySelectorAll('.device-sn-input')[selectedIndex];
+                const deviceSN = selectedSnInput.value.trim();
+                
+                if (!deviceSN) {
+                    alert('请输入母设备SN码');
+                    selectedSnInput.focus(); // 聚焦到空的输入框
+                    return;
+                }
+                
+                // 在实际应用中，这里应该查询此SN是否存在
+                const reuseType = selectedIndex === 0 ? '绑定' : '一次性复制';
+                
+                // 获取当前在复用标题中显示的设备名称
+                const currentDeviceName = document.querySelector('.reuse-title').textContent.split(' - ')[1] || '选中设备';
+                
+                alert(`已成功将 ${currentDeviceName} ${reuseType}到母设备 SN: "${deviceSN}" 的配置`);
+                
+                // 操作成功后隐藏设备复用区域
+                document.querySelector('.device-reuse').style.display = 'none';
+            });
+
+            // 复用选项单选逻辑优化
+            const radioButtons = document.querySelectorAll('.radio-button');
+            const deviceSnInputs = document.querySelectorAll('.device-sn-input');
+            
+            radioButtons.forEach((radio, index) => {
+                radio.addEventListener('click', function() {
+                    // 清除所有选中状态
+                    radioButtons.forEach(r => r.classList.remove('selected'));
+                    // 禁用所有 input
+                    deviceSnInputs.forEach(s => s.disabled = true);
+                    
+                    // 设置当前选中
+                    this.classList.add('selected');
+                    // 启用对应的 input
+                    deviceSnInputs[index].disabled = false;
+                    deviceSnInputs[index].focus(); // 自动聚焦
+                });
+            });
+
+            // 设备列表操作按钮事件
+            const deviceTable = document.querySelector('.device-table tbody');
+            const deviceReuseSection = document.querySelector('.device-reuse');
+            
+            if (deviceTable) {
+                deviceTable.addEventListener('click', function(event) {
+                    const targetButton = event.target.closest('.btn-icon');
+                    if (!targetButton) return;
+
+                    const row = targetButton.closest('tr');
+                    const deviceName = row.cells[0].textContent;
+                    const deviceSN = row.cells[1].textContent;
+
+                    if (targetButton.classList.contains('btn-edit')) {
+                        // 打开编辑设备模态框
+                        openEditDeviceModal(deviceName, deviceSN);
+                    } else if (targetButton.classList.contains('btn-detail')) {
+                        alert(`查看设备详情：${deviceName} (${deviceSN})`);
+                        // 跳转到设备详情页面
+                    } else if (targetButton.classList.contains('btn-reuse')) {
+                        // 显示设备复用区域
+                        deviceReuseSection.style.display = 'block';
+                        // 滚动到设备复用区域
+                        deviceReuseSection.scrollIntoView({ behavior: 'smooth' });
+                        // 填入SN码
+                        deviceSnInputs[0].value = deviceSN.replace('SN: ', '');
+                        
+                        // 更新复用标题，显示当前选中的设备
+                        const reuseTitle = document.querySelector('.reuse-title');
+                        reuseTitle.innerHTML = `设备复用 - <span style="color: var(--primary-color);">${deviceName} (${deviceSN})</span>`;
+                    } else if (targetButton.classList.contains('btn-transfer')) {
+                        alert(`转移设备：${deviceName} (${deviceSN})`);
+                        // 打开转移设备的模态框
+                    } else if (targetButton.classList.contains('btn-delete')) {
+                        if (confirm(`确定要删除设备 ${deviceName} (${deviceSN}) 吗？`)) {
+                            alert(`删除设备：${deviceName} (${deviceSN})`);
+                            // 从表格中移除该行
+                            row.remove();
+                        }
+                    }
+                });
+            }
+
+            // 添加设备按钮事件
+            const addDeviceBtn = document.getElementById('add-device-btn');
+            if (addDeviceBtn) {
+                addDeviceBtn.addEventListener('click', function() {
+                    // 打开编辑设备模态框，用于添加新设备
+                    const modal = document.getElementById('edit-device-modal');
+                    const deviceNameInput = document.getElementById('device-name');
+                    const deviceCodeInput = document.getElementById('device-code');
+                    const deviceTypeSelect = document.getElementById('device-type');
+                    const deviceSiteInput = document.getElementById('device-site');
+                    
+                    // 清空表单
+                    deviceNameInput.value = '';
+                    deviceCodeInput.value = '';
+                    deviceTypeSelect.value = 'storage';
+                    
+                    // 设置归属站点
+                    const siteName = document.querySelector('.site-details h2').textContent.split(' - ')[0];
+                    deviceSiteInput.value = siteName;
+                    
+                    // 标题改为添加设备
+                    document.querySelector('.modal-title').textContent = '添加设备';
+                    
+                    // 显示模态框
+                    modal.style.display = 'flex';
+                });
+            }
+
+            // 保存按钮点击事件
+            document.getElementById('save-btn').addEventListener('click', function() {
+                alert('设备管理配置已保存');
+                // 跳转回站点配置页面
+                window.location.href = `site-config-detail.html?siteName=${encodeURIComponent(siteName || '金华电器储能电站')}`;
+            });
+
+            // 取消按钮点击事件
+            document.getElementById('cancel-btn').addEventListener('click', function() {
+                if (confirm('确定要取消当前编辑并返回站点配置页面吗？未保存的修改将丢失。')) {
+                    // 跳转回站点配置页面
+                    window.location.href = `site-config-detail.html?siteName=${encodeURIComponent(siteName || '金华电器储能电站')}`;
+                }
+            });
+        });
+
+        // 添加设备编辑模态框相关功能
+        function openEditDeviceModal(deviceName, deviceSN) {
+            const modal = document.getElementById('edit-device-modal');
+            const deviceNameInput = document.getElementById('device-name');
+            const deviceCodeInput = document.getElementById('device-code');
+            const deviceTypeSelect = document.getElementById('device-type');
+            const deviceSiteInput = document.getElementById('device-site');
+            const deviceProtocolSelect = document.getElementById('device-protocol');
+            
+            // 设置表单初始值
+            deviceNameInput.value = deviceName;
+            deviceCodeInput.value = deviceSN.replace('SN: ', '');
+            
+            // 根据设备名称判断设备类型
+            if (deviceName.includes('充电桩')) {
+                deviceTypeSelect.value = 'charger';
+            } else {
+                deviceTypeSelect.value = 'storage';
+            }
+            
+            // 设置归属站点
+            const siteName = document.querySelector('.site-details h2').textContent.split(' - ')[0];
+            deviceSiteInput.value = siteName;
+            
+            // 根据行中的协议徽章设置协议
+            const row = document.querySelector(`tr td:nth-child(1):contains('${deviceName}')`).closest('tr');
+            const protocolBadge = row.querySelector('td:nth-child(5) .badge');
+            
+            if (protocolBadge.classList.contains('protocol-ems15')) {
+                deviceProtocolSelect.value = 'ems15';
+            } else if (protocolBadge.classList.contains('protocol-ems2')) {
+                deviceProtocolSelect.value = 'ems2';
+            } else if (protocolBadge.classList.contains('protocol-yunkuaichong')) {
+                deviceProtocolSelect.value = 'yunkuaichong';
+            }
+            
+            // 显示模态框
+            modal.style.display = 'flex';
+        }
+        
+        // 关闭模态框
+        function closeEditDeviceModal() {
+            const modal = document.getElementById('edit-device-modal');
+            modal.style.display = 'none';
+        }
+
+        // 修复上面的代码，使用更兼容的方式查找行
+        window.openEditDeviceModal = function(deviceName, deviceSN) {
+            const modal = document.getElementById('edit-device-modal');
+            const deviceNameInput = document.getElementById('device-name');
+            const deviceCodeInput = document.getElementById('device-code');
+            const deviceTypeSelect = document.getElementById('device-type');
+            const deviceSiteInput = document.getElementById('device-site');
+            const deviceProtocolSelect = document.getElementById('device-protocol');
+            
+            // 设置表单初始值
+            deviceNameInput.value = deviceName;
+            deviceCodeInput.value = deviceSN.replace('SN: ', '');
+            
+            // 根据设备名称判断设备类型
+            if (deviceName.includes('充电桩')) {
+                deviceTypeSelect.value = 'charger';
+            } else {
+                deviceTypeSelect.value = 'storage';
+            }
+            
+            // 设置归属站点
+            const siteName = document.querySelector('.site-details h2').textContent.split(' - ')[0];
+            deviceSiteInput.value = siteName;
+            
+            // 查找对应行和协议
+            const rows = document.querySelectorAll('.device-table tbody tr');
+            let selectedRow;
+            
+            for (const row of rows) {
+                if (row.cells[0].textContent === deviceName) {
+                    selectedRow = row;
+                    break;
+                }
+            }
+            
+            if (selectedRow) {
+                const protocolBadge = selectedRow.querySelector('td:nth-child(5) .badge');
+                
+                if (protocolBadge.classList.contains('protocol-ems15')) {
+                    deviceProtocolSelect.value = 'ems15';
+                } else if (protocolBadge.classList.contains('protocol-ems2')) {
+                    deviceProtocolSelect.value = 'ems2';
+                } else if (protocolBadge.classList.contains('protocol-yunkuaichong')) {
+                    deviceProtocolSelect.value = 'yunkuaichong';
+                }
+            }
+            
+            // 显示模态框
+            modal.style.display = 'flex';
+        };
+        
+        // 关闭模态框事件
+        document.getElementById('close-edit-modal').addEventListener('click', function() {
+            closeEditDeviceModal();
+        });
+        
+        document.getElementById('cancel-edit-btn').addEventListener('click', function() {
+            closeEditDeviceModal();
+        });
+        
+        // 保存编辑按钮事件
+        document.getElementById('save-edit-btn').addEventListener('click', function() {
+            const deviceName = document.getElementById('device-name').value;
+            const deviceCode = document.getElementById('device-code').value;
+            const deviceType = document.getElementById('device-type').value;
+            const deviceProtocol = document.getElementById('device-protocol').value;
+            
+            if (!deviceName || !deviceCode) {
+                alert('设备名称和设备编码不能为空！');
+                return;
+            }
+            
+            alert(`设备 ${deviceName} 的信息已更新`);
+            closeEditDeviceModal();
+            
+            // 在实际应用中，这里应该更新表格中的设备信息
+            // 为了演示，我们可以刷新页面
+            // location.reload();
+        });
+    </script>
+</body>
+</html> 
