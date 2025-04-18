@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>告警推送模板选用 - 智慧运维系统</title>
+    <!-- 引入 Font Awesome 图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 引入导航栏模板JS -->
+    <script src="navbar-template.js"></script>
+    <style>
+        /* --- 基础样式和变量 (参考 site-config.html) --- */
+        :root {
+            --primary-color: #49A18D; /* 清安绿 */
+            --secondary-color: #3D8C7D;
+            --light-color: #F5F7F9;
+            --border-color: #E2E8F0;
+            --text-color: #333333;
+            --light-text: #FFFFFF;
+            --gray-text: #6C757D;
+            --radius: 8px;
+            --shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            --warning-color: #F59E0B; /* 橙色，用于提示 */
+            --danger-color: #e53e3e; /* 红色，用于删除/错误 */
+            --info-color: #4299e1; /* 蓝色，用于信息/编辑 */
+            --table-hover-bg: rgba(73, 161, 141, 0.05);
+            --table-header-bg: #f5f7f9;
+            --disabled-bg: #f1f5f9; /* 禁用背景色 */
+            --disabled-text: #94a3b8; /* 禁用文字颜色 */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #FAFAFA;
+            color: var(--text-color);
+            font-size: 14px;
+        }
+
+        .main-content {
+            padding: 20px;
+            max-width: 1300px; /* 保持与 site-config 一致 */
+            margin: 0 auto;
+        }
+
+        /* --- 面包屑导航 --- */
+        .breadcrumb {
+            display: flex;
+            padding: 10px 0;
+            margin-bottom: 20px;
+            list-style: none;
+            font-size: 0.9rem;
+        }
+        .breadcrumb-item { color: var(--gray-text); }
+        .breadcrumb-item a { color: var(--gray-text); text-decoration: none; }
+        .breadcrumb-item a:hover { color: var(--primary-color); }
+        .breadcrumb-item + .breadcrumb-item::before { content: "/"; padding: 0 8px; color: var(--gray-text); }
+        .breadcrumb-item.active { color: var(--primary-color); font-weight: 500; }
+
+        /* --- 页面标题 --- */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            background-color: white;
+            padding: 15px 20px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+        .page-title { font-size: 1.5rem; font-weight: 500; color: var(--text-color); }
+
+        /* --- 内容块样式 --- */
+        .content-block {
+            background-color: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 20px;
+            margin-bottom: 25px; /* 增加块间距 */
+        }
+        .block-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .block-title {
+            font-size: 1.15rem; /* 稍小的标题 */
+            font-weight: 500;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .block-title i {
+            font-size: 1.1rem;
+        }
+
+        /* --- 按钮样式 --- */
+        .btn {
+            padding: 8px 16px;
+            border-radius: var(--radius);
+            font-size: 14px; /* 基础按钮字号 */
+            cursor: pointer;
+            display: inline-flex; /* 使用 inline-flex */
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            transition: all 0.2s ease;
+            border: none;
+            font-weight: normal;
+            white-space: nowrap; /* 防止按钮文字换行 */
+            line-height: 1.5; /* 确保文字垂直居中 */
+        }
+        .btn i { font-size: 14px; }
+        .btn-primary { background-color: var(--primary-color); color: white; }
+        .btn-primary:hover { background-color: var(--secondary-color); }
+        .btn-secondary { background-color: white; color: var(--text-color); border: 1px solid var(--border-color); }
+        .btn-secondary:hover { background-color: var(--light-color); }
+        .btn-danger { background-color: var(--danger-color); color: white; }
+        .btn-danger:hover { background-color: #c53030; }
+        .btn-warning { background-color: var(--warning-color); color: white; }
+        .btn-warning:hover { background-color: #dd6b20; }
+        .btn-small { padding: 5px 10px; font-size: 13px; }
+
+        /* --- 表格样式 --- */
+        .table-container { overflow-x: auto; } /* 允许表格水平滚动 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            margin-top: 15px; /* 表格与上方元素的间距 */
+        }
+        thead { background-color: var(--table-header-bg); }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle; /* 垂直居中 */
+            white-space: nowrap; /* 防止单元格内容换行 */
+        }
+        th { font-weight: 500; color: var(--gray-text); font-size: 14px; }
+        tbody tr:hover { background-color: var(--table-hover-bg); }
+
+        /* 表格操作按钮 */
+        .action-btns { display: flex; gap: 10px; align-items: center; }
+        .action-btn {
+            background: none; border: none; cursor: pointer;
+            font-size: 16px; color: var(--gray-text); transition: color 0.2s;
+            padding: 0; line-height: 1;
+        }
+        .action-btn.edit:hover { color: var(--info-color); }
+        .action-btn.delete:hover { color: var(--danger-color); }
+
+        /* 状态标签 */
+        .status-badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 500; }
+        .status-active { background-color: rgba(73, 161, 141, 0.1); color: var(--primary-color); }
+        .status-inactive { background-color: rgba(108, 117, 125, 0.1); color: var(--gray-text); } /* 灰色表示停用 */
+        .status-warning { background-color: rgba(245, 158, 11, 0.1); color: var(--warning-color); } /* 橙色表示警告，如未绑定微信 */
+
+        /* --- 推送用户配置特定样式 --- */
+        /* (暂无特别样式，使用通用表格和按钮) */
+
+        /* --- 模板选用特定样式 --- */
+        .device-template-list { margin-top: 15px; }
+        .device-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            margin-bottom: 15px;
+            background-color: #fff;
+            transition: box-shadow 0.2s;
+        }
+        .device-item:hover { box-shadow: var(--shadow); }
+        .device-info { display: flex; align-items: center; gap: 15px; }
+        .device-icon { font-size: 1.8rem; color: var(--primary-color); }
+        .device-name { font-weight: 500; font-size: 1.1rem; }
+        .template-status { font-size: 0.9rem; color: var(--gray-text); }
+        .template-status .selected { color: var(--primary-color); font-weight: 500; }
+        .template-status .not-selected { color: var(--warning-color); }
+
+        /* --- 模板选择模态框 --- */
+        .modal {
+            display: none; /* 默认隐藏 */
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.4);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal.active { display: flex; } /* 用于显示模态框 */
+        .modal-content {
+            background-color: white;
+            padding: 25px;
+            border-radius: var(--radius);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            max-height: 85vh; /* 最大高度 */
+            display: flex;
+            flex-direction: column;
+        }
+        #template-select-modal .modal-content { /* 模板选择模态框可以宽一些 */
+             width: 80%;
+             max-width: 900px;
+        }
+        #user-edit-modal .modal-content { /* 用户编辑模态框可以窄一些 */
+             width: 60%;
+             max-width: 500px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .modal-title { font-size: 1.25rem; font-weight: 500; }
+        .close-modal { cursor: pointer; font-size: 1.8rem; color: var(--gray-text); border: none; background: none;}
+        .modal-body { overflow-y: auto; /* 内容过多时可滚动 */ padding-right: 10px; /* 防止滚动条遮挡内容 */ }
+
+        /* 模板选择模态框内的搜索和过滤 */
+        .template-search-filter {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+        .search-box { /* 复用 site-config 的样式 */
+            display: flex;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            overflow: hidden;
+            background-color: white;
+            flex-grow: 1; /* 让搜索框占据更多空间 */
+        }
+        .search-input { padding: 8px 12px; border: none; outline: none; font-size: 14px; width: 100%; }
+        .search-btn { background-color: var(--light-color); border: none; padding: 8px 12px; cursor: pointer; color: var(--gray-text); }
+        .search-btn:hover { background-color: var(--border-color); }
+        .filter-select { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: var(--radius); font-size: 14px; height: 38px; /* 与搜索框对齐 */ }
+
+        /* 模板卡片 */
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* 响应式网格布局 */
+            gap: 20px;
+            margin-top: 10px;
+        }
+        .template-card {
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 15px;
+            background-color: #fff;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .template-card:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 10px rgba(73, 161, 141, 0.1);
+            transform: translateY(-2px);
+        }
+        .template-card.selected { /* 选中时的样式 */
+            border-color: var(--primary-color);
+            background-color: var(--table-hover-bg);
+            box-shadow: 0 0 0 2px var(--primary-color);
+        }
+        .template-card h4 { font-size: 1.1rem; margin-bottom: 10px; color: var(--primary-color); }
+        .template-card p { font-size: 0.9rem; color: var(--gray-text); margin-bottom: 5px; line-height: 1.4; }
+        .template-card p strong { color: var(--text-color); font-weight: 500; margin-right: 5px; }
+
+        /* 模态框底部 */
+        .modal-footer {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end; /* 按钮靠右 */
+            gap: 10px;
+        }
+        /* 强制模态框底部按钮字体大小一致 (修复用户报告问题) */
+        .modal-footer .btn {
+             font-size: 14px !important; /* 确保字体大小为14px */
+        }
+
+        /* 分页样式 (如果需要) */
+        .pagination { display: flex; justify-content: flex-end; align-items: center; gap: 10px; margin-top: 20px; }
+        .page-info { font-size: 14px; color: var(--gray-text); }
+        .pagination-btn { width: 32px; height: 32px; border-radius: 4px; display: flex; align-items: center; justify-content: center; background-color: white; border: 1px solid var(--border-color); color: var(--gray-text); cursor: pointer; }
+        .pagination-btn:hover { background-color: var(--light-color); }
+        .pagination-btn:disabled { cursor: not-allowed; opacity: 0.5; }
+
+        /* 输入框和表单组 */
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 500; }
+        .form-group label .required { color: var(--danger-color); margin-right: 4px; }
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group input[type="tel"],
+        .form-group select,
+        .form-group .readonly-input { /* 为只读信息添加样式 */
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            font-size: 14px;
+            box-sizing: border-box; /* 确保 padding 不会撑大元素 */
+            background-color: var(--disabled-bg); /* 只读背景色 */
+            color: var(--disabled-text); /* 只读文字颜色 */
+            cursor: default; /* 默认光标，表示不可交互 */
+        }
+        .form-group input[type="text"]:not(.readonly-input),
+        .form-group select:not(.readonly-input) { /* 可编辑的 select 和 input 恢复默认样式 */
+             background-color: white;
+             color: var(--text-color);
+             cursor: text; /* 文本输入光标 */
+        }
+        .form-group select:not(.readonly-input) { cursor: pointer; } /* 下拉框用指针光标 */
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 1px var(--primary-color);
+        }
+
+        /* 提示信息 */
+        .info-tooltip {
+            margin-left: 8px;
+            color: var(--gray-text);
+            cursor: help;
+        }
+        .info-tooltip:hover {
+            color: var(--primary-color);
+        }
+
+    </style>
+</head>
+<body>
+    <!-- 导航栏容器 -->
+    <div id="navbar-container"></div>
+
+    <!-- 主内容区域 -->
+    <div class="main-content">
+        <!-- 面包屑导航 (修改) -->
+        <ul class="breadcrumb">
+            <li class="breadcrumb-item"><a href="site-homepage.html">首页</a></li>
+            <li class="breadcrumb-item">后台管理</li>
+            <li class="breadcrumb-item"><a href="site-config.html">站点管理</a></li>
+            <!-- 站点配置链接，将在 JS 中动态设置 href -->
+            <li class="breadcrumb-item"><a href="#" id="breadcrumb-site-config">站点配置</a></li>
+            <li class="breadcrumb-item active">告警推送模板选用</li>
+        </ul>
+
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <h1 class="page-title" id="page-title-site-name">告警推送模板选用 (站点加载中...)</h1>
+        </div>
+
+        <!-- 🟦 推送用户配置部分 -->
+        <div class="content-block">
+            <div class="block-header">
+                <h2 class="block-title"><i class="fas fa-users"></i> 配置推送用户</h2>
+                <div>
+                    <button class="btn btn-secondary" id="add-user-btn">
+                        <i class="fas fa-user-plus"></i> 新增用户
+                    </button>
+                    <!-- 修改按钮文字 -->
+                    <button class="btn btn-primary" id="save-users-btn">
+                        <i class="fas fa-save"></i> 保存
+                    </button>
+                    <i class="fas fa-info-circle info-tooltip" title="为当前站点配置接收告警信息的用户及其级别和状态。"></i>
+                </div>
+            </div>
+            <div class="table-container">
+                <table id="user-table">
+                    <thead>
+                        <tr>
+                            <th>序号</th>
+                            <th>被推送用户</th>
+                            <th>用户手机号</th>
+                            <th>用户邮箱</th>
+                            <th>用户微信</th>
+                            <th>用户级别</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="user-table-body">
+                        <!-- 用户数据将由 JS 动态加载 -->
+                        <tr><td colspan="8" style="text-align: center; color: var(--gray-text); padding: 20px;">加载中...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- 用户表格分页 (如果需要) -->
+            <!-- <div class="pagination"> ... </div> -->
+        </div>
+
+        <!-- 🟩 模板选用部分 -->
+        <div class="content-block">
+            <div class="block-header">
+                <h2 class="block-title"><i class="fas fa-clipboard-list"></i> 为设备选用告警模板</h2>
+                 <i class="fas fa-info-circle info-tooltip" title="为站点下的每台设备选择一个告警推送模板。模板决定了哪些告警点位会触发推送。"></i>
+            </div>
+            <div class="device-template-list" id="device-list">
+                <!-- 模拟设备数据 -->
+                <div class="device-item" data-device-id="PCS001">
+                    <div class="device-info">
+                        <i class="fas fa-car-battery device-icon"></i>
+                        <div>
+                            <div class="device-name">1#储能柜</div>
+                            <div class="template-status">已选用模板: <span class="selected">默认储能柜模板</span></div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-small select-template-btn">
+                        <i class="fas fa-exchange-alt"></i> 更换模板
+                    </button>
+                </div>
+                <div class="device-item" data-device-id="PCS002">
+                    <div class="device-info">
+                        <i class="fas fa-car-battery device-icon"></i>
+                        <div>
+                            <div class="device-name">2#储能柜</div>
+                            <div class="template-status"><span class="not-selected">未选用模板</span></div>
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary btn-small select-template-btn">
+                        <i class="fas fa-plus-circle"></i> 选择模板
+                    </button>
+                </div>
+                <div class="device-item" data-device-id="CHG001">
+                    <div class="device-info">
+                        <i class="fas fa-charging-station device-icon"></i>
+                        <div>
+                            <div class="device-name">1#充电桩</div>
+                            <div class="template-status"><span class="not-selected">未选用模板</span></div>
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary btn-small select-template-btn">
+                         <i class="fas fa-plus-circle"></i> 选择模板
+                    </button>
+                </div>
+                <div class="device-item" data-device-id="CHG002">
+                    <div class="device-info">
+                         <i class="fas fa-charging-station device-icon"></i>
+                        <div>
+                            <div class="device-name">2#充电桩</div>
+                            <div class="template-status">已选用模板: <span class="selected">重要充电桩模板</span></div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-small select-template-btn">
+                        <i class="fas fa-exchange-alt"></i> 更换模板
+                    </button>
+                </div>
+                 <!-- 更多设备... -->
+            </div>
+             <!-- 设备列表分页 (如果设备很多) -->
+            <!-- <div class="pagination"> ... </div> -->
+        </div>
+    </div>
+
+    <!-- 模态框 - 选择告警模板 -->
+    <div class="modal" id="template-select-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">为 <span id="modal-device-name"></span> 选择告警模板</h3>
+                <button class="close-modal" aria-label="关闭">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- 搜索和过滤 -->
+                <div class="template-search-filter">
+                    <div class="search-box">
+                        <input type="text" class="search-input" id="template-search-input" placeholder="搜索模板名称...">
+                        <button class="search-btn" id="template-search-btn"><i class="fas fa-search"></i></button>
+                    </div>
+                    <select id="template-filter-type" class="filter-select">
+                        <option value="">所有设备类型</option>
+                        <option value="储能柜">储能柜</option>
+                        <option value="充电桩">充电桩</option>
+                        <option value="逆变器">逆变器</option>
+                        <!-- 更多类型... -->
+                    </select>
+                </div>
+
+                <!-- 模板列表 -->
+                <div class="template-grid" id="template-grid">
+                    <!-- 模拟模板卡片 -->
+                    <div class="template-card" data-template-id="TPL001" data-template-name="默认储能柜模板">
+                        <h4>默认储能柜模板</h4>
+                        <p><strong>创建人:</strong> 系统管理员</p>
+                        <p><strong>创建时间:</strong> 2024-01-15 10:00</p>
+                        <p><strong>适配设备:</strong> 储能柜</p>
+                    </div>
+                    <div class="template-card" data-template-id="TPL002" data-template-name="重要储能柜模板">
+                        <h4>重要储能柜模板</h4>
+                        <p><strong>创建人:</strong> 李工</p>
+                        <p><strong>创建时间:</strong> 2024-03-20 14:30</p>
+                        <p><strong>适配设备:</strong> 储能柜</p>
+                    </div>
+                    <div class="template-card" data-template-id="TPL003" data-template-name="标准充电桩模板">
+                        <h4>标准充电桩模板</h4>
+                        <p><strong>创建人:</strong> 系统管理员</p>
+                        <p><strong>创建时间:</strong> 2024-02-01 09:00</p>
+                        <p><strong>适配设备:</strong> 充电桩</p>
+                    </div>
+                     <div class="template-card" data-template-id="TPL004" data-template-name="重要充电桩模板">
+                        <h4>重要充电桩模板</h4>
+                        <p><strong>创建人:</strong> 王工</p>
+                        <p><strong>创建时间:</strong> 2024-05-10 11:00</p>
+                        <p><strong>适配设备:</strong> 充电桩</p>
+                    </div>
+                    <div class="template-card" data-template-id="TPL005" data-template-name="通用告警模板">
+                        <h4>通用告警模板</h4>
+                        <p><strong>创建人:</strong> 系统管理员</p>
+                        <p><strong>创建时间:</strong> 2023-12-01 16:00</p>
+                        <p><strong>适配设备:</strong> 所有类型</p>
+                    </div>
+                    <!-- 更多模板... -->
+                </div>
+                 <!-- 模板分页 -->
+                 <div class="pagination" id="template-pagination">
+                     <span class="page-info">共 15 个模板，当前显示 1-5</span>
+                     <button class="pagination-btn" disabled><i class="fas fa-chevron-left"></i></button>
+                     <button class="pagination-btn"><i class="fas fa-chevron-right"></i></button>
+                 </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary close-modal">取消</button>
+                <button class="btn btn-primary" id="confirm-template-select">确定选用</button>
+            </div>
+        </div>
+    </div>
+
+     <!-- 模态框 - 新增/编辑用户 -->
+    <div class="modal" id="user-edit-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="user-modal-title">新增用户</h3>
+                <button class="close-modal" aria-label="关闭">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="user-form">
+                    <!-- 隐藏字段，用于存储正在编辑的用户ID -->
+                    <input type="hidden" id="editing-user-id">
+
+                    <!-- 新增用户时的用户选择 -->
+                    <div class="form-group" id="add-user-select-group">
+                        <label for="select-user"><span class="required">*</span>选择用户</label>
+                        <select id="select-user" required>
+                            <option value="">-- 请选择要添加的用户 --</option>
+                            <!-- 选项将在 JS 中动态填充 -->
+                        </select>
+                    </div>
+
+                    <!-- 编辑用户时显示的信息 -->
+                    <div class="form-group" id="edit-user-info-group" style="display: none;">
+                         <label>被推送用户</label>
+                         <div id="edit-user-name" class="readonly-input"></div>
+                         <!-- 可以选择性地显示更多只读信息 -->
+                         <!-- <label>用户手机号</label> -->
+                         <!-- <div id="edit-user-phone" class="readonly-input"></div> -->
+                    </div>
+
+                    <!-- 公共编辑部分：级别和状态 -->
+                    <div class="form-group">
+                        <label for="user-level"><span class="required">*</span>用户级别</label>
+                        <select id="user-level" required>
+                            <option value="">请选择</option>
+                            <option value="一级">一级</option>
+                            <option value="二级">二级</option>
+                            <option value="三级">三级</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="user-status"><span class="required">*</span>状态</label>
+                        <select id="user-status" required>
+                             <option value="active">启用</option>
+                             <option value="inactive">停用</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <!-- 确保取消按钮使用标准 btn 和 btn-secondary 类 -->
+                <button class="btn btn-secondary close-modal">取消</button>
+                <button class="btn btn-primary" id="save-user-data">确定</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- 引入页面脚本 -->
+    <script>
+        // 模拟的系统用户数据 (实际应用中应从后端获取)
+        const MOCK_SYSTEM_USERS = [
+            { id: 'user001', name: '张三', phone: '138****1234', email: 'zhangsan@example.com', wechatBound: true },
+            { id: 'user002', name: '李四', phone: '139****5678', email: 'lisi@example.com', wechatBound: false },
+            { id: 'user003', name: '王五', phone: '137****9012', email: 'wangwu@example.com', wechatBound: true },
+            { id: 'user004', name: '赵六', phone: '136****3456', email: 'zhaoliu@example.com', wechatBound: true },
+            { id: 'user005', name: '孙七', phone: '135****7890', email: 'sunqi@example.com', wechatBound: false },
+        ];
+
+        // 模拟当前已配置的用户列表 (可以从表格初始化，或从后端获取)
+        let configuredUsers = [
+            // 初始数据从 HTML 移除，由 JS 加载
+        ];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // 1. 初始化导航栏
+            if (typeof initNavbar === 'function') {
+                initNavbar();
+                // 根据实际情况设置活动菜单项
+                // setActiveMenuItem('menu-admin', 'submenu-site-config'); // 示例
+            }
+
+            // 2. 获取并设置站点名称
+            const urlParams = new URLSearchParams(window.location.search);
+            const siteNameParam = urlParams.get('siteName'); // 获取原始参数
+            const siteName = siteNameParam ? decodeURIComponent(siteNameParam) : "默认站点";
+
+            // 更新页面标题
+            const pageTitleSiteName = document.getElementById('page-title-site-name');
+            if (pageTitleSiteName) {
+                 pageTitleSiteName.textContent = `告警推送模板选用 (${siteName})`;
+            }
+
+            // 更新面包屑中的站点配置链接
+            const breadcrumbSiteConfig = document.getElementById('breadcrumb-site-config');
+            if (breadcrumbSiteConfig) {
+                 // 确保使用 encodeURIComponent 对参数进行编码，并指向正确的页面
+                 const configHref = `site-config-detail.html?siteName=${encodeURIComponent(siteNameParam || '默认站点')}`;
+                 breadcrumbSiteConfig.href = configHref;
+                 console.log("设置'站点配置'面包屑链接为:", configHref); // 添加日志
+            } else {
+                 console.error("未能找到 ID 为 'breadcrumb-site-config' 的面包屑链接元素。");
+            }
+
+            // --- DOM元素获取 ---
+            const userTableBody = document.getElementById('user-table-body');
+            const userEditModal = document.getElementById('user-edit-modal');
+            const addUserBtn = document.getElementById('add-user-btn');
+            const userModalCloseBtns = userEditModal.querySelectorAll('.close-modal');
+            const saveUserDataBtn = document.getElementById('save-user-data');
+            const userModalTitle = document.getElementById('user-modal-title');
+            const userForm = document.getElementById('user-form');
+            const editingUserIdInput = document.getElementById('editing-user-id'); // 用于编辑
+            const addUserSelectGroup = document.getElementById('add-user-select-group');
+            const selectUserInput = document.getElementById('select-user'); // 新增时选择用户
+            const editUserInfoGroup = document.getElementById('edit-user-info-group');
+            const editUserNameDiv = document.getElementById('edit-user-name'); // 编辑时显示用户名
+            const userLevelSelect = document.getElementById('user-level');
+            const userStatusSelect = document.getElementById('user-status');
+
+            // --- 模拟加载初始用户数据 (替换HTML中的静态数据) ---
+            function loadInitialUsers() {
+                // 模拟从后端加载已配置用户
+                // 这里我们直接使用之前定义的 configuredUsers 模拟数据
+                configuredUsers = [
+                    { id: 'user001', name: '张三', phone: '138****1234', email: 'zhangsan@example.com', wechatBound: true, level: '一级', status: 'active' },
+                    { id: 'user002', name: '李四', phone: '139****5678', email: 'lisi@example.com', wechatBound: false, level: '二级', status: 'active' },
+                    { id: 'user003', name: '王五', phone: '137****9012', email: 'wangwu@example.com', wechatBound: true, level: '三级', status: 'inactive' },
+                ];
+                renderUserTable();
+            }
+
+            // --- 渲染用户表格 ---
+            function renderUserTable() {
+                userTableBody.innerHTML = ''; // 清空现有表格
+                if (configuredUsers.length === 0) {
+                    userTableBody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--gray-text); padding: 20px;">暂无配置用户</td></tr>';
+                    return;
+                }
+                configuredUsers.forEach((user, index) => {
+                    const newRow = userTableBody.insertRow();
+                    newRow.dataset.userId = user.id; // 使用真实用户ID
+
+                    const wechatStatusText = user.wechatBound ? '已绑定' : '未绑定';
+                    const wechatStatusClass = user.wechatBound ? 'status-active' : 'status-warning';
+                    const statusText = user.status === 'active' ? '启用' : '停用';
+                    const statusClass = user.status === 'active' ? 'status-active' : 'status-inactive';
+
+                    newRow.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${user.name}</td>
+                        <td>${user.phone || '-'}</td>
+                        <td>${user.email || '-'}</td>
+                        <td><span class="status-badge ${wechatStatusClass}">${wechatStatusText}</span></td>
+                        <td>${user.level}</td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                        <td class="action-btns">
+                            <button class="action-btn edit" title="编辑"><i class="fas fa-edit"></i></button>
+                            <button class="action-btn delete" title="删除"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    `;
+                });
+            }
+            loadInitialUsers(); // 页面加载时加载并渲染
+
+            // --- 填充新增用户下拉列表 ---
+            function populateAddUserSelect() {
+                selectUserInput.innerHTML = '<option value="">-- 请选择要添加的用户 --</option>'; // 重置
+                const configuredUserIds = configuredUsers.map(u => u.id);
+
+                MOCK_SYSTEM_USERS.forEach(sysUser => {
+                    // 只显示尚未添加到此站点配置中的用户
+                    if (!configuredUserIds.includes(sysUser.id)) {
+                        const option = document.createElement('option');
+                        option.value = sysUser.id;
+                        option.textContent = `${sysUser.name} (${sysUser.phone || '无手机号'})`; // 显示姓名和电话以便区分
+                        selectUserInput.appendChild(option);
+                    }
+                });
+            }
+
+            // --- 用户模态框通用操作 ---
+            function openUserModal() { userEditModal.classList.add('active'); }
+            function closeUserModal() { userEditModal.classList.remove('active'); }
+            userModalCloseBtns.forEach(btn => btn.addEventListener('click', closeUserModal));
+            userEditModal.addEventListener('click', (event) => {
+                if (event.target === userEditModal) closeUserModal();
+            });
+
+            // --- 新增用户逻辑 ---
+            addUserBtn.addEventListener('click', function() {
+                userModalTitle.textContent = '新增推送用户';
+                userForm.reset(); // 清空表单
+                editingUserIdInput.value = ''; // 清空编辑ID
+                addUserSelectGroup.style.display = 'block'; // 显示用户选择下拉框
+                editUserInfoGroup.style.display = 'none'; // 隐藏编辑时的只读信息
+                populateAddUserSelect(); // 填充可选用户列表
+                userLevelSelect.value = '二级'; // 默认级别
+                userStatusSelect.value = 'active'; // 默认状态
+                openUserModal();
+            });
+
+            // --- 编辑用户逻辑 ---
+            userTableBody.addEventListener('click', function(event) {
+                const editButton = event.target.closest('.action-btn.edit');
+                if (editButton) {
+                    const rowToEdit = editButton.closest('tr');
+                    const userId = rowToEdit.dataset.userId;
+                    const user = configuredUsers.find(u => u.id === userId);
+
+                    if (user) {
+                        userModalTitle.textContent = `编辑用户: ${user.name}`;
+                        editingUserIdInput.value = user.id; // 设置编辑ID
+                        addUserSelectGroup.style.display = 'none'; // 隐藏用户选择下拉框
+                        editUserInfoGroup.style.display = 'block'; // 显示编辑时的只读信息
+                        editUserNameDiv.textContent = user.name; // 显示用户名
+
+                        // 填充当前用户的级别和状态
+                        userLevelSelect.value = user.level;
+                        userStatusSelect.value = user.status;
+
+                        openUserModal();
+                    }
+                }
+            });
+
+            // --- 保存用户数据 (新增/编辑) ---
+            saveUserDataBtn.addEventListener('click', function() {
+                const editingId = editingUserIdInput.value;
+                const selectedLevel = userLevelSelect.value;
+                const selectedStatus = userStatusSelect.value;
+
+                if (!selectedLevel) {
+                    alert('请选择用户级别！');
+                    return;
+                }
+
+                if (editingId) {
+                    // --- 编辑模式 ---
+                    const userIndex = configuredUsers.findIndex(u => u.id === editingId);
+                    if (userIndex > -1) {
+                        configuredUsers[userIndex].level = selectedLevel;
+                        configuredUsers[userIndex].status = selectedStatus;
+                        alert('用户信息更新成功！');
+                        renderUserTable(); // 重新渲染表格
+                        closeUserModal();
+                    } else {
+                        alert('找不到要编辑的用户！');
+                    }
+                } else {
+                    // --- 新增模式 ---
+                    const selectedUserId = selectUserInput.value;
+                    if (!selectedUserId) {
+                        alert('请选择要添加的用户！');
+                        return;
+                    }
+
+                    // 检查是否已存在 (理论上 select 已经过滤了，但双重检查更安全)
+                    if (configuredUsers.some(u => u.id === selectedUserId)) {
+                        alert('该用户已在列表中！');
+                        return;
+                    }
+
+                    const userToAdd = MOCK_SYSTEM_USERS.find(u => u.id === selectedUserId);
+                    if (userToAdd) {
+                        configuredUsers.push({
+                            ...userToAdd,
+                            level: selectedLevel,
+                            status: selectedStatus
+                        });
+                        alert('新增用户成功！');
+                        renderUserTable(); // 重新渲染表格
+                        closeUserModal();
+                    } else {
+                        alert('找不到所选的用户信息！');
+                    }
+                }
+            });
+
+             // --- 删除用户 --- (事件委托)
+             userTableBody.addEventListener('click', function(event) {
+                const deleteButton = event.target.closest('.action-btn.delete');
+                 if (deleteButton) {
+                     const rowToDelete = deleteButton.closest('tr');
+                     const userIdToDelete = rowToDelete.dataset.userId;
+                     const userToDelete = configuredUsers.find(u => u.id === userIdToDelete);
+
+                     if (userToDelete && confirm(`确定要从推送列表中移除用户 "${userToDelete.name}" 吗？`)) {
+                         configuredUsers = configuredUsers.filter(u => u.id !== userIdToDelete);
+                         renderUserTable(); // 重新渲染表格
+                         alert(`用户 "${userToDelete.name}" 已移除。`);
+                     }
+                 }
+             });
+
+            // --- 保存按钮 (原保存用户配置) ---
+            const saveUsersBtn = document.getElementById('save-users-btn');
+            saveUsersBtn.addEventListener('click', function() {
+                let hasUnboundWechat = false;
+                configuredUsers.forEach(user => {
+                    // 从 MOCK_SYSTEM_USERS 获取最新的绑定状态（或实际应从后端获取）
+                    const systemUser = MOCK_SYSTEM_USERS.find(su => su.id === user.id);
+                    if (systemUser && !systemUser.wechatBound) {
+                         hasUnboundWechat = true;
+                    }
+                    // 如果 configuredUsers 自身也存储了 wechatBound 状态，也可以直接用 user.wechatBound
+                });
+
+                let message = "配置已保存！"; // 修改提示
+                if (hasUnboundWechat) {
+                    message += "\n\n注意：列表中存在微信未绑定的用户，可能无法接收微信告警推送。";
+                }
+                alert(message);
+                console.log("保存操作触发（模拟），当前配置用户:", JSON.stringify(configuredUsers));
+                 // 此处应有实际的后端交互逻辑，发送 configuredUsers 数据
+            });
+
+            // --- 模板选择模态框相关 (保持不变) ---
+            const templateSelectModal = document.getElementById('template-select-modal');
+            const selectTemplateBtns = document.querySelectorAll('.select-template-btn');
+            const templateModalCloseBtns = templateSelectModal.querySelectorAll('.close-modal');
+            const confirmSelectBtn = document.getElementById('confirm-template-select');
+            const modalDeviceName = document.getElementById('modal-device-name');
+            const templateGrid = document.getElementById('template-grid');
+            let currentDeviceItem = null; // 存储当前正在操作的设备项
+            let selectedTemplateCard = null; // 存储当前模态框中选中的模板卡片
+
+            selectTemplateBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    currentDeviceItem = this.closest('.device-item');
+                    const deviceName = currentDeviceItem.querySelector('.device-name').textContent;
+                    modalDeviceName.textContent = deviceName;
+                    if (selectedTemplateCard) {
+                        selectedTemplateCard.classList.remove('selected');
+                        selectedTemplateCard = null;
+                    }
+                    document.getElementById('template-search-input').value = '';
+                    document.getElementById('template-filter-type').selectedIndex = 0;
+                    const currentTemplateName = currentDeviceItem.querySelector('.template-status .selected')?.textContent;
+                    const cards = templateGrid.querySelectorAll('.template-card');
+                    cards.forEach(card => {
+                        card.style.display = ''; // 先确保所有卡片可见
+                        if (card.dataset.templateName === currentTemplateName) {
+                            card.classList.add('selected');
+                            selectedTemplateCard = card;
+                        } else {
+                            card.classList.remove('selected');
+                        }
+                    });
+                    templateSelectModal.classList.add('active');
+                });
+            });
+
+            templateModalCloseBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    templateSelectModal.classList.remove('active');
+                });
+            });
+            templateSelectModal.addEventListener('click', function(event) {
+                if (event.target === templateSelectModal) {
+                    templateSelectModal.classList.remove('active');
+                }
+            });
+
+            templateGrid.addEventListener('click', function(event) {
+                const targetCard = event.target.closest('.template-card');
+                if (!targetCard) return;
+                if (selectedTemplateCard) {
+                    selectedTemplateCard.classList.remove('selected');
+                }
+                targetCard.classList.add('selected');
+                selectedTemplateCard = targetCard;
+            });
+
+            confirmSelectBtn.addEventListener('click', function() {
+                if (!selectedTemplateCard) {
+                    alert('请先选择一个模板！');
+                    return;
+                }
+                if (!currentDeviceItem) return;
+                const templateName = selectedTemplateCard.dataset.templateName;
+                const templateStatusElement = currentDeviceItem.querySelector('.template-status');
+                const selectButton = currentDeviceItem.querySelector('.select-template-btn');
+                templateStatusElement.innerHTML = `已选用模板: <span class="selected">${templateName}</span>`;
+                selectButton.innerHTML = '<i class="fas fa-exchange-alt"></i> 更换模板';
+                selectButton.classList.remove('btn-secondary');
+                selectButton.classList.add('btn-primary');
+                alert(`设备 "${modalDeviceName.textContent}" 已选用模板 "${templateName}"`);
+                templateSelectModal.classList.remove('active');
+            });
+
+            const templateSearchBtn = document.getElementById('template-search-btn');
+            const templateSearchInput = document.getElementById('template-search-input');
+            const templateFilterType = document.getElementById('template-filter-type');
+
+            function filterTemplates() {
+                 const searchTerm = templateSearchInput.value.toLowerCase().trim();
+                 const selectedType = templateFilterType.value;
+                 const allCards = templateGrid.querySelectorAll('.template-card');
+                 console.log(`搜索: "${searchTerm}", 类型: "${selectedType}"`);
+                 allCards.forEach(card => {
+                    const name = card.querySelector('h4').textContent.toLowerCase().trim();
+                    let typeText = '';
+                    const typeElement = card.querySelector('p:last-of-type');
+                    if (typeElement) {
+                        const fullText = typeElement.textContent || '';
+                        const parts = fullText.split(':');
+                        if (parts.length > 1) {
+                            typeText = parts[1].trim();
+                        }
+                    }
+                    const nameMatch = name.includes(searchTerm);
+                    const typeMatch = !selectedType || typeText === selectedType || typeText === '所有类型';
+                    if (nameMatch && typeMatch) {
+                        card.style.display = '';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                 });
+                 // TODO: Update pagination based on visible cards
+            }
+
+            templateSearchBtn.addEventListener('click', filterTemplates);
+            templateSearchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') filterTemplates();
+            });
+            templateFilterType.addEventListener('change', filterTemplates);
+            // --- 结束模板选择 --- 
+
+            console.log("告警推送模板选用页面脚本初始化完成。");
+        });
+    </script>
+
+</body>
+</html> 

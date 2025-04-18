@@ -1,0 +1,1409 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>点表模板选用 - 智慧运维系统</title>
+    <!-- 引入 Font Awesome 图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 引入导航栏模板JS -->
+    <script src="navbar-template.js"></script>
+    <style>
+        :root {
+            --primary-color: #49A18D; /* 清安绿 */
+            --secondary-color: #3D8C7D;
+            --light-color: #F5F7F9;
+            --border-color: #E2E8F0;
+            --text-color: #333333;
+            --light-text: #FFFFFF;
+            --gray-text: #6C757D;
+            --light-gray: #E9ECEF;
+            --success-color: #28A745;
+            --warning-color: #FFC107;
+            --danger-color: #DC3545;
+            --info-color: #17A2B8;
+            --radius: 8px;
+            --shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #FAFAFA;
+            color: var(--text-color);
+            font-size: 14px;
+        }
+
+        .main-content {
+            padding: 20px;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        /* 面包屑导航 */
+        .breadcrumb {
+            display: flex;
+            padding: 10px 0;
+            margin-bottom: 20px;
+            list-style: none;
+            font-size: 0.9rem;
+        }
+
+        .breadcrumb-item {
+            color: var(--gray-text);
+        }
+
+        .breadcrumb-item a {
+            color: var(--gray-text);
+            text-decoration: none;
+        }
+
+        .breadcrumb-item a:hover {
+            color: var(--primary-color);
+        }
+
+        .breadcrumb-item + .breadcrumb-item::before {
+            content: "/";
+            padding: 0 8px;
+            color: var(--gray-text);
+        }
+
+        .breadcrumb-item.active {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        /* 站点信息卡片 */
+        .site-info-card {
+            background-color: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .site-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .site-avatar {
+            width: 60px;
+            height: 60px;
+            background-color: var(--light-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+            color: var(--primary-color);
+            font-size: 24px;
+        }
+
+        .site-details h2 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .site-meta {
+            display: flex;
+            gap: 15px;
+            color: var(--gray-text);
+            font-size: 0.9rem;
+        }
+
+        .site-meta-item {
+            display: flex;
+            align-items: center;
+        }
+
+        .site-meta-item i {
+            margin-right: 5px;
+        }
+
+        /* 按钮样式 */
+        .btn {
+            padding: 8px 16px;
+            border-radius: var(--radius);
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            transition: all 0.2s ease;
+            border: none;
+        }
+
+        .btn i {
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--light-color);
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        /* 设备列表卡片样式 */
+        .device-list-card {
+            background-color: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        /* 设备卡片样式 */
+        .device-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .device-card {
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 15px;
+            transition: all 0.2s ease;
+        }
+
+        .device-card:hover {
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .device-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .device-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--light-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            color: var(--primary-color);
+        }
+
+        .device-name {
+            font-weight: 500;
+        }
+
+        .device-type {
+            font-size: 12px;
+            color: var(--gray-text);
+        }
+
+        .template-status {
+            padding: 10px;
+            background-color: var(--light-color);
+            border-radius: var(--radius);
+            margin-bottom: 12px;
+            font-size: 13px;
+        }
+
+        .template-status.empty {
+            color: var(--gray-text);
+            font-style: italic;
+        }
+
+        .template-status.selected {
+            background-color: rgba(73, 161, 141, 0.1);
+            color: var(--primary-color);
+        }
+
+        .device-actions {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        /* 页面底部操作按钮 */
+        .page-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        /* 模态框样式 */
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: var(--radius);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            width: 800px;
+            max-width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: var(--gray-text);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            padding: 15px 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* 筛选卡片样式 */
+        .filter-section {
+            padding: 15px;
+            background-color: var(--light-color);
+            border-radius: var(--radius);
+            margin-bottom: 20px;
+        }
+
+        .filter-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 180px;
+        }
+
+        .filter-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .filter-select, .filter-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            font-size: 14px;
+        }
+
+        .filter-select:focus, .filter-input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
+        .filter-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        /* 模板列表样式 */
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .template-card {
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .template-card:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 3px 10px rgba(73, 161, 141, 0.1);
+        }
+
+        .template-card.selected {
+            border-color: var(--primary-color);
+            background-color: rgba(73, 161, 141, 0.05);
+        }
+
+        .template-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .template-name {
+            font-weight: 500;
+            color: var(--primary-color);
+        }
+
+        .recommended-flag {
+            color: var(--warning-color);
+        }
+
+        .template-meta {
+            margin-bottom: 10px;
+            font-size: 0.85rem;
+        }
+
+        .template-meta-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .meta-label {
+            color: var(--gray-text);
+        }
+
+        .meta-value {
+            font-weight: 500;
+        }
+
+        .template-footer {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 0.85rem;
+        }
+
+        .template-creator {
+            color: var(--gray-text);
+        }
+
+        .template-action {
+            color: var(--primary-color);
+            cursor: pointer;
+        }
+
+        .template-action:hover {
+            text-decoration: underline;
+        }
+
+        /* 分页样式 */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .pagination-item {
+            margin: 0 5px;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .pagination-item:hover {
+            background-color: var(--light-color);
+        }
+
+        .pagination-item.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        /* 预览详情样式 */
+        .preview-section {
+            margin-bottom: 20px;
+        }
+
+        .preview-section-title {
+            font-weight: 500;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .preview-item {
+            display: flex;
+            margin-bottom: 10px;
+        }
+
+        .preview-label {
+            font-weight: 500;
+            width: 150px;
+            flex-shrink: 0;
+            color: var(--gray-text);
+        }
+
+        .preview-value {
+            flex: 1;
+        }
+
+        .point-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+
+        .point-table th, .point-table td {
+            padding: 8px 10px;
+            text-align: left;
+            border: 1px solid var(--border-color);
+            font-size: 13px;
+        }
+
+        .point-table th {
+            background-color: var(--light-color);
+            font-weight: 500;
+        }
+
+        .point-table tr:nth-child(even) {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏容器 -->
+    <div id="navbar-container"></div>
+
+    <!-- 主内容区域 -->
+    <div class="main-content">
+        <!-- 面包屑导航 -->
+        <ul class="breadcrumb">
+            <li class="breadcrumb-item"><a href="site-homepage.html">首页</a></li>
+            <li class="breadcrumb-item"><a href="#">工具平台</a></li>
+            <li class="breadcrumb-item"><a href="#">维护工具</a></li>
+            <li class="breadcrumb-item"><a href="site-config-detail.html">站点配置</a></li>
+            <li class="breadcrumb-item active">点表模板选用</li>
+        </ul>
+
+        <!-- 站点信息卡片 -->
+        <div class="site-info-card">
+            <div class="site-info">
+                <div class="site-avatar">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <div class="site-details">
+                    <h2>金华电器储能电站 - 点表模板选用</h2>
+                    <div class="site-meta">
+                        <div class="site-meta-item">
+                            <i class="fas fa-building"></i>
+                            <span>重庆金华电器成套有限公司</span>
+                        </div>
+                        <div class="site-meta-item">
+                            <i class="fas fa-server"></i>
+                            <span>设备数量: 4</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 设备列表卡片 -->
+        <div class="device-list-card">
+            <div class="card-header">
+                <h3 class="card-title">当前站点设备列表</h3>
+            </div>
+            <div class="device-grid">
+                <!-- 设备1 -->
+                <div class="device-card">
+                    <div class="device-info">
+                        <div class="device-icon">
+                            <i class="fas fa-battery-full"></i>
+                        </div>
+                        <div>
+                            <div class="device-name">1#储能柜</div>
+                            <div class="device-type">储能设备</div>
+                        </div>
+                    </div>
+                    <div class="template-status empty">
+                        <i class="fas fa-info-circle"></i> 未选用点表模板
+                    </div>
+                    <div class="device-actions">
+                        <button class="btn btn-primary btn-sm" onclick="openTemplateSelector('1', '1#储能柜', 'storage')">
+                            <i class="fas fa-table"></i> 选择点表
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 设备2 -->
+                <div class="device-card">
+                    <div class="device-info">
+                        <div class="device-icon">
+                            <i class="fas fa-battery-full"></i>
+                        </div>
+                        <div>
+                            <div class="device-name">2#储能柜</div>
+                            <div class="device-type">储能设备</div>
+                        </div>
+                    </div>
+                    <div class="template-status selected">
+                        <i class="fas fa-check-circle"></i> 已选用模板：储能设备点表_EMS2.0
+                    </div>
+                    <div class="device-actions">
+                        <button class="btn btn-outline btn-sm" onclick="openTemplateSelector('2', '2#储能柜', 'storage')">
+                            <i class="fas fa-edit"></i> 更换点表
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 设备3 -->
+                <div class="device-card">
+                    <div class="device-info">
+                        <div class="device-icon">
+                            <i class="fas fa-battery-full"></i>
+                        </div>
+                        <div>
+                            <div class="device-name">3#储能柜</div>
+                            <div class="device-type">储能设备</div>
+                        </div>
+                    </div>
+                    <div class="template-status empty">
+                        <i class="fas fa-info-circle"></i> 未选用点表模板
+                    </div>
+                    <div class="device-actions">
+                        <button class="btn btn-primary btn-sm" onclick="openTemplateSelector('3', '3#储能柜', 'storage')">
+                            <i class="fas fa-table"></i> 选择点表
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 设备4 -->
+                <div class="device-card">
+                    <div class="device-info">
+                        <div class="device-icon">
+                            <i class="fas fa-charging-station"></i>
+                        </div>
+                        <div>
+                            <div class="device-name">1#充电桩</div>
+                            <div class="device-type">充电桩</div>
+                        </div>
+                    </div>
+                    <div class="template-status selected">
+                        <i class="fas fa-check-circle"></i> 已选用模板：充电桩点表_标准版
+                    </div>
+                    <div class="device-actions">
+                        <button class="btn btn-outline btn-sm" onclick="openTemplateSelector('4', '1#充电桩', 'charger')">
+                            <i class="fas fa-edit"></i> 更换点表
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 页面底部操作按钮 -->
+        <div class="page-actions">
+            <button class="btn btn-outline" id="cancel-btn">
+                <i class="fas fa-arrow-left"></i> 返回
+            </button>
+            <button class="btn btn-primary" id="save-btn">
+                <i class="fas fa-save"></i> 保存配置
+            </button>
+        </div>
+    </div>
+
+    <!-- 模板选择模态框 -->
+    <div class="modal-backdrop" id="template-select-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">选择点表模板 - <span id="current-device-name">1#储能柜</span></h4>
+                <button class="modal-close" id="close-template-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- 筛选部分 -->
+                <div class="filter-section">
+                    <div class="filter-form">
+                        <div class="filter-group">
+                            <label for="template-name" class="filter-label">模板名称</label>
+                            <input type="text" id="template-name" class="filter-input" placeholder="输入模板名称关键字...">
+                        </div>
+                        <div class="filter-group">
+                            <label for="device-type" class="filter-label">设备类型</label>
+                            <select id="device-type" class="filter-select">
+                                <option value="">全部</option>
+                                <option value="storage">储能设备</option>
+                                <option value="charger">充电桩</option>
+                                <option value="solar">光伏设备</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="product-series" class="filter-label">产品系列</label>
+                            <select id="product-series" class="filter-select">
+                                <option value="">全部</option>
+                                <option value="CC00">CC00</option>
+                                <option value="LS00">LS00</option>
+                                <option value="LS01">LS01</option>
+                                <option value="LS02">LS02</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="filter-actions">
+                        <button class="btn btn-outline btn-sm" id="reset-filter-btn">
+                            <i class="fas fa-undo"></i> 重置
+                        </button>
+                        <button class="btn btn-primary btn-sm" id="apply-filter-btn">
+                            <i class="fas fa-search"></i> 搜索
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 模板列表 -->
+                <div class="template-grid" id="template-grid">
+                    <!-- 模板卡片1 -->
+                    <div class="template-card" data-id="1">
+                        <div class="template-header">
+                            <div class="template-name">储能设备点表_EMS2.0</div>
+                            <div class="recommended-flag">
+                                <i class="fas fa-star" title="推荐"></i>
+                            </div>
+                        </div>
+                        <div class="template-meta">
+                            <div class="template-meta-item">
+                                <span class="meta-label">适配设备:</span>
+                                <span class="meta-value">储能设备</span>
+                            </div>
+                            <div class="template-meta-item">
+                                <span class="meta-label">产品系列:</span>
+                                <span class="meta-value">LS01</span>
+                            </div>
+                            <div class="template-meta-item">
+                                <span class="meta-label">点位数量:</span>
+                                <span class="meta-value">156</span>
+                            </div>
+                        </div>
+                        <div class="template-footer">
+                            <div class="template-creator">创建人: 系统管理员</div>
+                            <div class="template-action" onclick="previewTemplate(1)">预览</div>
+                        </div>
+                    </div>
+
+                    <!-- 模板卡片2 -->
+                    <div class="template-card" data-id="2">
+                        <div class="template-header">
+                            <div class="template-name">储能设备点表_EMS1.5</div>
+                            <div class="recommended-flag">
+                                <i class="fas fa-star" title="推荐"></i>
+                            </div>
+                        </div>
+                        <div class="template-meta">
+                            <div class="template-meta-item">
+                                <span class="meta-label">适配设备:</span>
+                                <span class="meta-value">储能设备</span>
+                            </div>
+                            <div class="template-meta-item">
+                                <span class="meta-label">产品系列:</span>
+                                <span class="meta-value">LS00</span>
+                            </div>
+                            <div class="template-meta-item">
+                                <span class="meta-label">点位数量:</span>
+                                <span class="meta-value">128</span>
+                            </div>
+                        </div>
+                        <div class="template-footer">
+                            <div class="template-creator">创建人: 系统管理员</div>
+                            <div class="template-action" onclick="previewTemplate(2)">预览</div>
+                        </div>
+                    </div>
+
+                    <!-- 模板卡片3 -->
+                    <div class="template-card" data-id="3">
+                        <div class="template-header">
+                            <div class="template-name">充电桩点表_标准版</div>
+                            <div class="recommended-flag">
+                                <i class="fas fa-star" title="推荐"></i>
+                            </div>
+                        </div>
+                        <div class="template-meta">
+                            <div class="template-meta-item">
+                                <span class="meta-label">适配设备:</span>
+                                <span class="meta-value">充电桩</span>
+                            </div>
+                            <div class="template-meta-item">
+                                <span class="meta-label">产品系列:</span>
+                                <span class="meta-value">CC00</span>
+                            </div>
+                            <div class="template-meta-item">
+                                <span class="meta-label">点位数量:</span>
+                                <span class="meta-value">86</span>
+                            </div>
+                        </div>
+                        <div class="template-footer">
+                            <div class="template-creator">创建人: 李工程师</div>
+                            <div class="template-action" onclick="previewTemplate(3)">预览</div>
+                        </div>
+                    </div>
+
+                    <!-- 模板卡片4 -->
+                    <div class="template-card" data-id="4">
+                        <div class="template-header">
+                            <div class="template-name">光伏设备点表_扩展版</div>
+                            <div class="recommended-flag">
+                                <i class="fas fa-star" title="推荐"></i>
+                            </div>
+                        </div>
+                        <div class="template-meta">
+                            <div class="template-meta-item">
+                                <span class="meta-label">适配设备:</span>
+                                <span class="meta-value">光伏设备</span>
+                            </div>
+                            <div class="template-meta-item">
+                                <span class="meta-label">产品系列:</span>
+                                <span class="meta-value">LS02</span>
+                            </div>
+                            <div class="template-meta-item">
+                                <span class="meta-label">点位数量:</span>
+                                <span class="meta-value">92</span>
+                            </div>
+                        </div>
+                        <div class="template-footer">
+                            <div class="template-creator">创建人: 王工程师</div>
+                            <div class="template-action" onclick="previewTemplate(4)">预览</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 分页控件 -->
+                <div class="pagination">
+                    <div class="pagination-item">
+                        <i class="fas fa-angle-left"></i>
+                    </div>
+                    <div class="pagination-item active">1</div>
+                    <div class="pagination-item">2</div>
+                    <div class="pagination-item">3</div>
+                    <div class="pagination-item">
+                        <i class="fas fa-angle-right"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="cancel-template-btn">取消</button>
+                <button class="btn btn-primary" id="confirm-template-btn" disabled>确认选用</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 预览模态框 -->
+    <div class="modal-backdrop" id="preview-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">点表模板预览</h4>
+                <button class="modal-close" id="close-preview-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="preview-section">
+                    <h5 class="preview-section-title">基本信息</h5>
+                    <div class="preview-item">
+                        <div class="preview-label">模板名称</div>
+                        <div class="preview-value" id="preview-template-name">储能设备点表_EMS2.0</div>
+                    </div>
+                    <div class="preview-item">
+                        <div class="preview-label">适配设备类型</div>
+                        <div class="preview-value" id="preview-device-type">储能设备</div>
+                    </div>
+                    <div class="preview-item">
+                        <div class="preview-label">适配产品系列</div>
+                        <div class="preview-value" id="preview-product-series">LS01</div>
+                    </div>
+                    <div class="preview-item">
+                        <div class="preview-label">点位数量</div>
+                        <div class="preview-value" id="preview-point-count">156</div>
+                    </div>
+                    <div class="preview-item">
+                        <div class="preview-label">协议标准</div>
+                        <div class="preview-value" id="preview-protocol">MODBUS-TCP</div>
+                    </div>
+                    <div class="preview-item">
+                        <div class="preview-label">创建人</div>
+                        <div class="preview-value" id="preview-creator">系统管理员</div>
+                    </div>
+                    <div class="preview-item">
+                        <div class="preview-label">创建时间</div>
+                        <div class="preview-value" id="preview-create-time">2024-05-10 15:23:45</div>
+                    </div>
+                    <div class="preview-item">
+                        <div class="preview-label">更新时间</div>
+                        <div class="preview-value" id="preview-update-time">2024-05-12 09:45:32</div>
+                    </div>
+                    <div class="preview-item">
+                        <div class="preview-label">模板说明</div>
+                        <div class="preview-value" id="preview-description">适用于所有LS01系列储能设备，包含基本运行参数、电气参数、电池状态参数等。基于EMS2.0协议标准开发，已对接多个主流品牌设备。</div>
+                    </div>
+                </div>
+
+                <div class="preview-section">
+                    <h5 class="preview-section-title">点表样例 (前10条数据)</h5>
+                    <table class="point-table">
+                        <thead>
+                            <tr>
+                                <th>序号</th>
+                                <th>点位名称</th>
+                                <th>地址</th>
+                                <th>数据类型</th>
+                                <th>单位</th>
+                                <th>描述</th>
+                            </tr>
+                        </thead>
+                        <tbody id="preview-point-table-body">
+                            <tr>
+                                <td>1</td>
+                                <td>Device_Status</td>
+                                <td>0x1000</td>
+                                <td>uint16</td>
+                                <td>-</td>
+                                <td>设备运行状态</td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>Active_Power</td>
+                                <td>0x1001</td>
+                                <td>int32</td>
+                                <td>kW</td>
+                                <td>有功功率</td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>Reactive_Power</td>
+                                <td>0x1003</td>
+                                <td>int32</td>
+                                <td>kVar</td>
+                                <td>无功功率</td>
+                            </tr>
+                            <tr>
+                                <td>4</td>
+                                <td>Grid_Voltage_A</td>
+                                <td>0x1005</td>
+                                <td>uint16</td>
+                                <td>V</td>
+                                <td>A相电网电压</td>
+                            </tr>
+                            <tr>
+                                <td>5</td>
+                                <td>Grid_Voltage_B</td>
+                                <td>0x1006</td>
+                                <td>uint16</td>
+                                <td>V</td>
+                                <td>B相电网电压</td>
+                            </tr>
+                            <tr>
+                                <td>6</td>
+                                <td>Grid_Voltage_C</td>
+                                <td>0x1007</td>
+                                <td>uint16</td>
+                                <td>V</td>
+                                <td>C相电网电压</td>
+                            </tr>
+                            <tr>
+                                <td>7</td>
+                                <td>Grid_Current_A</td>
+                                <td>0x1008</td>
+                                <td>int16</td>
+                                <td>A</td>
+                                <td>A相电网电流</td>
+                            </tr>
+                            <tr>
+                                <td>8</td>
+                                <td>Grid_Current_B</td>
+                                <td>0x1009</td>
+                                <td>int16</td>
+                                <td>A</td>
+                                <td>B相电网电流</td>
+                            </tr>
+                            <tr>
+                                <td>9</td>
+                                <td>Grid_Current_C</td>
+                                <td>0x100A</td>
+                                <td>int16</td>
+                                <td>A</td>
+                                <td>C相电网电流</td>
+                            </tr>
+                            <tr>
+                                <td>10</td>
+                                <td>Grid_Frequency</td>
+                                <td>0x100B</td>
+                                <td>uint16</td>
+                                <td>Hz</td>
+                                <td>电网频率</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="close-preview-btn">关闭</button>
+                <button class="btn btn-primary" id="use-preview-template-btn">选用此模板</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页面交互脚本 -->
+    <script>
+        // 点表模板数据（实际应用中应当从后端获取）
+        const templateData = {
+            1: {
+                id: 1,
+                name: "储能设备点表_EMS2.0",
+                deviceType: "储能设备",
+                productSeries: "LS01",
+                pointCount: 156,
+                protocol: "MODBUS-TCP",
+                creator: "系统管理员",
+                createTime: "2024-05-10 15:23:45",
+                updateTime: "2024-05-12 09:45:32",
+                description: "适用于所有LS01系列储能设备，包含基本运行参数、电气参数、电池状态参数等。基于EMS2.0协议标准开发，已对接多个主流品牌设备。",
+                recommended: true
+            },
+            2: {
+                id: 2,
+                name: "储能设备点表_EMS1.5",
+                deviceType: "储能设备",
+                productSeries: "LS00",
+                pointCount: 128,
+                protocol: "MODBUS-TCP",
+                creator: "系统管理员",
+                createTime: "2024-05-08 10:18:22",
+                updateTime: "2024-05-09 14:35:10",
+                description: "适用于LS00系列储能设备，基于EMS1.5协议标准开发。",
+                recommended: true
+            },
+            3: {
+                id: 3,
+                name: "充电桩点表_标准版",
+                deviceType: "充电桩",
+                productSeries: "CC00",
+                pointCount: 86,
+                protocol: "MODBUS-TCP",
+                creator: "李工程师",
+                createTime: "2024-05-05 09:12:35",
+                updateTime: "2024-05-05 09:12:35",
+                description: "适用于CC00系列充电桩，包含充电桩基本状态参数、充电参数等。",
+                recommended: true
+            },
+            4: {
+                id: 4,
+                name: "光伏设备点表_扩展版",
+                deviceType: "光伏设备",
+                productSeries: "LS02",
+                pointCount: 92,
+                protocol: "MODBUS-TCP",
+                creator: "王工程师",
+                createTime: "2024-04-28 16:42:18",
+                updateTime: "2024-05-01 11:24:30",
+                description: "适用于LS02系列光伏设备，包含基本运行参数、发电参数、设备状态参数等。",
+                recommended: true
+            }
+        };
+
+        // 设备已选用的点表模板数据
+        let deviceTemplates = {
+            2: 1, // 2#储能柜使用模板1
+            4: 3  // 1#充电桩使用模板3
+        };
+
+        // 当前正在操作的设备
+        let currentDevice = {
+            id: null,
+            name: null,
+            type: null
+        };
+
+        // 当前选中的模板ID
+        let selectedTemplateId = null;
+
+        // 初始化导航栏
+        document.addEventListener('DOMContentLoaded', function() {
+            // 如果存在导航栏初始化函数，则调用
+            if (typeof initNavbar === 'function') {
+                initNavbar();
+                
+                // 设置活动菜单项
+                if (typeof setActiveMenuItem === 'function') {
+                    // 设置"工具平台"和"维护工具"为活动菜单
+                    setActiveMenuItem('menu-tools', 'submenu-maintenance');
+                }
+            }
+
+            // 从URL中获取站点名称参数
+            const urlParams = new URLSearchParams(window.location.search);
+            const siteName = urlParams.get('siteName');
+            
+            // 如果有站点名称参数，更新页面标题
+            if (siteName) {
+                document.querySelector('.site-details h2').textContent = `${siteName} - 点表模板选用`;
+            }
+
+            // 初始化模态框
+            initModals();
+
+            // 初始化按钮事件
+            initButtonEvents();
+
+            // 初始化模板卡片点击事件
+            initTemplateCards();
+
+            // 初始化分页事件
+            initPagination();
+        });
+
+        // 打开模板选择模态框
+        function openTemplateSelector(deviceId, deviceName, deviceType) {
+            // 设置当前操作的设备
+            currentDevice.id = deviceId;
+            currentDevice.name = deviceName;
+            currentDevice.type = deviceType;
+
+            // 更新模态框标题
+            document.getElementById('current-device-name').textContent = deviceName;
+
+            // 重置选中的模板
+            selectedTemplateId = null;
+
+            // 重置模板卡片的选中状态
+            const templateCards = document.querySelectorAll('.template-card');
+            templateCards.forEach(card => {
+                card.classList.remove('selected');
+                
+                // 如果该设备已经选用了这个模板，则预选中
+                const cardId = card.getAttribute('data-id');
+                if (deviceTemplates[deviceId] === parseInt(cardId)) {
+                    card.classList.add('selected');
+                    selectedTemplateId = parseInt(cardId);
+                }
+            });
+
+            // 预设设备类型筛选器
+            const deviceTypeSelect = document.getElementById('device-type');
+            if (deviceTypeSelect) {
+                // 清空其他筛选条件
+                document.getElementById('template-name').value = '';
+                document.getElementById('product-series').value = '';
+                
+                // 设置设备类型筛选
+                if (deviceType === 'storage') {
+                    deviceTypeSelect.value = '储能设备';
+                } else if (deviceType === 'charger') {
+                    deviceTypeSelect.value = '充电桩';
+                } else if (deviceType === 'solar') {
+                    deviceTypeSelect.value = '光伏设备';
+                } else {
+                    deviceTypeSelect.value = '';
+                }
+            }
+
+            // 启用或禁用确认按钮
+            document.getElementById('confirm-template-btn').disabled = !selectedTemplateId;
+
+            // 显示模态框
+            document.getElementById('template-select-modal').style.display = 'flex';
+        }
+
+        // 初始化模态框
+        function initModals() {
+            // 模板选择模态框
+            const templateModal = document.getElementById('template-select-modal');
+            const closeTemplateModal = document.getElementById('close-template-modal');
+            const cancelTemplateBtn = document.getElementById('cancel-template-btn');
+            const confirmTemplateBtn = document.getElementById('confirm-template-btn');
+
+            // 关闭模板选择模态框
+            closeTemplateModal.addEventListener('click', () => {
+                templateModal.style.display = 'none';
+            });
+
+            cancelTemplateBtn.addEventListener('click', () => {
+                templateModal.style.display = 'none';
+            });
+
+            // 确认选用模板
+            confirmTemplateBtn.addEventListener('click', () => {
+                if (!selectedTemplateId) {
+                    alert('请先选择一个模板');
+                    return;
+                }
+
+                // 更新设备已选用的模板
+                deviceTemplates[currentDevice.id] = selectedTemplateId;
+
+                // 关闭模态框
+                templateModal.style.display = 'none';
+
+                // 更新设备卡片显示
+                updateDeviceCardTemplate(currentDevice.id, selectedTemplateId);
+
+                // 显示成功提示
+                alert(`已为 ${currentDevice.name} 选用模板：${templateData[selectedTemplateId].name}`);
+            });
+
+            // 预览模态框
+            const previewModal = document.getElementById('preview-modal');
+            const closePreviewModal = document.getElementById('close-preview-modal');
+            const closePreviewBtn = document.getElementById('close-preview-btn');
+            const usePreviewTemplateBtn = document.getElementById('use-preview-template-btn');
+
+            // 关闭预览模态框
+            closePreviewModal.addEventListener('click', () => {
+                previewModal.style.display = 'none';
+            });
+
+            closePreviewBtn.addEventListener('click', () => {
+                previewModal.style.display = 'none';
+            });
+
+            // 在预览中选用模板
+            usePreviewTemplateBtn.addEventListener('click', () => {
+                if (!currentDevice.id || !selectedTemplateId) {
+                    alert('请先选择一个模板和设备');
+                    return;
+                }
+
+                // 更新设备已选用的模板
+                deviceTemplates[currentDevice.id] = selectedTemplateId;
+
+                // 关闭预览模态框
+                previewModal.style.display = 'none';
+                // 关闭模板选择模态框
+                templateModal.style.display = 'none';
+
+                // 更新设备卡片显示
+                updateDeviceCardTemplate(currentDevice.id, selectedTemplateId);
+
+                // 显示成功提示
+                alert(`已为 ${currentDevice.name} 选用模板：${templateData[selectedTemplateId].name}`);
+            });
+
+            // 筛选相关
+            const resetFilterBtn = document.getElementById('reset-filter-btn');
+            const applyFilterBtn = document.getElementById('apply-filter-btn');
+
+            // 重置筛选条件
+            resetFilterBtn.addEventListener('click', () => {
+                document.getElementById('template-name').value = '';
+                document.getElementById('device-type').value = '';
+                document.getElementById('product-series').value = '';
+            });
+
+            // 应用筛选条件
+            applyFilterBtn.addEventListener('click', () => {
+                const templateName = document.getElementById('template-name').value;
+                const deviceType = document.getElementById('device-type').value;
+                const productSeries = document.getElementById('product-series').value;
+
+                alert(`执行筛选：模板名称=${templateName}, 设备类型=${deviceType}, 产品系列=${productSeries}`);
+                // 实际应用中应当是AJAX请求后端接口，获取筛选后的数据
+            });
+        }
+
+        // 初始化按钮事件
+        function initButtonEvents() {
+            // 返回按钮
+            const cancelBtn = document.getElementById('cancel-btn');
+            cancelBtn.addEventListener('click', () => {
+                if (Object.keys(deviceTemplates).length > 0 && 
+                    !confirm('当前已有模板选用变更未保存，确定要返回吗？')) {
+                    return;
+                }
+                
+                // 获取URL参数
+                const urlParams = new URLSearchParams(window.location.search);
+                const siteName = urlParams.get('siteName');
+                
+                // 跳转回站点配置页面
+                window.location.href = `site-config-detail.html?siteName=${encodeURIComponent(siteName || '金华电器储能电站')}`;
+            });
+
+            // 保存配置按钮
+            const saveBtn = document.getElementById('save-btn');
+            saveBtn.addEventListener('click', () => {
+                // 获取URL参数
+                const urlParams = new URLSearchParams(window.location.search);
+                const siteName = urlParams.get('siteName');
+                
+                alert('已保存所有设备的点表模板选用配置');
+                
+                // 跳转回站点配置页面，并带上步骤完成参数
+                window.location.href = `site-config-detail.html?siteName=${encodeURIComponent(siteName || '金华电器储能电站')}&stepCompleted=true`;
+            });
+        }
+
+        // 初始化模板卡片点击事件
+        function initTemplateCards() {
+            const templateCards = document.querySelectorAll('.template-card');
+            templateCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    // 清除所有卡片的选中状态
+                    templateCards.forEach(c => c.classList.remove('selected'));
+                    
+                    // 设置当前卡片为选中状态
+                    card.classList.add('selected');
+                    
+                    // 获取模板ID
+                    selectedTemplateId = parseInt(card.getAttribute('data-id'));
+                    
+                    // 启用确认按钮
+                    document.getElementById('confirm-template-btn').disabled = false;
+                });
+            });
+        }
+
+        // 初始化分页事件
+        function initPagination() {
+            const paginationItems = document.querySelectorAll('.pagination-item');
+            paginationItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    // 清除所有分页项的激活状态
+                    paginationItems.forEach(i => i.classList.remove('active'));
+                    
+                    // 设置当前分页项为激活状态
+                    if (!item.querySelector('i')) {
+                        item.classList.add('active');
+                    }
+                    
+                    // 获取页码
+                    const pageText = item.textContent.trim();
+                    if (pageText) {
+                        // 实际应用中应当是AJAX请求后端接口，获取对应页的数据
+                        console.log(`切换到第 ${pageText} 页`);
+                    } else if (item.querySelector('.fa-angle-left')) {
+                        console.log('切换到上一页');
+                    } else if (item.querySelector('.fa-angle-right')) {
+                        console.log('切换到下一页');
+                    }
+                });
+            });
+        }
+
+        // 更新设备卡片显示的模板状态
+        function updateDeviceCardTemplate(deviceId, templateId) {
+            // 查找设备卡片
+            const deviceCards = document.querySelectorAll('.device-card');
+            deviceCards.forEach(card => {
+                const deviceButton = card.querySelector('.device-actions button');
+                if (deviceButton && deviceButton.getAttribute('onclick').includes(`'${deviceId}'`)) {
+                    const templateStatus = card.querySelector('.template-status');
+                    
+                    if (templateId) {
+                        // 更新为已选用状态
+                        templateStatus.classList.remove('empty');
+                        templateStatus.classList.add('selected');
+                        templateStatus.innerHTML = `<i class="fas fa-check-circle"></i> 已选用模板：${templateData[templateId].name}`;
+                        
+                        // 更新按钮样式
+                        deviceButton.classList.remove('btn-primary');
+                        deviceButton.classList.add('btn-outline');
+                        deviceButton.innerHTML = `<i class="fas fa-edit"></i> 更换点表`;
+                    } else {
+                        // 更新为未选用状态
+                        templateStatus.classList.add('empty');
+                        templateStatus.classList.remove('selected');
+                        templateStatus.innerHTML = `<i class="fas fa-info-circle"></i> 未选用点表模板`;
+                        
+                        // 更新按钮样式
+                        deviceButton.classList.add('btn-primary');
+                        deviceButton.classList.remove('btn-outline');
+                        deviceButton.innerHTML = `<i class="fas fa-table"></i> 选择点表`;
+                    }
+                }
+            });
+        }
+
+        // 预览模板
+        function previewTemplate(templateId) {
+            if (!templateData[templateId]) {
+                alert('模板数据不存在');
+                return;
+            }
+
+            selectedTemplateId = templateId; // 设置当前选中的模板
+
+            const template = templateData[templateId];
+            
+            // 填充预览信息
+            document.getElementById('preview-template-name').textContent = template.name;
+            document.getElementById('preview-device-type').textContent = template.deviceType;
+            document.getElementById('preview-product-series').textContent = template.productSeries;
+            document.getElementById('preview-point-count').textContent = template.pointCount;
+            document.getElementById('preview-protocol').textContent = template.protocol;
+            document.getElementById('preview-creator').textContent = template.creator;
+            document.getElementById('preview-create-time').textContent = template.createTime;
+            document.getElementById('preview-update-time').textContent = template.updateTime;
+            document.getElementById('preview-description').textContent = template.description;
+
+            // 打开预览模态框
+            document.getElementById('preview-modal').style.display = 'flex';
+            
+            // 阻止事件冒泡
+            event.stopPropagation();
+        }
+    </script>
+</body>
+</html> 

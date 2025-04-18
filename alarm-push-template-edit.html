@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-main-title">新建告警推送模板 - 智慧运维系统</title>
+    <!-- 引入 Font Awesome 图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 引入导航栏模板JS -->
+    <script src="navbar-template.js"></script>
+    <style>
+        /* --- 基础样式和变量 (保持一致) --- */
+        :root {
+            --primary-color: #49A18D; /* 清安绿 */
+            --secondary-color: #3D8C7D;
+            --light-color: #F5F7F9;
+            --border-color: #E2E8F0;
+            --text-color: #333333;
+            --light-text: #FFFFFF;
+            --gray-text: #6C757D;
+            --light-gray: #E9ECEF;
+            --success-color: #28A745;
+            --warning-color: #F59E0B;
+            --danger-color: #DC3545;
+            --info-color: #17A2B8;
+            --radius: 8px;
+            --shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            --table-hover-bg: rgba(73, 161, 141, 0.05);
+            --table-header-bg: #f5f7f9;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #FAFAFA; color: var(--text-color); font-size: 14px; }
+        .main-content { padding: 20px; max-width: 1300px; margin: 0 auto; }
+
+        /* --- 面包屑导航 --- */
+        .breadcrumb { display: flex; padding: 10px 0; margin-bottom: 20px; list-style: none; font-size: 0.9rem; }
+        .breadcrumb-item { color: var(--gray-text); }
+        .breadcrumb-item a { color: var(--gray-text); text-decoration: none; }
+        .breadcrumb-item a:hover { color: var(--primary-color); }
+        .breadcrumb-item + .breadcrumb-item::before { content: "/"; padding: 0 8px; color: var(--gray-text); }
+        .breadcrumb-item.active { color: var(--primary-color); font-weight: 500; }
+
+        /* --- 页面标题 --- */
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background-color: white; padding: 15px 20px; border-radius: var(--radius); box-shadow: var(--shadow); }
+        .page-title { font-size: 1.5rem; font-weight: 500; color: var(--text-color); }
+
+        /* --- 内容块样式 --- */
+        .content-block { background-color: white; border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; margin-bottom: 25px; }
+        .block-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color); }
+        .block-title { font-size: 1.15rem; font-weight: 500; color: var(--primary-color); display: flex; align-items: center; gap: 8px; }
+        .block-title i { font-size: 1.1rem; }
+        .block-actions { display: flex; gap: 15px; align-items: center; }
+
+        /* --- 表单元素 --- */
+        .form-group { margin-bottom: 15px; }
+        .form-group label {
+            display: block; margin-bottom: 5px; font-weight: 500;
+            color: var(--gray-text); font-size: 0.9rem;
+        }
+        .form-control {
+            width: 100%; padding: 10px 12px; font-size: 14px;
+            border: 1px solid var(--border-color); border-radius: var(--radius);
+            transition: border-color 0.2s ease;
+        }
+        .form-control:focus { border-color: var(--primary-color); outline: none; box-shadow: 0 0 0 2px rgba(73, 161, 141, 0.2); }
+        textarea.form-control { min-height: 80px; resize: vertical; }
+
+        /* --- 按钮 --- */
+        .btn { padding: 8px 16px; border-radius: var(--radius); font-size: 14px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 5px; transition: all 0.2s ease; border: none; font-weight: normal; white-space: nowrap; line-height: 1.5; }
+        .btn i { font-size: 14px; }
+        .btn-primary { background-color: var(--primary-color); color: white; }
+        .btn-primary:hover { background-color: var(--secondary-color); }
+        .btn-secondary { background-color: white; color: var(--text-color); border: 1px solid var(--border-color); }
+        .btn-secondary:hover { background-color: var(--light-color); }
+        .btn-danger { background-color: var(--danger-color); color: white; }
+        .btn-danger:hover { background-color: #c82333; }
+        .btn-small { padding: 5px 10px; font-size: 13px; }
+
+        /* --- 点位配置表格 --- */
+        .point-config-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .point-config-table th, .point-config-table td { border-bottom: 1px solid var(--border-color); padding: 10px 12px; text-align: left; vertical-align: middle; }
+        .point-config-table th { background-color: var(--table-header-bg); font-weight: 500; color: var(--gray-text); font-size: 0.9rem; }
+        .point-config-table tbody tr:hover { background-color: var(--table-hover-bg); }
+        .point-config-table td { color: var(--text-color); font-size: 0.95rem; }
+        .point-description { font-size: 0.85rem; color: var(--gray-text); display: block; margin-top: 2px; }
+        .push-methods { display: flex; gap: 15px; }
+        .push-methods label { display: flex; align-items: center; gap: 5px; font-size: 0.9rem; cursor: pointer; }
+        .push-methods input[type="checkbox"] { cursor: pointer; }
+        /* 自定义复选框样式 (可选) */
+        .push-methods input[type="checkbox"] { accent-color: var(--primary-color); }
+
+        /* 页面底部操作栏 */
+        .page-footer-actions {
+            margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border-color);
+            display: flex; justify-content: flex-end; gap: 10px;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- 导航栏容器 -->
+    <div id="navbar-container"></div>
+
+    <!-- 主内容区域 -->
+    <div class="main-content">
+        <!-- 面包屑导航 -->
+        <ul class="breadcrumb" id="breadcrumb-nav">
+            <li class="breadcrumb-item"><a href="site-homepage.html">首页</a></li>
+            <li class="breadcrumb-item">后台管理</li>
+            <li class="breadcrumb-item"><a href="#">模板管理</a></li>
+            <li class="breadcrumb-item"><a href="alarm-templates.html">告警推送模板</a></li>
+            <li class="breadcrumb-item active" id="breadcrumb-action">新建模板</li>
+        </ul>
+
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <h1 class="page-title" id="page-title">新建告警推送模板</h1>
+            <!-- 可选：显示模板ID (编辑时) -->
+            <span id="template-id-display" style="font-size: 0.9rem; color: var(--gray-text);"></span>
+        </div>
+
+        <!-- 模板基本信息 -->
+        <div class="content-block">
+             <h2 class="block-title" style="color: var(--text-color); padding-bottom: 15px; border-bottom: 1px solid var(--border-color); margin-bottom: 20px;"><i class="fas fa-info-circle"></i> 基本信息</h2>
+            <div class="form-group">
+                <label for="template-name">模板名称 <span style="color: var(--danger-color);">*</span></label>
+                <input type="text" id="template-name" class="form-control" placeholder="请输入模板名称">
+            </div>
+            <div class="form-group">
+                <label for="template-description">模板描述</label>
+                <textarea id="template-description" class="form-control" rows="3" placeholder="请输入模板描述信息"></textarea>
+            </div>
+        </div>
+
+        <!-- 点位配置 -->
+        <div class="content-block">
+            <div class="block-header">
+                <h2 class="block-title"><i class="fas fa-map-marker-alt"></i> 点位推送配置</h2>
+                <div class="block-actions">
+                    <button class="btn btn-secondary" id="import-points-btn">
+                        <i class="fas fa-upload"></i> 导入点位
+                    </button>
+                    <button class="btn btn-secondary" id="export-config-btn">
+                        <i class="fas fa-download"></i> 导出配置
+                    </button>
+                    <button class="btn btn-secondary" id="add-point-btn">
+                        <i class="fas fa-plus-circle"></i> 添加点位
+                    </button>
+                     <button class="btn btn-info" id="batch-config-btn" disabled>
+                        <i class="fas fa-tasks"></i> 批量配置推送
+                    </button>
+                </div>
+            </div>
+
+            <table class="point-config-table" id="point-config-table">
+                <thead>
+                    <tr>
+                        <th style="width: 50px;"><input type="checkbox" id="select-all-points" title="全选/取消"></th>
+                        <th>点位名称 / ID</th>
+                        <th>推送方式</th>
+                        <th style="width: 80px;">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="point-config-table-body">
+                    <!-- 点位行将由 JS 动态生成 -->
+                    <tr><td colspan="4" style="text-align: center; padding: 30px; color: var(--gray-text);">请添加或导入点位进行配置</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 页面底部操作 -->
+        <div class="page-footer-actions">
+            <button class="btn btn-secondary" id="cancel-btn">取消</button>
+            <button class="btn btn-primary" id="save-btn">保存模板</button>
+        </div>
+
+    </div>
+
+    <!-- 引入页面脚本 -->
+    <script>
+        // --- 模拟数据 (仅用于编辑模式加载) ---
+        const MOCK_EXISTING_TEMPLATE_DATA = {
+            'APT_ESS_DEFAULT': {
+                name: '储能默认告警模板',
+                description: '系统预设的储能设备通用告警推送配置。',
+                points: [
+                    { id: 'BMS.CellVolt.Low.L1', name: '一级单体电压低', desc: '电芯电压低于一级阈值', push: ['sms', 'wechat'] },
+                    { id: 'BMS.Temp.High.L2', name: '二级电池温度高', desc: '电池包温度高于二级阈值', push: ['sms', 'wechat', 'phone'] },
+                    { id: 'PCS.Fault.Com', name: 'PCS通讯故障', desc: 'PCS与上层通讯中断', push: ['sms'] },
+                ]
+            },
+            // 可以添加其他模板的模拟数据...
+        };
+
+        // --- 页面状态 ---
+        let isEditMode = false;
+        let editingTemplateId = null;
+        let configuredPoints = []; // 存储当前配置的点位及其推送方式 [{id, name, desc, push:['sms', 'wechat', ...]}, ...]
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- DOM元素获取 ---
+            const pageMainTitle = document.getElementById('page-main-title');
+            const breadcrumbNav = document.getElementById('breadcrumb-nav');
+            const breadcrumbAction = document.getElementById('breadcrumb-action');
+            const pageTitle = document.getElementById('page-title');
+            const templateIdDisplay = document.getElementById('template-id-display');
+            const templateNameInput = document.getElementById('template-name');
+            const templateDescriptionInput = document.getElementById('template-description');
+            const importBtn = document.getElementById('import-points-btn');
+            const exportBtn = document.getElementById('export-config-btn');
+            const addPointBtn = document.getElementById('add-point-btn');
+            const batchConfigBtn = document.getElementById('batch-config-btn');
+            const pointTableBody = document.getElementById('point-config-table-body');
+            const selectAllCheckbox = document.getElementById('select-all-points');
+            const saveBtn = document.getElementById('save-btn');
+            const cancelBtn = document.getElementById('cancel-btn');
+
+            // --- 初始化 ---
+            // 1. 初始化导航栏
+            if (typeof initNavbar === 'function') {
+                initNavbar();
+                // setActiveMenuItem('menu-admin', 'submenu-template-management');
+            }
+
+            // 2. 判断是新建还是编辑模式
+            const urlParams = new URLSearchParams(window.location.search);
+            editingTemplateId = urlParams.get('templateId');
+            isEditMode = !!editingTemplateId;
+
+            if (isEditMode) {
+                // 编辑模式
+                pageMainTitle.textContent = `编辑告警推送模板 - 智慧运维系统`;
+                breadcrumbAction.textContent = '编辑模板';
+                pageTitle.textContent = '编辑告警推送模板';
+                templateIdDisplay.textContent = `模板ID: ${editingTemplateId}`;
+
+                // 加载现有模板数据 (使用模拟数据)
+                loadTemplateData(editingTemplateId);
+            } else {
+                // 新建模式 (保持默认标题)
+                 renderPointTable(); // 初始渲染空表格
+            }
+
+            // --- 数据加载 (编辑模式) ---
+            function loadTemplateData(templateId) {
+                const data = MOCK_EXISTING_TEMPLATE_DATA[templateId];
+                if (data) {
+                    templateNameInput.value = data.name;
+                    templateDescriptionInput.value = data.description;
+                    configuredPoints = data.points ? [...data.points] : []; // 复制数据
+                    renderPointTable();
+                } else {
+                    alert(`错误：未找到ID为 ${templateId} 的模板数据！将以新建模式打开。`);
+                    isEditMode = false;
+                    editingTemplateId = null;
+                    pageMainTitle.textContent = `新建告警推送模板 - 智慧运维系统`;
+                    breadcrumbAction.textContent = '新建模板';
+                    pageTitle.textContent = '新建告警推送模板';
+                    templateIdDisplay.textContent = '';
+                    renderPointTable();
+                }
+            }
+
+            // --- 渲染函数 ---
+            // 渲染点位配置表格
+            function renderPointTable() {
+                pointTableBody.innerHTML = ''; // 清空
+                if (configuredPoints.length === 0) {
+                    pointTableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 30px; color: var(--gray-text);">请添加或导入点位进行配置</td></tr>';
+                    selectAllCheckbox.checked = false;
+                    selectAllCheckbox.disabled = true;
+                    batchConfigBtn.disabled = true;
+                    return;
+                }
+
+                selectAllCheckbox.disabled = false;
+
+                configuredPoints.forEach((point, index) => {
+                    const row = pointTableBody.insertRow();
+                    row.dataset.pointId = point.id; // 使用点位 ID 作为标识
+                    row.innerHTML = `
+                        <td><input type="checkbox" class="point-select-checkbox" data-index="${index}"></td>
+                        <td>
+                            <div>${point.name || point.id}</div>
+                            ${point.desc ? `<span class="point-description">${point.desc}</span>` : ''}
+                        </td>
+                        <td>
+                            <div class="push-methods" data-index="${index}">
+                                <label><input type="checkbox" value="sms" ${point.push.includes('sms') ? 'checked' : ''}> 短信</label>
+                                <label><input type="checkbox" value="wechat" ${point.push.includes('wechat') ? 'checked' : ''}> 微信</label>
+                                <label><input type="checkbox" value="phone" ${point.push.includes('phone') ? 'checked' : ''}> 电话</label>
+                            </div>
+                        </td>
+                        <td>
+                            <button class="btn btn-danger-outline btn-small remove-point-btn" data-index="${index}">
+                                <i class="fas fa-times"></i> 移除
+                            </button>
+                        </td>
+                    `;
+                });
+
+                 updateBatchButtonState(); // 更新批量按钮状态
+                 updateSelectAllCheckboxState(); // 更新全选框状态
+            }
+
+            // --- 事件监听 ---
+            // 添加点位按钮 (功能待实现: 打开点位选择弹窗)
+            addPointBtn.addEventListener('click', function() {
+                alert('添加点位功能待实现：需要一个弹窗来选择系统中的点位。');
+                // 示例：手动添加一个模拟点位
+                const newPoint = { id: `NEW_PT_${Date.now()}`, name: '模拟新点位', desc: '这是一个测试点位', push: [] };
+                configuredPoints.push(newPoint);
+                renderPointTable();
+            });
+
+            // 导入/导出按钮 (模拟)
+            importBtn.addEventListener('click', () => alert('导入点位功能待实现。'));
+            exportBtn.addEventListener('click', () => alert('导出配置功能待实现。'));
+
+            // 表格内事件委托 (移除点位, 修改推送方式, 单选框)
+            pointTableBody.addEventListener('change', function(event) {
+                 const target = event.target;
+
+                 // 单个点位推送方式修改
+                 if (target.type === 'checkbox' && target.closest('.push-methods')) {
+                     const pushContainer = target.closest('.push-methods');
+                     const index = parseInt(pushContainer.dataset.index);
+                     const method = target.value;
+                     if (index >= 0 && index < configuredPoints.length) {
+                         const point = configuredPoints[index];
+                         if (target.checked) {
+                             if (!point.push.includes(method)) {
+                                 point.push.push(method);
+                             }
+                         } else {
+                             point.push = point.push.filter(m => m !== method);
+                         }
+                         console.log(`Point ${point.id} push methods updated:`, point.push);
+                     }
+                 }
+                 // 单选框状态改变
+                 else if (target.classList.contains('point-select-checkbox')) {
+                     updateBatchButtonState();
+                     updateSelectAllCheckboxState();
+                 }
+            });
+
+            pointTableBody.addEventListener('click', function(event) {
+                // 移除点位按钮
+                if (event.target.classList.contains('remove-point-btn') || event.target.closest('.remove-point-btn')) {
+                    const button = event.target.closest('.remove-point-btn');
+                    const indexToRemove = parseInt(button.dataset.index);
+                    if (indexToRemove >= 0 && indexToRemove < configuredPoints.length) {
+                        const pointToRemove = configuredPoints[indexToRemove];
+                        if (confirm(`确定要移除点位 "${pointToRemove.name || pointToRemove.id}" 吗？`)) {
+                            configuredPoints.splice(indexToRemove, 1);
+                            renderPointTable();
+                        }
+                    }
+                }
+            });
+
+            // 全选/取消全选
+            selectAllCheckbox.addEventListener('change', function() {
+                const isChecked = this.checked;
+                pointTableBody.querySelectorAll('.point-select-checkbox').forEach(checkbox => {
+                    checkbox.checked = isChecked;
+                });
+                updateBatchButtonState();
+            });
+
+            // 更新批量配置按钮状态
+            function updateBatchButtonState() {
+                const selectedCheckboxes = pointTableBody.querySelectorAll('.point-select-checkbox:checked');
+                batchConfigBtn.disabled = selectedCheckboxes.length === 0;
+            }
+
+            // 更新全选框状态
+            function updateSelectAllCheckboxState() {
+                 const allCheckboxes = pointTableBody.querySelectorAll('.point-select-checkbox');
+                 const checkedCheckboxes = pointTableBody.querySelectorAll('.point-select-checkbox:checked');
+                 if (allCheckboxes.length > 0) {
+                     selectAllCheckbox.checked = allCheckboxes.length === checkedCheckboxes.length;
+                 } else {
+                     selectAllCheckbox.checked = false;
+                 }
+                 selectAllCheckbox.indeterminate = checkedCheckboxes.length > 0 && checkedCheckboxes.length < allCheckboxes.length;
+            }
+
+            // 批量配置按钮 (功能待实现: 打开批量配置弹窗)
+            batchConfigBtn.addEventListener('click', function() {
+                 const selectedIndexes = Array.from(pointTableBody.querySelectorAll('.point-select-checkbox:checked'))
+                                            .map(cb => parseInt(cb.dataset.index));
+                 if (selectedIndexes.length === 0) return;
+
+                 alert(`批量配置功能待实现：将为选中的 ${selectedIndexes.length} 个点位配置推送方式。`);
+                 // 弹窗 -> 选择要应用的方式 (sms/wechat/phone) -> 选择覆盖还是添加 -> 更新 selectedIndexes 对应的 configuredPoints 数据 -> renderPointTable()
+            });
+
+            // 取消按钮
+            cancelBtn.addEventListener('click', function() {
+                if (confirm('确定要取消编辑吗？未保存的更改将会丢失。')) {
+                    window.location.href = 'alarm-templates.html'; // 跳转回列表页
+                }
+            });
+
+            // 保存按钮
+            saveBtn.addEventListener('click', function() {
+                const templateName = templateNameInput.value.trim();
+                if (!templateName) {
+                    alert('模板名称不能为空！');
+                    templateNameInput.focus();
+                    return;
+                }
+
+                // 准备要保存的数据
+                const saveData = {
+                    id: isEditMode ? editingTemplateId : `APT_NEW_${Date.now()}`,
+                    name: templateName,
+                    description: templateDescriptionInput.value.trim(),
+                    points: configuredPoints
+                };
+
+                console.log("准备保存模板数据:", saveData);
+                // 在实际应用中，这里会将 saveData 发送到后端
+
+                alert(`模板 "${saveData.name}" 已成功保存！`);
+                window.location.href = 'alarm-templates.html'; // 跳转回列表页
+            });
+
+        });
+    </script>
+</body>
+</html> 

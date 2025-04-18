@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>参数校验模板选用 - 智慧运维系统</title>
+    <!-- 引入 Font Awesome 图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 引入导航栏模板JS -->
+    <script src="navbar-template.js"></script>
+    <style>
+        /* --- 基础样式和变量 (保持一致) --- */
+        :root {
+            --primary-color: #49A18D; /* 清安绿 */
+            --secondary-color: #3D8C7D;
+            --light-color: #F5F7F9;
+            --border-color: #E2E8F0;
+            --text-color: #333333;
+            --light-text: #FFFFFF;
+            --gray-text: #6C757D;
+            --light-gray: #E9ECEF;
+            --success-color: #28A745;
+            --warning-color: #F59E0B;
+            --danger-color: #DC3545;
+            --info-color: #17A2B8;
+            --radius: 8px;
+            --shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            --table-hover-bg: rgba(73, 161, 141, 0.05);
+            --table-header-bg: #f5f7f9;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #FAFAFA; color: var(--text-color); font-size: 14px; }
+        .main-content { padding: 20px; max-width: 1300px; margin: 0 auto; }
+
+        /* --- 面包屑导航 --- */
+        .breadcrumb { display: flex; padding: 10px 0; margin-bottom: 20px; list-style: none; font-size: 0.9rem; }
+        .breadcrumb-item { color: var(--gray-text); }
+        .breadcrumb-item a { color: var(--gray-text); text-decoration: none; }
+        .breadcrumb-item a:hover { color: var(--primary-color); }
+        .breadcrumb-item + .breadcrumb-item::before { content: "/"; padding: 0 8px; color: var(--gray-text); }
+        .breadcrumb-item.active { color: var(--primary-color); font-weight: 500; }
+
+        /* --- 页面标题 --- */
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background-color: white; padding: 15px 20px; border-radius: var(--radius); box-shadow: var(--shadow); }
+        .page-title { font-size: 1.5rem; font-weight: 500; color: var(--text-color); }
+
+        /* --- 内容块样式 --- */
+        .content-block { background-color: white; border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; margin-bottom: 25px; }
+        .block-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color); }
+        .block-title { font-size: 1.15rem; font-weight: 500; color: var(--primary-color); display: flex; align-items: center; gap: 8px; }
+        .block-title i { font-size: 1.1rem; }
+        .block-actions { display: flex; gap: 15px; align-items: center; }
+
+        /* --- 按钮 --- */
+        .btn { padding: 8px 16px; border-radius: var(--radius); font-size: 14px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 5px; transition: all 0.2s ease; border: none; font-weight: normal; white-space: nowrap; line-height: 1.5; }
+        .btn i { font-size: 14px; }
+        .btn-primary { background-color: var(--primary-color); color: white; }
+        .btn-primary:hover { background-color: var(--secondary-color); }
+        .btn-secondary { background-color: white; color: var(--text-color); border: 1px solid var(--border-color); }
+        .btn-secondary:hover { background-color: var(--light-color); }
+        .btn-small { padding: 5px 10px; font-size: 13px; }
+
+        /* --- 筛选与搜索 --- */
+        .filter-select { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: var(--radius); font-size: 14px; height: 38px; margin-right: 10px; }
+        .search-box { display: flex; border: 1px solid var(--border-color); border-radius: var(--radius); overflow: hidden; background-color: white; }
+        .search-input { padding: 8px 12px; border: none; outline: none; font-size: 14px; min-width: 200px; }
+        .search-btn { background-color: var(--light-color); border: none; padding: 0 12px; cursor: pointer; color: var(--gray-text); display: flex; align-items: center;}
+        .search-btn:hover { background-color: var(--border-color); }
+
+
+        /* --- 设备列表 --- */
+        .device-list { margin-top: 20px; display: flex; flex-direction: column; gap: 15px; }
+        .device-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 15px; border: 1px solid var(--border-color); border-radius: var(--radius);
+            background-color: #fff; transition: box-shadow 0.2s ease;
+        }
+        .device-item:hover { box-shadow: var(--shadow); }
+        .device-info { display: flex; align-items: center; gap: 15px; }
+        .device-icon { font-size: 1.5rem; color: var(--primary-color); width: 30px; text-align: center; }
+        .device-name { font-weight: 500; color: var(--text-color); }
+        .device-type { font-size: 0.85rem; color: var(--gray-text); background-color: var(--light-color); padding: 2px 6px; border-radius: 4px; }
+        .template-status { display: flex; align-items: center; gap: 10px; }
+        .status-label { font-size: 0.9rem; }
+        .status-not-selected { color: var(--warning-color); font-weight: 500; }
+        .status-selected { color: var(--success-color); font-weight: 500; }
+        .selected-template-name { color: var(--primary-color); font-weight: 500; margin-left: 5px; }
+
+        /* --- 模态框 --- */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.4); z-index: 1000; justify-content: center; align-items: center; }
+        .modal.active { display: flex; }
+        .modal-content { background-color: white; padding: 25px; border-radius: var(--radius); box-shadow: 0 5px 15px rgba(0,0,0,0.2); max-height: 85vh; display: flex; flex-direction: column; width: 60%; max-width: 700px; /* 调整宽度 */ }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color); }
+        .modal-title { font-size: 1.25rem; font-weight: 500; }
+        .close-modal { cursor: pointer; font-size: 1.8rem; color: var(--gray-text); border: none; background: none;}
+        .modal-body { overflow-y: auto; padding-right: 10px; }
+        .modal-footer { margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 10px; }
+
+        /* 模板选择模态框内样式 */
+        .modal-search-container { margin-bottom: 15px; }
+        .template-selection-list { list-style: none; padding: 0; margin: 0; max-height: 40vh; overflow-y: auto; border: 1px solid var(--border-color); border-radius: var(--radius); }
+        .template-selection-item { /* 列表项容器 */
+            border-bottom: 1px solid var(--light-gray);
+        }
+        .template-selection-item-header { /* 模板主信息行 */
+             padding: 12px 15px; display: flex; justify-content: space-between; align-items: center;
+             cursor: pointer; transition: background-color 0.2s ease;
+        }
+        .template-selection-item:last-child { border-bottom: none; }
+        /* 调整选中和悬浮效果应用到 header 部分 */
+        .template-selection-item-header:hover { background-color: var(--table-hover-bg); }
+        .template-selection-item.selected > .template-selection-item-header {
+             background-color: var(--primary-color); color: white;
+        }
+        .template-selection-item.selected .template-meta,
+        .template-selection-item.selected .template-name {
+            color: white; /* 选中时主信息文字变白 */
+        }
+        .template-info { display: flex; flex-direction: column; gap: 3px; }
+        .template-name { font-weight: 500; font-size: 1rem; }
+        .template-meta { font-size: 0.85rem; color: var(--gray-text); }
+        .template-meta span + span::before { content: "|"; padding: 0 8px; }
+        .template-actions { display: flex; align-items: center; gap: 15px; } /* 右侧动作区 */
+        .details-toggle-icon {
+            color: var(--gray-text);
+            cursor: pointer;
+            font-size: 0.9rem; /* 图标稍小 */
+            transition: color 0.2s;
+        }
+        .details-toggle-icon:hover {
+            color: var(--primary-color);
+        }
+        .template-select-indicator i { color: var(--success-color); font-size: 1.2rem; }
+        .template-selection-item:not(.selected) .template-select-indicator { display: none; }
+        .template-selection-item.selected .template-select-indicator i { color: white; }
+        /* 新增：模板详情区域样式 */
+        .template-detail-view {
+            padding: 15px 20px;
+            background-color: var(--light-color);
+            border-top: 1px dashed var(--border-color);
+            display: none; /* 默认隐藏 */
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        .template-detail-view h5 {
+            font-size: 0.95rem;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+            margin-top: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        .template-detail-view h5:first-child { margin-top: 0; }
+        .template-detail-view ul {
+            list-style: none;
+            padding-left: 10px;
+            margin-bottom: 10px;
+        }
+        .template-detail-view li {
+            margin-bottom: 4px;
+            color: var(--text-color);
+        }
+        .template-detail-view strong {
+             color: var(--gray-text);
+             margin-right: 5px;
+             min-width: 150px; /* 可选：对齐参数名 */
+             display: inline-block;
+        }
+        /* 模态框页脚按钮字体一致 */
+        .modal-footer .btn {
+             font-size: 14px !important; /* 强制字体大小 */
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏容器 -->
+    <div id="navbar-container"></div>
+
+    <!-- 主内容区域 -->
+    <div class="main-content">
+        <!-- 面包屑导航 -->
+        <ul class="breadcrumb">
+            <li class="breadcrumb-item"><a href="site-homepage.html">首页</a></li>
+            <li class="breadcrumb-item">后台管理</li>
+            <li class="breadcrumb-item"><a href="site-config.html">站点管理</a></li>
+            <li class="breadcrumb-item"><a href="#" id="breadcrumb-site-config">站点配置</a></li> <!-- JS动态设置href -->
+            <li class="breadcrumb-item active">参数校验模板选用</li>
+        </ul>
+
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <h1 class="page-title" id="page-title-site-name">参数校验模板选用 (站点加载中...)</h1>
+        </div>
+
+        <!-- 设备列表与筛选 -->
+        <div class="content-block">
+            <div class="block-header">
+                <h2 class="block-title"><i class="fas fa-cogs"></i> 选择设备校验模板</h2>
+                <div class="block-actions">
+                    <select id="device-filter-type" class="filter-select">
+                        <option value="">所有设备类型</option>
+                        <option value="储能柜">储能柜</option>
+                        <option value="充电桩">充电桩</option>
+                        <!-- 可添加更多 -->
+                    </select>
+                    <!-- 批量选用按钮 (暂不实现) -->
+                    <!-- <button class="btn btn-secondary" id="bulk-select-btn">
+                        <i class="fas fa-check-double"></i> 批量选用
+                    </button> -->
+                    <button class="btn btn-primary" id="save-all-btn">
+                        <i class="fas fa-save"></i> 保存全部选择
+                    </button>
+                </div>
+            </div>
+
+            <!-- 设备列表容器 -->
+            <div class="device-list" id="device-list">
+                <!-- 设备项将由 JS 动态生成 -->
+                <div style="text-align: center; color: var(--gray-text); padding: 30px;">加载中...</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 模态框 - 选择校验模板 -->
+    <div class="modal" id="select-template-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modal-title">为 [设备名称] 选择校验模板</h3>
+                <button class="close-modal" aria-label="关闭">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-search-container">
+                    <div class="search-box">
+                        <input type="text" class="search-input" id="modal-template-search-input" placeholder="搜索模板名称...">
+                        <button class="search-btn" id="modal-template-search-btn"><i class="fas fa-search"></i></button>
+                    </div>
+                </div>
+                <ul class="template-selection-list" id="modal-template-list">
+                    <!-- 模板项将由 JS 动态生成 -->
+                    <li>加载中...</li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary close-modal">取消</button>
+                <button class="btn btn-primary" id="confirm-template-selection-btn">确定选用</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入页面脚本 -->
+    <script>
+        // --- 模拟数据 (添加 details 结构) ---
+        const MOCK_DEVICES = [
+            { id: 'DEV001', name: '储能柜A栋01', type: '储能柜', currentTemplateId: 'PVT_ESS_V1.2' },
+            { id: 'DEV002', name: '储能柜A栋02', type: '储能柜', currentTemplateId: null },
+            { id: 'DEV003', name: '充电桩B区01', type: '充电桩', currentTemplateId: 'PVT_CHG_V1.0' },
+            { id: 'DEV004', name: '充电桩B区02', type: '充电桩', currentTemplateId: 'PVT_CHG_V1.0' },
+            { id: 'DEV005', name: '充电桩C区快充01', type: '充电桩', currentTemplateId: null },
+        ];
+
+        const MOCK_VALIDATION_TEMPLATES = [
+            {
+                id: 'PVT_ESS_V1.2', name: '标准储能校验模板', deviceType: '储能柜', version: 'V1.2', creator: '系统', createdAt: '2024-03-10',
+                description: '包含电压、电流、温度等关键参数范围校验。',
+                details: {
+                    BMS: {
+                        '一级单体电压低阈值': '2850mV',
+                        '一级单体电压高阈值': '3650mV',
+                        '二级总电压低告警': '580V',
+                        '二级总电压高告警': '750V',
+                        '一级温差告警阈值': '8°C',
+                    },
+                    PCS: {
+                        '有功功率偏差告警': '±5%',
+                        '无功功率响应时间': '<100ms',
+                        '频率适应范围': '49.5Hz ~ 50.5Hz',
+                    },
+                    热管理: {
+                        '空调启动温度': '30°C',
+                        '风扇启动温差': '5°C',
+                    },
+                    EMS: {
+                        'SOC上下限告警': '10% ~ 95%'
+                    }
+                }
+            },
+            {
+                id: 'PVT_ESS_V1.1', name: '基础储能校验模板', deviceType: '储能柜', version: 'V1.1', creator: '李工', createdAt: '2023-11-05',
+                description: '仅包含基础安全参数校验。',
+                details: {
+                    BMS: {
+                        '一级单体电压低阈值': '2800mV',
+                        '一级单体电压高阈值': '3700mV',
+                        '一级温度高告警': '55°C',
+                    }
+                }
+            },
+            {
+                id: 'PVT_CHG_V1.0', name: '国标充电桩校验模板', deviceType: '充电桩', version: 'V1.0', creator: '系统', createdAt: '2024-01-20',
+                description: '符合最新国标的充电桩参数校验规则。',
+                details: {
+                    充电接口: {
+                        '输出电压范围': '200V - 750V',
+                        '输出电流精度': '±1A',
+                        '连接确认超时': '60s',
+                    },
+                    计量计费: {
+                        '电能表精度等级': '1.0级',
+                    },
+                    安全保护: {
+                        '绝缘检测阈值': '> 1MΩ',
+                        '过流保护系数': '1.1',
+                    }
+                }
+            },
+            {
+                id: 'PVT_CHG_V0.9', name: '旧版充电桩校验模板', deviceType: '充电桩', version: 'V0.9', creator: '王工', createdAt: '2023-08-15',
+                description: '适用于旧型号充电桩。',
+                details: {
+                    充电接口: {
+                        '输出电压范围': '200V - 500V',
+                        '输出电流精度': '±2A',
+                    }
+                }
+            },
+            { id: 'PVT_INV_V2.0', name: '光伏逆变器校验模板', deviceType: '逆变器', version: 'V2.0', creator: '系统', createdAt: '2024-05-01', description: '针对光伏逆变器的功率、频率等校验。', details: { /* 暂无详细参数 */ } }
+        ];
+
+        // --- 页面状态 ---
+        let currentSiteName = "默认站点";
+        let deviceData = []; // 用于存储和操作设备数据
+        let selectedTemplateInModal = null; // 模态框中当前选中的模板ID
+        let targetDeviceIdForModal = null; // 当前正在为其选择模板的设备ID
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- DOM元素获取 ---
+            const navbarContainer = document.getElementById('navbar-container');
+            const breadcrumbSiteConfig = document.getElementById('breadcrumb-site-config');
+            const pageTitleSiteName = document.getElementById('page-title-site-name');
+            const deviceFilterType = document.getElementById('device-filter-type');
+            const deviceListContainer = document.getElementById('device-list');
+            const saveAllBtn = document.getElementById('save-all-btn');
+            const modal = document.getElementById('select-template-modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalTemplateList = document.getElementById('modal-template-list');
+            const modalSearchInput = document.getElementById('modal-template-search-input');
+            const modalSearchBtn = document.getElementById('modal-template-search-btn');
+            const confirmSelectionBtn = document.getElementById('confirm-template-selection-btn');
+            const closeModalBtns = modal.querySelectorAll('.close-modal');
+
+            // --- 初始化 ---
+            // 1. 初始化导航栏
+            if (typeof initNavbar === 'function') {
+                initNavbar();
+                // 可选：设置激活菜单项
+                // setActiveMenuItem('menu-admin', 'submenu-site-config');
+            }
+
+            // 2. 获取并设置站点名称
+            const urlParams = new URLSearchParams(window.location.search);
+            const siteNameParam = urlParams.get('siteName');
+            currentSiteName = siteNameParam ? decodeURIComponent(siteNameParam) : "默认站点";
+
+            if (pageTitleSiteName) {
+                pageTitleSiteName.textContent = `参数校验模板选用 (${currentSiteName})`;
+            }
+            if (breadcrumbSiteConfig) {
+                breadcrumbSiteConfig.href = `site-config-detail.html?siteName=${encodeURIComponent(siteNameParam || '默认站点')}`;
+            }
+
+            // 3. 加载初始设备数据
+            deviceData = [...MOCK_DEVICES]; // 复制模拟数据到工作数组
+            renderDeviceList(deviceData);
+
+            // --- 渲染函数 ---
+            // 渲染设备列表
+            function renderDeviceList(devices) {
+                deviceListContainer.innerHTML = ''; // 清空列表
+                if (devices.length === 0) {
+                    deviceListContainer.innerHTML = '<div style="text-align: center; color: var(--gray-text); padding: 30px;">未找到设备</div>';
+                    return;
+                }
+
+                devices.forEach(device => {
+                    const deviceItem = document.createElement('div');
+                    deviceItem.className = 'device-item';
+                    deviceItem.dataset.deviceId = device.id;
+
+                    const selectedTemplate = MOCK_VALIDATION_TEMPLATES.find(t => t.id === device.currentTemplateId);
+                    const statusHTML = selectedTemplate
+                        ? `<span class="status-label status-selected">已选用:</span><span class="selected-template-name">${selectedTemplate.name} (${selectedTemplate.version})</span>`
+                        : `<span class="status-label status-not-selected">未选用模板</span>`;
+
+                    // 根据设备类型选择图标
+                    let iconClass = 'fa-question-circle'; // 默认图标
+                    if (device.type === '储能柜') iconClass = 'fa-battery-full';
+                    else if (device.type === '充电桩') iconClass = 'fa-charging-station';
+                    // 可添加更多设备类型图标
+
+                    deviceItem.innerHTML = `
+                        <div class="device-info">
+                            <i class="fas ${iconClass} device-icon"></i>
+                            <div>
+                                <div class="device-name">${device.name} (${device.id})</div>
+                                <div class="device-type">类型: ${device.type}</div>
+                            </div>
+                        </div>
+                        <div class="template-status">
+                            ${statusHTML}
+                            <button class="btn btn-secondary btn-small select-template-btn">
+                                <i class="fas fa-exchange-alt"></i> ${selectedTemplate ? '更换模板' : '选择模板'}
+                            </button>
+                        </div>
+                    `;
+                    deviceListContainer.appendChild(deviceItem);
+                });
+            }
+
+            // 渲染模态框中的模板列表 (修改：添加详情按钮和详情区域)
+            function renderModalTemplateList(templates, currentDeviceType) {
+                modalTemplateList.innerHTML = '';
+                const filteredTemplates = templates.filter(t => t.deviceType === currentDeviceType);
+
+                if (filteredTemplates.length === 0) {
+                    modalTemplateList.innerHTML = `<li style="padding: 20px; text-align: center; color: var(--gray-text);">未找到适用于"${currentDeviceType}"类型的模板</li>`;
+                    return;
+                }
+
+                filteredTemplates.forEach(template => {
+                    const li = document.createElement('li');
+                    li.className = 'template-selection-item';
+                    li.dataset.templateId = template.id;
+
+                    // --- 创建模板主信息行 (header) ---
+                    const itemHeader = document.createElement('div');
+                    itemHeader.className = 'template-selection-item-header';
+                    itemHeader.innerHTML = `
+                        <div class="template-info">
+                            <span class="template-name">${template.name}</span>
+                            <div class="template-meta">
+                                <span>版本: ${template.version}</span>
+                                <span>创建人: ${template.creator}</span>
+                                <span>时间: ${template.createdAt}</span>
+                            </div>
+                        </div>
+                        <div class="template-actions">
+                            <i class="fas fa-info-circle details-toggle-icon" title="查看/收起详情"></i>
+                            <div class="template-select-indicator">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                        </div>
+                    `;
+                    li.appendChild(itemHeader);
+
+                    // --- 创建隐藏的详情区域 --- 
+                    const detailView = document.createElement('div');
+                    detailView.className = 'template-detail-view';
+                    detailView.style.display = 'none'; // 初始隐藏
+                    li.appendChild(detailView);
+
+                    // --- 事件监听 ---
+                    // 点击主信息行：选中模板
+                    itemHeader.addEventListener('click', function(e) {
+                        // 阻止点击详情图标时触发行选中
+                        if (e.target.classList.contains('details-toggle-icon')) return;
+
+                        modalTemplateList.querySelectorAll('.template-selection-item').forEach(item => item.classList.remove('selected'));
+                        li.classList.add('selected');
+                        selectedTemplateInModal = template.id;
+                        console.log("Modal selected template:", selectedTemplateInModal);
+                    });
+
+                    // 点击详情图标：展开/收起详情
+                    const detailIcon = itemHeader.querySelector('.details-toggle-icon');
+                    detailIcon.addEventListener('click', function() {
+                        if (detailView.style.display === 'none') {
+                            // 填充详情内容
+                            renderTemplateDetails(template, detailView);
+                            detailView.style.display = 'block';
+                        } else {
+                            detailView.style.display = 'none';
+                        }
+                    });
+
+                    modalTemplateList.appendChild(li);
+                });
+                selectedTemplateInModal = null;
+            }
+
+            // 新增：渲染模板详情内容
+            function renderTemplateDetails(template, detailContainer) {
+                 let detailHTML = '';
+                 if (template.details && Object.keys(template.details).length > 0) {
+                     for (const component in template.details) {
+                         detailHTML += `<h5>${component} 参数:</h5><ul>`;
+                         const params = template.details[component];
+                         if (Object.keys(params).length > 0) {
+                            for (const paramName in params) {
+                                 detailHTML += `<li><strong>${paramName}:</strong> ${params[paramName]}</li>`;
+                            }
+                         } else {
+                             detailHTML += `<li>无具体参数</li>`;
+                         }
+                         detailHTML += `</ul>`;
+                     }
+                 } else {
+                     detailHTML = '<p style="color: var(--gray-text);">此模板无详细参数信息。</p>';
+                 }
+                 detailContainer.innerHTML = detailHTML;
+            }
+
+            // --- 事件监听 ---
+            // 设备类型筛选
+            deviceFilterType.addEventListener('change', function() {
+                const selectedType = this.value;
+                const filteredDevices = selectedType ? deviceData.filter(d => d.type === selectedType) : deviceData;
+                renderDeviceList(filteredDevices);
+            });
+
+            // 点击设备列表中的"选择模板"按钮
+            deviceListContainer.addEventListener('click', function(event) {
+                const selectBtn = event.target.closest('.select-template-btn');
+                if (!selectBtn) return;
+
+                const deviceItem = event.target.closest('.device-item');
+                targetDeviceIdForModal = deviceItem.dataset.deviceId;
+                const device = deviceData.find(d => d.id === targetDeviceIdForModal);
+                if (!device) return;
+
+                // 更新模态框标题
+                modalTitle.textContent = `为 ${device.name} (${device.type}) 选择校验模板`;
+                // 加载并渲染对应类型的模板列表
+                renderModalTemplateList(MOCK_VALIDATION_TEMPLATES, device.type);
+                // 清空搜索框
+                modalSearchInput.value = '';
+                // 显示模态框
+                modal.classList.add('active');
+            });
+
+            // 关闭模态框
+            closeModalBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    modal.classList.remove('active');
+                    // 关闭时清空可能展开的详情
+                    modalTemplateList.querySelectorAll('.template-detail-view').forEach(view => view.style.display = 'none');
+                });
+            });
+            modal.addEventListener('click', (event) => {
+                 if (event.target === modal) {
+                     modal.classList.remove('active');
+                     modalTemplateList.querySelectorAll('.template-detail-view').forEach(view => view.style.display = 'none');
+                 }
+            });
+
+            // 模态框内模板搜索
+            function handleModalSearch() {
+                 const searchTerm = modalSearchInput.value.toLowerCase().trim();
+                 const device = deviceData.find(d => d.id === targetDeviceIdForModal);
+                 if (!device) return;
+
+                 const filteredTemplates = MOCK_VALIDATION_TEMPLATES.filter(t =>
+                     t.deviceType === device.type &&
+                     t.name.toLowerCase().includes(searchTerm)
+                 );
+                 renderModalTemplateList(filteredTemplates, device.type); // 重新渲染列表
+            }
+            modalSearchBtn.addEventListener('click', handleModalSearch);
+            modalSearchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') handleModalSearch();
+            });
+
+
+            // 模态框"确定选用"按钮
+            confirmSelectionBtn.addEventListener('click', function() {
+                if (!targetDeviceIdForModal || selectedTemplateInModal === null) {
+                    alert('请先在列表中选择一个模板！');
+                    return;
+                }
+                // 更新 deviceData 中的数据
+                const deviceIndex = deviceData.findIndex(d => d.id === targetDeviceIdForModal);
+                if (deviceIndex > -1) {
+                    deviceData[deviceIndex].currentTemplateId = selectedTemplateInModal;
+                    console.log(`Device ${targetDeviceIdForModal} updated template to ${selectedTemplateInModal}`);
+
+                     // 重新渲染设备列表以反映更改
+                    const currentFilter = deviceFilterType.value;
+                    const devicesToRender = currentFilter ? deviceData.filter(d => d.type === currentFilter) : deviceData;
+                    renderDeviceList(devicesToRender);
+
+                    // 关闭模态框
+                    modal.classList.remove('active');
+                } else {
+                    console.error("Error: Cannot find device with ID", targetDeviceIdForModal);
+                }
+
+            });
+
+            // 保存全部选择按钮
+            saveAllBtn.addEventListener('click', function() {
+                console.log("准备保存所有设备的模板选择:", deviceData);
+                // 在实际应用中，这里会将 deviceData 发送到后端进行保存
+                alert(`已为站点 "${currentSiteName}" 保存设备校验模板配置！`);
+                // 可以在保存成功后跳转回 site-config-detail.html 或显示成功消息
+                 // window.location.href = `site-config-detail.html?siteName=${encodeURIComponent(currentSiteName)}&stepCompleted=validation`; // 示例跳转
+            });
+
+        });
+    </script>
+</body>
+</html> 

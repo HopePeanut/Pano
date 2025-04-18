@@ -448,7 +448,7 @@
             </div>
             <div class="progress-meta">
                 <span>开始配置: 2024-05-28</span>
-                <span>完成时间: 预计 2024-06-05</span>
+                <span>请完成站点配置，否则站点无法投运</span>
             </div>
         </div>
 
@@ -524,7 +524,7 @@
                         </div>
                         <div class="step-description">配置设备告警策略和推送方式，设置告警阈值和通知人员。</div>
                         <div class="step-action">
-                            <button class="btn btn-primary">
+                            <button class="btn btn-primary" id="configure-alarm-template">
                                 <i class="fas fa-plus"></i> 配置
                             </button>
                         </div>
@@ -542,7 +542,7 @@
                         </div>
                         <div class="step-description">选择适用的电价模板，配置峰谷平电价和计费规则。</div>
                         <div class="step-action">
-                            <button class="btn btn-primary">
+                            <button class="btn btn-primary" id="config-electricity-price-btn">
                                 <i class="fas fa-plus"></i> 配置
                             </button>
                         </div>
@@ -560,7 +560,7 @@
                         </div>
                         <div class="step-description">配置设备参数校验规则，确保数据采集的准确性和完整性。</div>
                         <div class="step-action">
-                            <button class="btn btn-primary">
+                            <button class="btn btn-primary" id="config-validation-template-btn">
                                 <i class="fas fa-plus"></i> 配置
                             </button>
                         </div>
@@ -624,10 +624,43 @@
             // 从URL中获取站点名称参数
             const urlParams = new URLSearchParams(window.location.search);
             const siteName = urlParams.get('siteName');
+            const stepCompleted = urlParams.get('stepCompleted');
             
             // 如果有站点名称参数，更新页面标题
             if (siteName) {
                 document.querySelector('.site-details h2').textContent = siteName;
+            }
+
+            // 如果有步骤完成参数，更新对应步骤状态
+            if (stepCompleted === 'true') {
+                // 获取档案模板选用步骤（第2步）
+                const step2 = document.querySelectorAll('.workflow-step')[1]; // 索引从0开始，第2步是索引1
+                if (step2) {
+                    // 更新步骤索引状态
+                    const stepIndex = step2.querySelector('.step-index');
+                    if (stepIndex) {
+                        stepIndex.classList.add('completed');
+                    }
+                    
+                    // 更新步骤状态标签
+                    const stepStatus = step2.querySelector('.step-status');
+                    if (stepStatus) {
+                        stepStatus.classList.remove('pending');
+                        stepStatus.classList.add('completed');
+                        stepStatus.innerHTML = '<i class="fas fa-check-circle"></i> 已完成';
+                    }
+                    
+                    // 更新按钮
+                    const configBtn = step2.querySelector('.btn-primary');
+                    if (configBtn) {
+                        configBtn.classList.remove('btn-primary');
+                        configBtn.classList.add('btn-outline');
+                        configBtn.innerHTML = '<i class="fas fa-edit"></i> 编辑';
+                    }
+                    
+                    // 更新进度统计
+                    updateProgressStats();
+                }
             }
 
             // 完成配置按钮点击事件
@@ -644,25 +677,184 @@
                 window.location.href = `device-management.html?siteName=${encodeURIComponent(currentSiteName)}`;
             });
 
-            // 配置按钮点击事件（除了第一步的编辑按钮）
-            const configButtons = document.querySelectorAll('.step-action .btn-primary');
+            // 添加跳转到设备档案模板选用页面的事件
+            const archiveTemplateBtn = document.querySelectorAll('.workflow-step')[1].querySelector('.step-action button');
+            archiveTemplateBtn.addEventListener('click', function() {
+                const currentSiteName = document.querySelector('.site-details h2').textContent;
+                window.location.href = `device-archive-template.html?siteName=${encodeURIComponent(currentSiteName)}`;
+            });
+
+            // 添加跳转到点表模板选用页面的事件 (第3步)
+            const pointTableBtn = document.querySelectorAll('.workflow-step')[2].querySelector('.step-action button');
+            pointTableBtn.addEventListener('.click', function() {
+                const currentSiteName = document.querySelector('.site-details h2').textContent;
+                window.location.href = `point-table-template.html?siteName=${encodeURIComponent(currentSiteName)}`;
+            });
+
+            // 配置按钮点击事件（除了第1、2、3步的按钮）
+            const configButtons = document.querySelectorAll('.step-content:nth-child(n+4) .step-action .btn-primary');
             configButtons.forEach((btn, index) => {
                 btn.addEventListener('click', function() {
-                    const stepIndex = index + 4; // 因为前3个已完成
+                    const stepIndex = index + 4; // 因为前3个已单独处理
                     alert(`即将进入步骤${stepIndex}配置页面`);
                     // 这里可以添加跳转到对应配置页面的逻辑
                 });
             });
 
-            // 其他编辑按钮点击事件（除了第一步的编辑按钮）
+            // 其他编辑按钮点击事件（除了第1步的编辑按钮）
             const editButtons = document.querySelectorAll('.workflow-step:not(:first-child) .step-action .btn-outline');
             editButtons.forEach((btn, index) => {
                 btn.addEventListener('click', function() {
                     const stepIndex = index + 2; // 第一个编辑按钮已单独处理，所以从2开始
-                    alert(`即将编辑步骤${stepIndex}配置`);
-                    // 这里可以添加跳转到对应配置编辑页面的逻辑
+                    
+                    // 对应步骤的页面跳转
+                    const currentSiteName = document.querySelector('.site-details h2').textContent;
+                    if (stepIndex === 2) {
+                        // 跳转到设备档案模板选用页面
+                        window.location.href = `device-archive-template.html?siteName=${encodeURIComponent(currentSiteName)}`;
+                    } else if (stepIndex === 3) {
+                        // 跳转到点表模板选用页面
+                        window.location.href = `point-table-template.html?siteName=${encodeURIComponent(currentSiteName)}`;
+                    } else {
+                        alert(`即将编辑步骤${stepIndex}配置`);
+                        // 这里可以添加跳转到对应配置编辑页面的逻辑
+                    }
                 });
             });
+
+            // 增加对步骤完成状态的检查，确保能正确更新第三步（点表模板选用）
+            if (stepCompleted === 'true') {
+                const completedStepIndex = determineCompletedStepIndex(); // 需要一个函数来判断哪个步骤完成
+                if (completedStepIndex !== -1) {
+                    updateStepUI(completedStepIndex);
+                    updateProgressStats();
+                }
+            }
+            
+            // 判断哪个步骤完成（这里暂时简化，假设只有步骤2或3会带回此参数）
+            function determineCompletedStepIndex() {
+                // 检查 URL 是否有特定参数，或者检查 referrer
+                // 这里简单地假设只有第2步和第3步会带回 stepCompleted=true
+                // 可以根据实际情况扩展
+                const referrer = document.referrer;
+                if (referrer.includes('device-archive-template.html')) {
+                    return 1; // 步骤2，索引为1
+                } else if (referrer.includes('point-table-template.html')) {
+                    return 2; // 步骤3，索引为2
+                }
+                return -1;
+            }
+            
+            // 更新指定步骤的UI
+            function updateStepUI(stepIndex) {
+                 const stepElement = document.querySelectorAll('.workflow-step')[stepIndex]; 
+                 if (stepElement) {
+                    // 更新步骤索引状态
+                    const stepIndexDiv = stepElement.querySelector('.step-index');
+                    if (stepIndexDiv) {
+                        stepIndexDiv.classList.add('completed');
+                    }
+                    
+                    // 更新步骤状态标签
+                    const stepStatus = stepElement.querySelector('.step-status');
+                    if (stepStatus) {
+                        stepStatus.classList.remove('pending');
+                        stepStatus.classList.add('completed');
+                        stepStatus.innerHTML = '<i class="fas fa-check-circle"></i> 已完成';
+                    }
+                    
+                    // 更新按钮
+                    const configBtn = stepElement.querySelector('.step-action button');
+                    if (configBtn && configBtn.classList.contains('btn-primary')) {
+                        configBtn.classList.remove('btn-primary');
+                        configBtn.classList.add('btn-outline');
+                        configBtn.innerHTML = '<i class="fas fa-edit"></i> 编辑';
+                    } 
+                 }
+            }
+
+            // 更新进度统计函数
+            function updateProgressStats() {
+                // 计算已完成步骤数
+                const totalSteps = document.querySelectorAll('.workflow-step').length;
+                const completedSteps = document.querySelectorAll('.step-index.completed').length;
+                
+                // 更新完成进度百分比
+                const progressPercentage = Math.round(completedSteps / totalSteps * 100);
+                document.querySelector('.stat-value').textContent = progressPercentage + '%';
+                document.querySelector('.progress-bar').style.width = progressPercentage + '%';
+                
+                // 更新已完成步骤数量
+                document.querySelectorAll('.stat-value')[1].textContent = completedSteps + '/' + totalSteps;
+                
+                // 更新最后更新时间
+                const now = new Date();
+                const dateStr = now.getFullYear() + '-' + 
+                    String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+                    String(now.getDate()).padStart(2, '0');
+                document.querySelectorAll('.stat-value')[2].textContent = dateStr;
+            }
+
+            // 更新进度条（示例）
+            const progressBar = document.getElementById('config-progress-bar');
+            // 假设有8个配置项，完成了3个
+            const totalSteps = 8;
+            const completedSteps = 3; 
+            const progressPercentage = (completedSteps / totalSteps) * 100;
+            if(progressBar) {
+                progressBar.style.width = `${progressPercentage}%`;
+            }
+
+            // ---- 添加跳转逻辑 ----
+            // 获取当前页面的 siteName 参数
+            const urlParamsDetail = new URLSearchParams(window.location.search);
+            const siteNameParamDetail = urlParamsDetail.get('siteName');
+
+            // 为"告警推送模板选用"的配置按钮添加跳转
+            const alarmTemplateConfigBtn = document.getElementById('configure-alarm-template'); // 假设按钮 ID 是这个
+            if (alarmTemplateConfigBtn && siteNameParamDetail) {
+                alarmTemplateConfigBtn.addEventListener('click', function() {
+                    // 确保参数正确编码
+                    const targetUrl = `alarm-push-template-selection.html?siteName=${encodeURIComponent(siteNameParamDetail)}`;
+                    console.log("跳转到告警推送模板选用页面:", targetUrl);
+                    window.location.href = targetUrl;
+                });
+            } else if (!alarmTemplateConfigBtn) {
+                console.warn("未能找到ID为 'configure-alarm-template' 的按钮，无法添加告警模板配置跳转。");
+            } else if (!siteNameParamDetail) {
+                console.warn("URL中缺少 'siteName' 参数，无法为按钮添加带参数的跳转。");
+            }
+            
+             // ---- 其他配置项按钮的跳转逻辑可以类似添加 ----
+            // 例如：基础信息配置按钮
+            // const basicInfoConfigBtn = document.getElementById('configure-basic-info');
+            // if (basicInfoConfigBtn && siteNameParamDetail) { ... }
+
+            // 新增：为"电价模板选用"配置按钮添加跳转
+            const configPriceBtn = document.getElementById('config-electricity-price-btn');
+            if(configPriceBtn) {
+                configPriceBtn.addEventListener('click', function() {
+                    // 目标页面是 electricity-price-template.html，并传递 siteName 参数
+                    const targetUrl = `electricity-price-template.html?siteName=${encodeURIComponent(siteName)}`;
+                    console.log('跳转到电价模板选用:', targetUrl);
+                    window.location.href = targetUrl;
+                });
+            }
+
+            // 新增：为"参数校验模板选用"配置按钮添加跳转
+            const configValidationBtn = document.getElementById('config-validation-template-btn');
+            if (configValidationBtn && siteName) { // 确保按钮存在且 siteName 已获取
+                configValidationBtn.addEventListener('click', function() {
+                    const targetUrl = `parameter-validation-template.html?siteName=${encodeURIComponent(siteName)}`;
+                    console.log('跳转到参数校验模板选用:', targetUrl);
+                    window.location.href = targetUrl;
+                });
+            } else if (!configValidationBtn) {
+                console.warn("未能找到ID为 'config-validation-template-btn' 的按钮。");
+            } else if (!siteName) {
+                 console.warn("未能从URL获取 'siteName' 参数，无法为按钮添加跳转。");
+            }
+
         });
     </script>
 </body>

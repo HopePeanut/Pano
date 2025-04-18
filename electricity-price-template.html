@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>电价模板选用 - 智慧运维系统</title>
+    <!-- 引入 Font Awesome 图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 引入导航栏模板JS -->
+    <script src="navbar-template.js"></script>
+    <style>
+        /* --- 基础样式和变量 (参考 alarm-push-template-selection.html) --- */
+        :root {
+            --primary-color: #49A18D; /* 清安绿 */
+            --secondary-color: #3D8C7D;
+            --light-color: #F5F7F9;
+            --border-color: #E2E8F0;
+            --text-color: #333333;
+            --light-text: #FFFFFF;
+            --gray-text: #6C757D;
+            --light-gray: #E9ECEF;
+            --success-color: #28A745;
+            --warning-color: #F59E0B; /* 保持橙色用于警告/未选状态 */
+            --danger-color: #DC3545;
+            --info-color: #17A2B8;
+            --radius: 8px;
+            --shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            --table-hover-bg: rgba(73, 161, 141, 0.05);
+            --table-header-bg: #f5f7f9;
+            --disabled-bg: #f1f5f9;
+            --disabled-text: #94a3b8;
+            /* 电价时段颜色 */
+            --peak-color: #e53e3e;  /* 尖 - 红色 */
+            --high-peak-color: #dd6b20; /* 峰 - 橙色 */
+            --flat-color: #38a169;  /* 平 - 绿色 */
+            --valley-color: #3182ce; /* 谷 - 蓝色 */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #FAFAFA;
+            color: var(--text-color);
+            font-size: 14px;
+        }
+
+        .main-content {
+            padding: 20px;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        /* --- 面包屑导航 --- */
+        .breadcrumb {
+            display: flex; padding: 10px 0; margin-bottom: 20px;
+            list-style: none; font-size: 0.9rem;
+        }
+        .breadcrumb-item { color: var(--gray-text); }
+        .breadcrumb-item a { color: var(--gray-text); text-decoration: none; }
+        .breadcrumb-item a:hover { color: var(--primary-color); }
+        .breadcrumb-item + .breadcrumb-item::before { content: "/"; padding: 0 8px; color: var(--gray-text); }
+        .breadcrumb-item.active { color: var(--primary-color); font-weight: 500; }
+
+        /* --- 页面标题 --- */
+        .page-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; background-color: white; padding: 15px 20px;
+            border-radius: var(--radius); box-shadow: var(--shadow);
+        }
+        .page-title { font-size: 1.5rem; font-weight: 500; color: var(--text-color); }
+
+        /* --- 当前选用状态 --- */
+        .current-selection-display {
+            background-color: var(--light-color);
+            border: 1px solid var(--border-color);
+            padding: 12px 20px;
+            margin-bottom: 20px;
+            border-radius: var(--radius);
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .current-selection-display .selected-label {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+        .current-selection-display .not-selected-label {
+            color: var(--warning-color); /* 橙色提示未选 */
+            font-weight: 500;
+        }
+
+        /* --- 内容块样式 --- */
+        .content-block {
+            background-color: white; border-radius: var(--radius);
+            box-shadow: var(--shadow); padding: 20px; margin-bottom: 25px;
+        }
+        .block-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color);
+        }
+        .block-title {
+            font-size: 1.15rem; font-weight: 500; color: var(--primary-color);
+            display: flex; align-items: center; gap: 8px;
+        }
+        .block-title i { font-size: 1.1rem; }
+        .block-actions { display: flex; gap: 15px; align-items: center; } /* 用于放置搜索、筛选、保存按钮 */
+
+        /* --- 按钮样式 --- */
+        .btn {
+            padding: 8px 16px; border-radius: var(--radius); font-size: 14px;
+            cursor: pointer; display: inline-flex; align-items: center;
+            justify-content: center; gap: 5px; transition: all 0.2s ease;
+            border: none; font-weight: normal; white-space: nowrap; line-height: 1.5;
+        }
+        .btn i { font-size: 14px; }
+        .btn-primary { background-color: var(--primary-color); color: white; }
+        .btn-primary:hover { background-color: var(--secondary-color); }
+        .btn-secondary { background-color: white; color: var(--text-color); border: 1px solid var(--border-color); }
+        .btn-secondary:hover { background-color: var(--light-color); }
+        .btn-info { background-color: var(--info-color); color: white; } /* 用于查看详情 */
+        .btn-info:hover { background-color: #138496; }
+        .btn-small { padding: 5px 10px; font-size: 13px; }
+        .btn-toggle {
+             padding: 6px 12px; /* 切换按钮稍小 */
+             font-size: 13px;
+             background-color: var(--light-color);
+             color: var(--gray-text);
+             border: 1px solid var(--border-color);
+        }
+        .btn-toggle.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        .btn-toggle:not(.active):hover {
+             background-color: var(--light-gray);
+        }
+
+        /* --- 搜索与筛选 --- */
+        .search-box {
+            display: flex; border: 1px solid var(--border-color); border-radius: var(--radius);
+            overflow: hidden; background-color: white;
+        }
+        .search-input { padding: 8px 12px; border: none; outline: none; font-size: 14px; min-width: 200px; }
+        .search-btn { background-color: var(--light-color); border: none; padding: 0 12px; cursor: pointer; color: var(--gray-text); display: flex; align-items: center;}
+        .search-btn:hover { background-color: var(--border-color); }
+        .filter-select { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: var(--radius); font-size: 14px; height: 38px; }
+
+        /* --- 模板卡片 --- */
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* 卡片稍宽 */
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .template-card {
+            border: 1px solid var(--border-color); border-radius: var(--radius);
+            padding: 15px; background-color: #fff; transition: all 0.2s ease;
+            display: flex; flex-direction: column;
+        }
+        .template-card:hover {
+            border-color: var(--primary-color); box-shadow: 0 4px 10px rgba(73, 161, 141, 0.1);
+            transform: translateY(-2px);
+        }
+        .template-card.selected { /* 选中时的样式 */
+            border-color: var(--primary-color); background-color: var(--table-hover-bg);
+            box-shadow: 0 0 0 2px var(--primary-color);
+        }
+        .template-card-header { margin-bottom: 12px; }
+        .template-card-header h4 { font-size: 1.1rem; margin-bottom: 5px; color: var(--primary-color); }
+        .template-card-header .template-type { font-size: 0.85rem; color: var(--gray-text); background-color: var(--light-color); padding: 2px 6px; border-radius: 4px; display: inline-block;}
+        .template-card-body { flex-grow: 1; margin-bottom: 15px; font-size: 0.9rem; color: var(--gray-text); line-height: 1.5; }
+        .template-card-body p { margin-bottom: 5px; }
+        .template-card-body strong { color: var(--text-color); font-weight: 500; margin-right: 5px; }
+        .template-card-footer { display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid var(--light-color); padding-top: 10px; margin-top: auto;}
+
+        /* --- 模态框 --- */
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.4); z-index: 1000;
+            justify-content: center; align-items: center;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background-color: white; padding: 25px; border-radius: var(--radius);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2); max-height: 85vh;
+            display: flex; flex-direction: column; width: 80%; max-width: 800px; /* 详情模态框宽度加大 */
+        }
+        .modal-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color);
+        }
+        .modal-title { font-size: 1.25rem; font-weight: 500; }
+        .close-modal { cursor: pointer; font-size: 1.8rem; color: var(--gray-text); border: none; background: none;}
+        .modal-body { overflow-y: auto; padding-right: 10px; }
+        .modal-footer {
+            margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border-color);
+            display: flex; justify-content: flex-end; gap: 10px;
+        }
+        .modal-footer .btn { font-size: 14px !important; } /* 确保字体大小一致 */
+
+        /* 电价详情模态框特定样式 */
+        .price-details-section { margin-bottom: 20px; } /* 增加章节间距 */
+        .price-details-section-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 10px;
+        }
+        .price-details-section-header h5 {
+            font-size: 1rem; font-weight: 500; color: var(--primary-color);
+            border-left: 3px solid var(--primary-color); padding-left: 8px; margin: 0;
+        }
+        .view-toggle-buttons { display: flex; gap: 5px; }
+
+        .price-chart-container { margin-top: 15px; /* display: none; */ }
+        .price-table-container { margin-top: 15px; display: none; }
+
+        /* 时间轴图表样式 */
+        .price-timeline-chart {
+            position: relative;
+            height: 60px; /* 图表高度 */
+            background-color: var(--light-color);
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            overflow: hidden; /* 隐藏可能超出边界的条块 */
+            margin-bottom: 5px; /* 与下方label靠近 */
+        }
+        .price-timeline-block {
+            position: absolute;
+            top: 0;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 11px; /* 条块内文字稍小 */
+            font-weight: 500;
+            text-align: center;
+            cursor: default;
+            overflow: hidden;
+            white-space: normal;
+            padding: 2px 4px; /* 增加左右内边距 */
+            box-sizing: border-box;
+            border-right: 1px solid rgba(255,255,255,0.2); /* 条块间细分隔线 */
+        }
+        .price-timeline-block:last-child { border-right: none; }
+        .price-timeline-block[data-period="尖"] { background-color: var(--peak-color); }
+        .price-timeline-block[data-period="峰"] { background-color: var(--high-peak-color); }
+        .price-timeline-block[data-period="平"] { background-color: var(--flat-color); }
+        .price-timeline-block[data-period="谷"] { background-color: var(--valley-color); }
+        .price-timeline-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--gray-text);
+            padding: 0 1px; /* 调整内边距使 0h 和 24h 对齐边缘 */
+            position: relative; /* 相对定位 */
+            height: 15px; /* 给标签留出空间 */
+        }
+        .price-timeline-labels span {
+            position: absolute; /* 绝对定位相对于 labels 容器 */
+            transform: translateX(-50%); /* 水平居中 */
+            /* width: auto; 不需要设置宽度 */
+            text-align: center;
+            white-space: nowrap;
+        }
+        /* 添加刻度线 */
+        .price-timeline-chart::before, .price-timeline-chart::after {
+            content: ''; position: absolute; top: 0; bottom: 0; width: 1px; background-color: var(--border-color);
+        }
+        .price-timeline-chart::before { left: 0; }
+        .price-timeline-chart::after { right: 0; }
+        /* 内部刻度线 */
+        .timeline-tick {
+            position: absolute; top: 0; bottom: -5px; /* 延长到底部标签下方一点 */ width: 1px; background-color: rgba(0,0,0,0.08);
+        }
+
+        /* 图例样式 */
+        .price-timeline-legend {
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px solid var(--light-color);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            font-size: 0.9rem;
+            color: var(--gray-text);
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .legend-color-swatch {
+            width: 14px;
+            height: 14px;
+            border-radius: 3px;
+            display: inline-block;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .price-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .price-table th, .price-table td { border: 1px solid var(--border-color); padding: 8px 12px; text-align: center; vertical-align: middle;}
+        .price-table th { background-color: var(--table-header-bg); font-weight: 500; color: var(--gray-text); }
+        .price-table .period-label { font-weight: 500; }
+        .period-label[data-period="尖"] { color: var(--peak-color); }
+        .period-label[data-period="峰"] { color: var(--high-peak-color); }
+        .period-label[data-period="平"] { color: var(--flat-color); }
+        .period-label[data-period="谷"] { color: var(--valley-color); }
+        .price-details-description { margin-top: 10px; font-size: 0.9rem; color: var(--gray-text); line-height: 1.5; background-color: var(--light-color); padding: 10px; border-radius: 4px;}
+
+        /* 分页样式 */
+        .pagination { display: flex; justify-content: flex-end; align-items: center; gap: 10px; margin-top: 20px; }
+        .page-info { font-size: 14px; color: var(--gray-text); }
+        .pagination-btn { width: 32px; height: 32px; border-radius: 4px; display: flex; align-items: center; justify-content: center; background-color: white; border: 1px solid var(--border-color); color: var(--gray-text); cursor: pointer; }
+        .pagination-btn:hover { background-color: var(--light-color); }
+        .pagination-btn:disabled { cursor: not-allowed; opacity: 0.5; }
+
+        /* 提示信息 */
+        .info-tooltip { margin-left: 8px; color: var(--gray-text); cursor: help; }
+        .info-tooltip:hover { color: var(--primary-color); }
+
+        /* --- 新增: Tabs 样式 --- */
+        .tabs-nav {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 15px; /* Tab 导航和内容的间距 */
+        }
+        .tab-link {
+            padding: 10px 15px;
+            cursor: pointer;
+            border: none;
+            background-color: transparent;
+            border-bottom: 3px solid transparent; /* 底部边框用于指示活动状态 */
+            color: var(--gray-text);
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+            margin-bottom: -1px; /* 使底部边框与 nav 的边框重合 */
+        }
+        .tab-link:hover {
+            color: var(--primary-color);
+            background-color: var(--light-gray);
+        }
+        .tab-link.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+            font-weight: 500;
+        }
+        .tab-content {
+            display: none; /* 默认隐藏所有内容面板 */
+        }
+        .tab-content.active {
+            display: block; /* 只显示活动的面板 */
+        }
+
+        /* 时段电价内容区域（包含图表/表格切换）*/
+        .seasonal-price-content {
+            /* padding: 10px 0; */ /* 可选：为内容区域添加一些内边距 */
+        }
+        .view-toggle-buttons { display: flex; gap: 5px; margin-bottom: 15px; } /* 视图切换按钮上移 */
+
+        .price-chart-container { margin-top: 0; /* 移除之前的上边距 */ }
+        .price-table-container { margin-top: 0; display: none; }
+
+        /* 时间轴图表样式 (大部分不变) */
+        .price-timeline-chart {
+            position: relative; height: 60px; background-color: var(--light-color);
+            border-radius: var(--radius); border: 1px solid var(--border-color);
+            overflow: hidden; margin-bottom: 5px;
+        }
+        .price-timeline-block { /* ...样式不变... */
+            position: absolute; top: 0; height: 100%; display: flex;
+            align-items: center; justify-content: center; color: white;
+            font-size: 11px; font-weight: 500; text-align: center;
+            cursor: default; overflow: hidden; white-space: normal;
+            padding: 2px 4px; box-sizing: border-box;
+            border-right: 1px solid rgba(255,255,255,0.2);
+        }
+        .price-timeline-block:last-child { border-right: none; }
+        .price-timeline-block[data-period="尖"] { background-color: var(--peak-color); }
+        .price-timeline-block[data-period="峰"] { background-color: var(--high-peak-color); }
+        .price-timeline-block[data-period="平"] { background-color: var(--flat-color); }
+        .price-timeline-block[data-period="谷"] { background-color: var(--valley-color); }
+        .price-timeline-labels {
+            display: flex; justify-content: space-between; font-size: 11px;
+            color: var(--gray-text); padding: 0 1px; position: relative; height: 15px;
+        }
+        .price-timeline-labels span { position: absolute; transform: translateX(-50%); text-align: center; white-space: nowrap; }
+        .price-timeline-chart::before, .price-timeline-chart::after { /* ...样式不变... */
+             content: ''; position: absolute; top: 0; bottom: 0; width: 1px; background-color: var(--border-color);
+        }
+        .price-timeline-chart::before { left: 0; }
+        .price-timeline-chart::after { right: 0; }
+        .timeline-tick { /* ...样式不变... */
+             position: absolute; top: 0; bottom: -5px; width: 1px; background-color: rgba(0,0,0,0.08);
+        }
+
+        /* 图例样式 (不变) */
+        .price-timeline-legend {
+            margin-top: 15px; padding-top: 10px; border-top: 1px solid var(--light-color);
+            display: flex; flex-wrap: wrap; gap: 15px; font-size: 0.9rem; color: var(--gray-text);
+        }
+        .legend-item { display: flex; align-items: center; gap: 5px; }
+        .legend-color-swatch { width: 14px; height: 14px; border-radius: 3px; display: inline-block; border: 1px solid rgba(0,0,0,0.1); }
+
+        /* 表格样式 (不变) */
+        .price-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .price-table th, .price-table td { border: 1px solid var(--border-color); padding: 8px 12px; text-align: center; vertical-align: middle;}
+        .price-table th { background-color: var(--table-header-bg); font-weight: 500; color: var(--gray-text); }
+        .price-table .period-label { font-weight: 500; }
+        .period-label[data-period="尖"] { color: var(--peak-color); }
+        .period-label[data-period="峰"] { color: var(--high-peak-color); }
+        .period-label[data-period="平"] { color: var(--flat-color); }
+        .period-label[data-period="谷"] { color: var(--valley-color); }
+        .price-details-description { margin-top: 10px; font-size: 0.9rem; color: var(--gray-text); line-height: 1.5; background-color: var(--light-color); padding: 10px; border-radius: 4px;}
+
+        /* 分页样式 (不变) */
+        .pagination { display: flex; justify-content: flex-end; align-items: center; gap: 10px; margin-top: 20px; }
+        .page-info { font-size: 14px; color: var(--gray-text); }
+        .pagination-btn { width: 32px; height: 32px; border-radius: 4px; display: flex; align-items: center; justify-content: center; background-color: white; border: 1px solid var(--border-color); color: var(--gray-text); cursor: pointer; }
+        .pagination-btn:hover { background-color: var(--light-color); }
+        .pagination-btn:disabled { cursor: not-allowed; opacity: 0.5; }
+
+        /* 提示信息 (不变) */
+        .info-tooltip { margin-left: 8px; color: var(--gray-text); cursor: help; }
+        .info-tooltip:hover { color: var(--primary-color); }
+
+    </style>
+</head>
+<body>
+    <!-- 导航栏容器 -->
+    <div id="navbar-container"></div>
+
+    <!-- 主内容区域 -->
+    <div class="main-content">
+        <!-- 面包屑导航 -->
+        <ul class="breadcrumb">
+            <li class="breadcrumb-item"><a href="site-homepage.html">首页</a></li>
+            <li class="breadcrumb-item">后台管理</li>
+            <li class="breadcrumb-item"><a href="site-config.html">站点管理</a></li>
+            <li class="breadcrumb-item"><a href="#" id="breadcrumb-site-config">站点配置</a></li> <!-- JS动态设置href -->
+            <li class="breadcrumb-item active">电价模板选用</li>
+        </ul>
+
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <h1 class="page-title" id="page-title-site-name">电价模板选用 (站点加载中...)</h1>
+        </div>
+
+        <!-- 当前选用状态 -->
+        <div class="current-selection-display" id="current-selection-display">
+            <i class="fas fa-info-circle"></i>
+            <span>当前状态: </span>
+            <span class="not-selected-label">未选用模板</span>
+        </div>
+
+        <!-- 模板列表与筛选 -->
+        <div class="content-block">
+            <div class="block-header">
+                <h2 class="block-title"><i class="fas fa-file-invoice-dollar"></i> 选择电价模板</h2>
+                <div class="block-actions">
+                    <div class="search-box">
+                        <input type="text" class="search-input" id="template-search-input" placeholder="搜索模板名称...">
+                        <button class="search-btn" id="template-search-btn"><i class="fas fa-search"></i></button>
+                    </div>
+                    <select id="template-filter-type" class="filter-select">
+                        <option value="">所有电价类型</option>
+                        <option value="工商电价">工商电价</option>
+                        <option value="居民电价">居民电价</option>
+                        <option value="大工业电价">大工业电价</option>
+                        <!-- 可添加更多 -->
+                    </select>
+                    <button class="btn btn-primary" id="save-selection-btn">
+                        <i class="fas fa-check"></i> 保存选择
+                    </button>
+                </div>
+            </div>
+
+            <!-- 模板列表网格 -->
+            <div class="template-grid" id="template-grid">
+                <!-- 模板卡片将由 JS 动态生成 -->
+                <div style="text-align: center; color: var(--gray-text); padding: 30px; grid-column: 1 / -1;">加载中...</div>
+            </div>
+
+            <!-- 分页 (可选) -->
+            <div class="pagination" id="template-pagination" style="display: none;">
+                 <span class="page-info">共 X 个模板</span>
+                 <button class="pagination-btn" disabled><i class="fas fa-chevron-left"></i></button>
+                 <button class="pagination-btn"><i class="fas fa-chevron-right"></i></button>
+             </div>
+        </div>
+
+    </div>
+
+    <!-- 模态框 - 查看模板详情 -->
+    <div class="modal" id="template-detail-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="detail-modal-title">模板详情</h3>
+                <button class="close-modal" aria-label="关闭">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- 模板基本信息 -->
+                <div class="price-details-section">
+                    <h5 id="detail-template-type">电价类型: 加载中...</h5>
+                    <p id="detail-template-creator-time" style="font-size: 0.9rem; color: var(--gray-text); margin-bottom: 5px;">创建人: 加载中... | 创建时间: 加载中...</p>
+                    <p id="detail-template-description-overall" class="price-details-description">加载中...</p>
+                </div>
+
+                <!-- 季节性/时段性电价详情 -->
+                <div class="price-details-section">
+                     <div class="price-details-section-header">
+                         <h5>时段与电价详情</h5>
+                     </div>
+                    <!-- Tabs 导航 -->
+                    <nav class="tabs-nav" id="seasonal-tabs-nav">
+                        <!-- Tab links 将由 JS 动态生成 -->
+                        <button class="tab-link active" data-target="tab-content-0">加载中...</button>
+                    </nav>
+
+                    <!-- Tabs 内容容器 -->
+                    <div id="seasonal-tabs-content">
+                        <!-- Tab content panels 将由 JS 动态生成 -->
+                        <div class="tab-content active" id="tab-content-0">
+                            <div class="seasonal-price-content">
+                                <!-- 视图切换按钮 -->
+                                <div class="view-toggle-buttons">
+                                    <button class="btn btn-toggle active" data-view="chart">
+                                        <i class="fas fa-chart-bar"></i> 图表视图
+                                    </button>
+                                    <button class="btn btn-toggle" data-view="table">
+                                        <i class="fas fa-table"></i> 表格视图
+                                    </button>
+                                </div>
+                                <!-- 图表容器 -->
+                                <div class="price-chart-container">
+                                    <div class="price-timeline-chart"></div>
+                                    <div class="price-timeline-labels"></div>
+                                    <div class="price-timeline-legend"></div>
+                                    <div class="price-chart-unavailable" style="display: none;"></div>
+                                </div>
+                                <!-- 表格容器 -->
+                                <div class="price-table-container">
+                                    <table class="price-table">
+                                        <thead><tr></tr></thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                                <!-- 当前时段备注 -->
+                                <div class="price-details-description seasonal-notes" style="margin-top: 15px; display: none;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary close-modal">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入页面脚本 -->
+    <script>
+        // 模拟电价模板数据 (实际应从后端获取)
+        const MOCK_PRICE_TEMPLATES = [
+            {
+                id: 'TPL_PRICE_GEN_001',
+                name: '通用工商业峰谷电价',
+                type: '工商电价',
+                creator: '系统管理员',
+                createdAt: '2024-01-15 10:00',
+                description: '适用于大部分地区的通用型工商业峰谷分时电价。提供全年统一标准。' ,
+                details: {
+                    seasonalVariations: [
+                        {
+                            label: '全年',
+                            notes: '全年执行此标准峰谷电价。' ,
+                            timeSlots: [
+                                { period: '峰', start: '08:00', end: '11:00', price: 1.10 },
+                                { period: '平', start: '11:00', end: '14:00', price: 0.80 },
+                                { period: '谷', start: '14:00', end: '18:00', price: 0.40 },
+                                { period: '峰', start: '18:00', end: '21:00', price: 1.10 },
+                                { period: '平', start: '21:00', end: '23:00', price: 0.80 },
+                                { period: '谷', start: '23:00', end: '08:00', price: 0.40 }
+                            ]
+                        }
+                    ]
+                }
+            },
+            {
+                id: 'TPL_PRICE_GEN_002',
+                name: '通用尖峰平谷电价',
+                type: '工商电价',
+                creator: '李工',
+                createdAt: '2024-03-20 14:30',
+                description: '通用型尖峰平谷电价，含尖时段，鼓励用户削峰填谷。',
+                details: {
+                    seasonalVariations: [
+                        {
+                            label: '全年',
+                            notes: '全年执行此标准尖峰平谷电价。' ,
+                            timeSlots: [
+                                { period: '谷', start: '00:00', end: '07:00', price: 0.45 },
+                                { period: '平', start: '07:00', end: '10:00', price: 0.85 },
+                                { period: '尖', start: '10:00', end: '11:00', price: 1.35 },
+                                { period: '峰', start: '11:00', end: '13:00', price: 1.15 },
+                                { period: '平', start: '13:00', end: '15:00', price: 0.85 },
+                                { period: '谷', start: '15:00', end: '19:00', price: 0.45 },
+                                { period: '尖', start: '19:00', end: '20:00', price: 1.35 },
+                                { period: '峰', start: '20:00', end: '22:00', price: 1.15 },
+                                { period: '平', start: '22:00', end: '00:00', price: 0.85 }
+                            ]
+                        }
+                    ]
+                }
+            },
+            {
+                id: 'TPL_PRICE_CQ_001',
+                name: '重庆工商业分时电价',
+                type: '工商电价',
+                creator: '张工',
+                createdAt: '2024-06-01 09:00',
+                description: '重庆地区工商业执行的分时电价标准，区分冬夏季。',
+                details: {
+                    seasonalVariations: [
+                        {
+                            label: '夏季 (6月-9月)',
+                            notes: '执行夏季高峰电价标准。' ,
+                            timeSlots: [
+                                { period: '峰', start: '09:00', end: '12:00', price: 1.15 },
+                                { period: '平', start: '12:00', end: '14:00', price: 0.82 },
+                                { period: '峰', start: '14:00', end: '21:00', price: 1.15 },
+                                { period: '谷', start: '21:00', end: '09:00', price: 0.42 }
+                            ]
+                        },
+                        {
+                            label: '非夏季 (10月-次年5月)',
+                            notes: '执行非夏季普通峰谷电价标准。' ,
+                            timeSlots: [
+                                { period: '峰', start: '08:00', end: '11:00', price: 1.05 },
+                                { period: '平', start: '11:00', end: '19:00', price: 0.78 },
+                                { period: '谷', start: '19:00', end: '08:00', price: 0.38 }
+                            ]
+                        }
+                    ]
+                }
+            },
+            {
+                id: 'TPL_PRICE_CQ_002',
+                name: '重庆居民阶梯电价',
+                type: '居民电价',
+                creator: '系统管理员',
+                createdAt: '2024-02-10 11:00',
+                description: '重庆地区居民生活用电阶梯计价方式，按年清算。' ,
+                details: {
+                    seasonalVariations: [
+                        {
+                            label: '全年阶梯标准',
+                            notes: '居民阶梯电价通常全年统一，按年（或月）累计用量计算。' ,
+                            timeSlots: [
+                                { period: '第一档', start: '0', end: '2400', price: 0.52 },
+                                { period: '第二档', start: '2401', end: '4800', price: 0.62 },
+                                { period: '第三档', start: '4801', end: '∞', price: 0.82 }
+                            ]
+                        }
+                    ]
+                }
+            },
+            {
+                id: 'TPL_PRICE_SC_001',
+                name: '四川工商业分时电价',
+                type: '工商电价',
+                creator: '刘工',
+                createdAt: '2024-05-25 15:00',
+                description: '四川地区工商业执行的分时电价，区分丰水期和枯水期。',
+                details: {
+                    seasonalVariations: [
+                        {
+                            label: '丰水期 (5月-10月)',
+                            notes: '水电资源丰富，电价相对较低。' ,
+                            timeSlots: [
+                                { period: '峰', start: '08:30', end: '11:30', price: 0.95 },
+                                { period: '平', start: '11:30', end: '18:30', price: 0.65 },
+                                { period: '谷', start: '18:30', end: '08:30', price: 0.35 }
+                            ]
+                        },
+                        {
+                            label: '枯水期 (11月-次年4月)',
+                            notes: '水电减少，电价相对较高。' ,
+                            timeSlots: [
+                                { period: '峰', start: '08:00', end: '11:00', price: 1.08 },
+                                { period: '平', start: '11:00', end: '18:00', price: 0.75 },
+                                { period: '谷', start: '18:00', end: '23:00', price: 0.48 },
+                                { period: '平', start: '23:00', end: '08:00', price: 0.75 }
+                            ]
+                        }
+                    ]
+                }
+            },
+            {
+                id: 'TPL_PRICE_GEN_003',
+                name: '通用大工业两部制电价',
+                type: '大工业电价',
+                creator: '王工',
+                createdAt: '2024-05-10 11:00',
+                description: '通用型大工业两部制电价，基本电价按容量/需量计算，电度电价分时。' ,
+                 details: {
+                     seasonalVariations: [
+                         {
+                            label: '全年分时电度电价',
+                            notes: '基本电价另计，此处仅为电度电价部分。' ,
+                            timeSlots: [
+                                { period: '谷', start: '00:00', end: '09:00', price: 0.35 },
+                                { period: '峰', start: '09:00', end: '12:00', price: 1.05 },
+                                { period: '平', start: '12:00', end: '17:00', price: 0.75 },
+                                { period: '谷', start: '17:00', end: '22:00', price: 0.35 },
+                                { period: '平', start: '22:00', end: '00:00', price: 0.75 }
+                            ]
+                         }
+                     ]
+                }
+            }
+        ];
+
+        let currentSelectedTemplateId = 'TPL_PRICE_CQ_001'; // 默认选中重庆工商业
+        let currentTemplateData = null; // 用于存储当前模态框显示的模板数据
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- DOM元素获取 (统一在此处获取) ---
+            const templateGrid = document.getElementById('template-grid');
+            const searchInput = document.getElementById('template-search-input');
+            const searchBtn = document.getElementById('template-search-btn');
+            const filterTypeSelect = document.getElementById('template-filter-type');
+            const saveSelectionBtn = document.getElementById('save-selection-btn');
+            const currentSelectionDisplay = document.getElementById('current-selection-display');
+            const pageTitleSiteName = document.getElementById('page-title-site-name'); // 用于保存选择时显示站点名
+            const breadcrumbSiteConfig = document.getElementById('breadcrumb-site-config'); // 面包屑站点配置链接
+            // 模态框相关
+            const detailModal = document.getElementById('template-detail-modal');
+            const detailModalTitle = document.getElementById('detail-modal-title');
+            const detailModalCloseBtns = detailModal.querySelectorAll('.close-modal');
+            const detailTemplateType = document.getElementById('detail-template-type');
+            const detailCreatorTime = document.getElementById('detail-template-creator-time');
+            const detailDescriptionOverall = document.getElementById('detail-template-description-overall');
+            const seasonalTabsNav = document.getElementById('seasonal-tabs-nav');
+            const seasonalTabsContent = document.getElementById('seasonal-tabs-content');
+            // 分页相关 (虽然逻辑未实现，但变量需要声明以避免错误)
+            const paginationElement = document.getElementById('template-pagination');
+
+            // 1. 初始化导航栏
+            if (typeof initNavbar === 'function') {
+                initNavbar();
+            }
+
+            // 2. 获取并设置站点名称
+            const urlParams = new URLSearchParams(window.location.search);
+            const siteNameParam = urlParams.get('siteName') || "默认站点"; // 提供默认值
+            const siteName = decodeURIComponent(siteNameParam);
+            if (pageTitleSiteName) {
+                pageTitleSiteName.textContent = `电价模板选用 (${siteName})`; // 使用解析后的 siteName
+            }
+
+            if (breadcrumbSiteConfig) {
+                const configHref = `site-config-detail.html?siteName=${encodeURIComponent(siteNameParam)}`; // 使用原始参数 siteNameParam
+                breadcrumbSiteConfig.href = configHref;
+            }
+
+            // --- Helper 函数 (不变) ---
+            function timeToMinutes(timeStr) {
+                if (!timeStr || !timeStr.includes(':')) return 0;
+                const [hours, minutes] = timeStr.split(':').map(Number);
+                return hours * 60 + minutes;
+            }
+
+            // --- 渲染函数 ---
+            function renderTemplateList(templatesToRender) {
+                templateGrid.innerHTML = ''; // 清空
+                if (templatesToRender.length === 0) {
+                    templateGrid.innerHTML = '<div style="text-align: center; color: var(--gray-text); padding: 30px; grid-column: 1 / -1;">未找到匹配的模板</div>';
+                    if (paginationElement) paginationElement.style.display = 'none'; // 隐藏分页
+                    return;
+                }
+                templatesToRender.forEach(template => {
+                    const card = document.createElement('div');
+                    card.className = 'template-card';
+                    card.dataset.templateId = template.id;
+                    if (template.id === currentSelectedTemplateId) {
+                        card.classList.add('selected');
+                    }
+                    card.innerHTML = `
+                        <div class="template-card-header">
+                            <h4>${template.name}</h4>
+                            <span class="template-type">${template.type}</span>
+                        </div>
+                        <div class="template-card-body">
+                            <p><strong>创建人:</strong> ${template.creator}</p>
+                            <p><strong>创建时间:</strong> ${template.createdAt}</p>
+                            <p>${template.description}</p>
+                        </div>
+                        <div class="template-card-footer">
+                            <button class="btn btn-info btn-small view-detail-btn">
+                                <i class="fas fa-eye"></i> 查看详情
+                            </button>
+                            <button class="btn btn-secondary btn-small select-template-btn">
+                                <i class="fas fa-check-circle"></i> ${template.id === currentSelectedTemplateId ? '已选用' : '选用此模板'}
+                            </button>
+                        </div>
+                    `;
+                    templateGrid.appendChild(card);
+                });
+                if (paginationElement) paginationElement.style.display = templatesToRender.length > 0 ? 'flex' : 'none';
+            }
+
+            function renderCurrentSelection() {
+                const selectedTemplate = MOCK_PRICE_TEMPLATES.find(t => t.id === currentSelectedTemplateId);
+                if (selectedTemplate) {
+                    currentSelectionDisplay.innerHTML = `
+                        <i class="fas fa-check-circle" style="color: var(--success-color);"></i>
+                        <span>当前已选用: </span>
+                        <span class="selected-label">${selectedTemplate.name}</span>
+                        <span>(${selectedTemplate.type})</span>
+                    `;
+                } else {
+                    currentSelectionDisplay.innerHTML = `
+                        <i class="fas fa-exclamation-triangle" style="color: var(--warning-color);"></i>
+                        <span>当前状态: </span>
+                        <span class="not-selected-label">未选用模板</span>
+                    `;
+                }
+            }
+
+            function generatePriceChart(timeSlots, chartContainer) {
+                const timelineChart = chartContainer.querySelector('.price-timeline-chart');
+                const timelineLabels = chartContainer.querySelector('.price-timeline-labels');
+                const timelineLegend = chartContainer.querySelector('.price-timeline-legend');
+                const chartUnavailable = chartContainer.querySelector('.price-chart-unavailable');
+
+                timelineChart.innerHTML = '';
+                timelineLabels.innerHTML = '';
+                timelineLegend.innerHTML = '';
+                chartUnavailable.style.display = 'none';
+
+                const isTimeBased = timeSlots && timeSlots.length > 0 && timeSlots[0].start.includes(':');
+                if (!isTimeBased) {
+                    chartUnavailable.style.display = 'block';
+                    return;
+                }
+
+                const totalMinutes = 24 * 60;
+                const periodColors = {
+                    '尖': 'var(--peak-color)',
+                    '峰': 'var(--high-peak-color)',
+                    '平': 'var(--flat-color)',
+                    '谷': 'var(--valley-color)'
+                };
+                const uniquePeriods = {};
+
+                for (let hour = 0; hour <= 24; hour += 3) {
+                    const labelSpan = document.createElement('span');
+                    labelSpan.textContent = `${hour.toString().padStart(2, '0')}:00`;
+                    labelSpan.style.left = `${(hour / 24) * 100}%`;
+                    timelineLabels.appendChild(labelSpan);
+                     if (hour > 0 && hour < 24) {
+                        const tick = document.createElement('div');
+                        tick.className = 'timeline-tick';
+                        tick.style.left = `${(hour / 24) * 100}%`;
+                        timelineChart.appendChild(tick);
+                    }
+                }
+
+                timeSlots.forEach(slot => {
+                    const startMinutes = timeToMinutes(slot.start);
+                    let endMinutes = timeToMinutes(slot.end);
+                    if (slot.end === '00:00') endMinutes = totalMinutes;
+
+                    if (periodColors[slot.period] && !uniquePeriods[slot.period]) {
+                        uniquePeriods[slot.period] = periodColors[slot.period];
+                    }
+
+                    if (endMinutes < startMinutes) {
+                        createTimelineBlock(slot, startMinutes, totalMinutes - startMinutes, timelineChart);
+                        createTimelineBlock(slot, 0, endMinutes, timelineChart);
+                    } else {
+                        createTimelineBlock(slot, startMinutes, endMinutes - startMinutes, timelineChart);
+                    }
+                });
+
+                let legendHTML = '<div class="legend-item"><span>图例:</span></div>';
+                for (const period in uniquePeriods) {
+                    legendHTML += `<div class="legend-item"><span class="legend-color-swatch" style="background-color: ${uniquePeriods[period]};"></span><span>${period}</span></div>`;
+                }
+                legendHTML += '<div class="legend-item" style="margin-left: auto;"><span>块内数字: 电价 (元/度)</span></div>';
+                timelineLegend.innerHTML = legendHTML;
+            }
+
+            function createTimelineBlock(slot, startMinutes, durationMinutes, targetChart) {
+                 if (durationMinutes <= 0) return;
+                 const totalMinutes = 24 * 60;
+                 const block = document.createElement('div');
+                 block.className = 'price-timeline-block';
+                 block.dataset.period = slot.period;
+                 block.style.left = `${(startMinutes / totalMinutes) * 100}%`;
+                 block.style.width = `${(durationMinutes / totalMinutes) * 100}%`;
+                 block.title = `${slot.period}: ${slot.start}-${slot.end} (${slot.price.toFixed(2)}元)`;
+                 if (durationMinutes / totalMinutes > 0.04) {
+                     block.innerHTML = `<span>${slot.period}<br>${slot.price.toFixed(2)}</span>`;
+                 }
+                 targetChart.appendChild(block);
+            }
+
+            function populatePriceTable(timeSlots, tableContainer) {
+                const table = tableContainer.querySelector('.price-table');
+                const tableHeadRow = table.querySelector('thead tr');
+                const tableBody = table.querySelector('tbody');
+                tableBody.innerHTML = '';
+
+                const isTimeBased = timeSlots && timeSlots.length > 0 && timeSlots[0].start.includes(':');
+
+                if (isTimeBased) {
+                    tableHeadRow.innerHTML = `<th>时段类型</th><th>开始时间</th><th>结束时间</th><th>电价 (元/度)</th>`;
+                } else {
+                     tableHeadRow.innerHTML = `<th>阶梯档位</th><th>起始用量(kWh)</th><th>结束用量(kWh)</th><th>电价 (元/kWh)</th>`;
+                }
+
+                if (timeSlots && timeSlots.length > 0) {
+                    timeSlots.forEach(slot => {
+                        const row = tableBody.insertRow();
+                        const periodLabel = `<span class="period-label" data-period="${slot.period}">${slot.period}</span>`;
+                        let startDisplay = slot.start;
+                        let endDisplay = slot.end;
+                        if (!isTimeBased) {
+                            endDisplay = (slot.end === '∞') ? '∞' : slot.end;
+                        } else if (slot.end === '00:00') {
+                             endDisplay = '24:00';
+                        }
+                        row.innerHTML = `<td>${periodLabel}</td><td>${startDisplay}</td><td>${endDisplay}</td><td>${slot.price.toFixed(2)}</td>`;
+                    });
+                } else {
+                    tableBody.innerHTML = `<tr><td colspan="4">无详细时段/阶梯信息</td></tr>`;
+                }
+            }
+
+            function showDetailModal(templateId) {
+                currentTemplateData = MOCK_PRICE_TEMPLATES.find(t => t.id === templateId);
+                if (!currentTemplateData) return;
+
+                detailModalTitle.textContent = `详情: ${currentTemplateData.name}`;
+                detailTemplateType.textContent = `电价类型: ${currentTemplateData.type}`;
+                detailCreatorTime.textContent = `创建人: ${currentTemplateData.creator} | 创建时间: ${currentTemplateData.createdAt}`;
+                detailDescriptionOverall.textContent = currentTemplateData.description || '无总体描述';
+
+                seasonalTabsNav.innerHTML = '';
+                seasonalTabsContent.innerHTML = '';
+
+                if (currentTemplateData.details && currentTemplateData.details.seasonalVariations && currentTemplateData.details.seasonalVariations.length > 0) {
+                    currentTemplateData.details.seasonalVariations.forEach((variation, index) => {
+                        const tabLink = document.createElement('button');
+                        tabLink.className = 'tab-link';
+                        tabLink.dataset.target = `tab-content-${index}`;
+                        tabLink.textContent = variation.label;
+                        if (index === 0) tabLink.classList.add('active');
+                        seasonalTabsNav.appendChild(tabLink);
+
+                        const tabContent = document.createElement('div');
+                        tabContent.className = 'tab-content';
+                        tabContent.id = `tab-content-${index}`;
+                        if (index === 0) tabContent.classList.add('active');
+                        tabContent.innerHTML = `
+                            <div class="seasonal-price-content">
+                                <div class="view-toggle-buttons">
+                                    <button class="btn btn-toggle active" data-view="chart"><i class="fas fa-chart-bar"></i> 图表视图</button>
+                                    <button class="btn btn-toggle" data-view="table"><i class="fas fa-table"></i> 表格视图</button>
+                                </div>
+                                <div class="price-chart-container">
+                                    <div class="price-timeline-chart"></div>
+                                    <div class="price-timeline-labels"></div>
+                                    <div class="price-timeline-legend"></div>
+                                    <div class="price-chart-unavailable" style="text-align: center; color: var(--gray-text); padding: 20px; display: none;"></div>
+                                </div>
+                                <div class="price-table-container" style="display: none;">
+                                    <table class="price-table">
+                                        <thead><tr></tr></thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                                <div class="price-details-description seasonal-notes" style="margin-top: 15px; display: ${variation.notes ? 'block' : 'none'};">
+                                    ${variation.notes || ''}
+                                </div>
+                            </div>
+                        `;
+                        seasonalTabsContent.appendChild(tabContent);
+
+                        const viewToggleBtns = tabContent.querySelectorAll('.view-toggle-buttons .btn-toggle');
+                        const chartContainer = tabContent.querySelector('.price-chart-container');
+                        const tableContainer = tabContent.querySelector('.price-table-container');
+                        viewToggleBtns.forEach(button => {
+                            button.addEventListener('click', function() {
+                                viewToggleBtns.forEach(btn => btn.classList.remove('active'));
+                                this.classList.add('active');
+                                const viewType = this.dataset.view;
+                                chartContainer.style.display = viewType === 'chart' ? 'block' : 'none';
+                                tableContainer.style.display = viewType === 'table' ? 'block' : 'none';
+                            });
+                        });
+
+                        if (index === 0) {
+                            renderSeasonalContent(variation.timeSlots, tabContent);
+                        }
+                    });
+
+                    seasonalTabsNav.addEventListener('click', function(event) {
+                        const clickedTab = event.target.closest('.tab-link');
+                        if (!clickedTab || clickedTab.classList.contains('active')) return;
+
+                        seasonalTabsNav.querySelectorAll('.tab-link').forEach(link => link.classList.remove('active'));
+                        clickedTab.classList.add('active');
+
+                        seasonalTabsContent.querySelectorAll('.tab-content').forEach(panel => panel.classList.remove('active'));
+                        const targetPanelId = clickedTab.dataset.target;
+                        const targetPanel = document.getElementById(targetPanelId);
+                        if (targetPanel) {
+                            targetPanel.classList.add('active');
+                            const variationIndex = Array.from(seasonalTabsNav.children).indexOf(clickedTab);
+                            const selectedVariation = currentTemplateData.details.seasonalVariations[variationIndex];
+                            if (selectedVariation) {
+                                renderSeasonalContent(selectedVariation.timeSlots, targetPanel);
+                            }
+                        }
+                    });
+
+                } else {
+                     seasonalTabsNav.innerHTML = '<span style="padding: 10px; color: var(--gray-text);">此模板无详细时段信息。</span>';
+                     seasonalTabsContent.innerHTML = '';
+                }
+
+                detailModal.classList.add('active');
+            }
+
+            function renderSeasonalContent(timeSlots, targetPanel) {
+                 const chartContainer = targetPanel.querySelector('.price-chart-container');
+                 const tableContainer = targetPanel.querySelector('.price-table-container');
+                 const viewToggleBtns = targetPanel.querySelectorAll('.view-toggle-buttons .btn-toggle');
+
+                 generatePriceChart(timeSlots, chartContainer);
+                 populatePriceTable(timeSlots, tableContainer);
+
+                 const isTimeBased = timeSlots && timeSlots.length > 0 && timeSlots[0].start.includes(':');
+                 const defaultView = isTimeBased ? 'chart' : 'table';
+
+                 chartContainer.style.display = defaultView === 'chart' ? 'block' : 'none';
+                 tableContainer.style.display = defaultView === 'table' ? 'block' : 'none';
+
+                 viewToggleBtns.forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.view === defaultView);
+                 });
+            }
+
+            // --- 事件监听设置 ---
+            // (定义搜索和过滤函数)
+            function handleFilterAndSearch() {
+                const searchTerm = searchInput.value.toLowerCase().trim();
+                const selectedType = filterTypeSelect.value;
+                const filteredTemplates = MOCK_PRICE_TEMPLATES.filter(template => {
+                    const nameMatch = template.name.toLowerCase().includes(searchTerm);
+                    const typeMatch = !selectedType || template.type === selectedType;
+                    return nameMatch && typeMatch;
+                });
+                renderTemplateList(filteredTemplates);
+            }
+
+            // (DOM 元素已在前面获取，此处直接使用变量)
+            // 搜索和过滤 (现在函数已定义)
+            searchBtn.addEventListener('click', handleFilterAndSearch);
+            searchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleFilterAndSearch(); });
+            filterTypeSelect.addEventListener('change', handleFilterAndSearch);
+
+            // 模板卡片交互
+            templateGrid.addEventListener('click', function(event) {
+                const viewBtn = event.target.closest('.view-detail-btn');
+                const selectBtn = event.target.closest('.select-template-btn');
+                const card = event.target.closest('.template-card');
+                if (!card) return;
+                const templateId = card.dataset.templateId;
+                if (viewBtn) {
+                    showDetailModal(templateId);
+                } else if (selectBtn) {
+                    currentSelectedTemplateId = templateId;
+                    handleFilterAndSearch();
+                    renderCurrentSelection();
+                }
+            });
+
+            // 关闭详情模态框
+            detailModalCloseBtns.forEach(btn => {
+                btn.addEventListener('click', () => detailModal.classList.remove('active'));
+            });
+            detailModal.addEventListener('click', (event) => {
+                 if (event.target === detailModal) detailModal.classList.remove('active');
+            });
+
+            // 保存选择按钮
+            saveSelectionBtn.addEventListener('click', function() {
+                if (currentSelectedTemplateId) {
+                    const selectedTemplate = MOCK_PRICE_TEMPLATES.find(t => t.id === currentSelectedTemplateId);
+                    const siteName = pageTitleSiteName ? pageTitleSiteName.textContent.match(/\((.*?)\)/)?.[1] || '该站点' : '该站点'; // 尝试从标题提取站点名
+                    alert(`已为站点 "${siteName}" 选择电价模板: "${selectedTemplate.name}"`);
+                }
+            });
+
+            // --- 初始化加载 ---
+            renderCurrentSelection();
+            handleFilterAndSearch(); // 调用此函数来加载初始列表
+            console.log("电价模板选用页面脚本初始化完成 (已重构支持多时段)。");
+        });
+    </script>
+</body>
+</html>
