@@ -38,6 +38,12 @@ function initCharts() {
     renderWeeklyDowntimeChart();
     renderCostAnalysisChart();
     renderWeeklyDowntimeDurationChart();
+    
+    // 初始化人员绩效图表
+    initResponseTimeChart();
+    initCompletionRateChart();
+    initSatisfactionRatingChart();
+    initTeamPerformanceChart();
 }
 
 // 渲染售后问题数量图表
@@ -834,4 +840,277 @@ function enhanceChartOption(option, cardId) {
     }
     
     return option;
+}
+
+// 初始化人员响应时间统计图表
+function initResponseTimeChart() {
+    const chart = echarts.init(document.getElementById('response-time-chart'));
+    
+    // 模拟人员和响应时间数据
+    const staffNames = ['张工', '李工', '王工', '赵工', '陈工', '刘工', '杨工', '周工'];
+    const avgResponseTimes = [15, 22, 18, 25, 13, 26, 17, 21]; // 单位：分钟
+    const targetResponseTime = 20; // 目标响应时间线
+    
+    const option = {
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+                type: 'shadow'
+            },
+            formatter: function(params) {
+                return params[0].name + '<br/>' +
+                       '平均响应时间: ' + params[0].value + '分钟';
+            }
+        },
+        grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+        },
+        xAxis: {
+            type: 'category',
+            data: staffNames,
+            axisLabel: {
+                interval: 0,
+                rotate: 30
+            }
+        },
+        yAxis: {
+            type: 'value',
+            name: '平均响应时间(分钟)',
+            minInterval: 1
+        },
+        series: [
+            {
+                name: '平均响应时间',
+                type: 'bar',
+                data: avgResponseTimes,
+                itemStyle: {
+                    color: function(params) {
+                        // 响应时间超过目标时间显示为红色，否则为绿色
+                        return params.value > targetResponseTime ? '#c23531' : '#49A18D';
+                    }
+                },
+                label: {
+                    show: true,
+                    position: 'top',
+                    formatter: '{c}分钟'
+                }
+            },
+            {
+                name: '目标响应时间',
+                type: 'line',
+                markLine: {
+                    data: [
+                        {
+                            yAxis: targetResponseTime,
+                            lineStyle: {
+                                color: '#F39C12',
+                                type: 'dashed'
+                            },
+                            label: {
+                                formatter: '目标: 20分钟',
+                                position: 'start'
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    };
+    
+    chart.setOption(option);
+    return chart;
+}
+
+// 初始化工单完成率排名图表
+function initCompletionRateChart() {
+    const chart = echarts.init(document.getElementById('completion-rate-chart'));
+    
+    // 模拟工单完成数据
+    const staffNames = ['张工', '李工', '王工', '赵工', '陈工', '刘工', '杨工', '周工'];
+    const completionRates = [92, 88, 96, 84, 95, 78, 93, 86]; // 百分比
+    
+    const option = {
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+                type: 'shadow'
+            },
+            formatter: function(params) {
+                return params[0].name + '<br/>' +
+                       '完成率: ' + params[0].value + '%';
+            }
+        },
+        grid: {
+            left: '3%',
+            right: '8%',
+            bottom: '3%',
+            containLabel: true
+        },
+        xAxis: {
+            type: 'value',
+            min: 70,
+            max: 100,
+            name: '完成率(%)'
+        },
+        yAxis: {
+            type: 'category',
+            data: staffNames,
+            inverse: true
+        },
+        visualMap: {
+            orient: 'horizontal',
+            left: 'center',
+            min: 70,
+            max: 100,
+            text: ['高', '低'],
+            dimension: 0,
+            inRange: {
+                color: ['#fc7c5f', '#ffb980', '#6CC688'] // 红 -> 黄 -> 绿
+            }
+        },
+        series: [
+            {
+                name: '工单完成率',
+                type: 'bar',
+                data: completionRates,
+                label: {
+                    show: true,
+                    position: 'right',
+                    formatter: '{c}%'
+                }
+            }
+        ]
+    };
+    
+    chart.setOption(option);
+    return chart;
+}
+
+// 初始化客户满意度评分图表
+function initSatisfactionRatingChart() {
+    const chart = echarts.init(document.getElementById('satisfaction-rating-chart'));
+    
+    // 模拟满意度数据
+    const staffNames = ['张工', '李工', '王工', '赵工', '陈工', '刘工', '杨工', '周工'];
+    const satisfactionScores = [4.7, 4.2, 4.9, 3.8, 4.5, 3.9, 4.6, 4.3]; // 5分制
+    const feedbackCounts = [35, 42, 28, 40, 38, 25, 36, 30]; // 评价数量
+    
+    const option = {
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+                type: 'shadow'
+            },
+            formatter: function(params) {
+                return params[0].name + '<br/>' +
+                       '满意度评分: ' + params[0].value + '/5<br/>' +
+                       '评价数量: ' + feedbackCounts[params[0].dataIndex] + '条';
+            }
+        },
+        grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+        },
+        xAxis: {
+            type: 'category',
+            data: staffNames,
+            axisLabel: {
+                interval: 0,
+                rotate: 30
+            }
+        },
+        yAxis: {
+            type: 'value',
+            name: '满意度评分(5分制)',
+            min: 3,
+            max: 5
+        },
+        series: [
+            {
+                name: '满意度评分',
+                type: 'bar',
+                data: satisfactionScores,
+                itemStyle: {
+                    color: function(params) {
+                        // 根据评分显示不同颜色
+                        if (params.value >= 4.5) return '#6CC688'; // 绿色
+                        if (params.value >= 4.0) return '#91cc75'; // 浅绿色
+                        if (params.value >= 3.5) return '#ffb980'; // 黄色
+                        return '#fc7c5f'; // 红色
+                    }
+                },
+                label: {
+                    show: true,
+                    position: 'top',
+                    formatter: '{c}分'
+                }
+            }
+        ]
+    };
+    
+    chart.setOption(option);
+    return chart;
+}
+
+// 初始化团队绩效评估图表
+function initTeamPerformanceChart() {
+    const chart = echarts.init(document.getElementById('team-performance-chart'));
+    
+    // 模拟绩效数据
+    const dimensions = ['响应速度', '问题解决', '知识共享', '团队协作', '客户满意度'];
+    const teamData = [90, 85, 78, 92, 88]; // 团队平均分
+    const targetData = [85, 85, 80, 85, 90]; // 目标分数
+    
+    const option = {
+        tooltip: {
+            trigger: 'axis'
+        },
+        radar: {
+            indicator: dimensions.map(dim => ({name: dim, max: 100})),
+            splitArea: {
+                areaStyle: {
+                    color: ['rgba(255, 255, 255, 0.1)', 'rgba(73, 161, 141, 0.05)']
+                }
+            }
+        },
+        series: [
+            {
+                type: 'radar',
+                data: [
+                    {
+                        value: teamData,
+                        name: '团队表现',
+                        areaStyle: {
+                            color: 'rgba(73, 161, 141, 0.2)'
+                        },
+                        lineStyle: {
+                            color: '#49A18D'
+                        },
+                        itemStyle: {
+                            color: '#49A18D'
+                        }
+                    },
+                    {
+                        value: targetData,
+                        name: '目标值',
+                        lineStyle: {
+                            color: '#F39C12',
+                            type: 'dashed'
+                        },
+                        itemStyle: {
+                            color: '#F39C12'
+                        }
+                    }
+                ]
+            }
+        ]
+    };
+    
+    chart.setOption(option);
+    return chart;
 } 

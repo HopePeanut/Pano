@@ -1143,14 +1143,14 @@ function applyRoleFilter() {
 function addNewRole() {
     // 模拟站点数据
     const mockSites = [
-        { id: 1, name: '重庆总站', region: '西南区域' },
-        { id: 2, name: '成都分站', region: '西南区域' },
-        { id: 3, name: '武汉分站', region: '华中区域' },
-        { id: 4, name: '上海分站', region: '华东区域' },
-        { id: 5, name: '北京分站', region: '华北区域' },
-        { id: 6, name: '广州分站', region: '华南区域' },
-        { id: 7, name: '西安分站', region: '西北区域' },
-        { id: 8, name: '长春分站', region: '东北区域' }
+        { id: 1, name: '金华电器储能电站', region: '用户侧储能' },
+        { id: 2, name: '成都鑫众泰储能电站', region: '用户侧储能' },
+        { id: 3, name: '南京清研院储能电站', region: '用户侧储能' },
+        { id: 4, name: '广东中建储能电站', region: '工商业储能' },
+        { id: 5, name: '西藏林芝储能电站', region: '台区配储' },
+        { id: 6, name: '惠州新能源充电站', region: '充电设施' },
+        { id: 7, name: '西安光储一体化电站', region: '光储一体' },
+        { id: 8, name: '长春智慧微电网', region: '微电网' }
     ];
     
     const formHtml = `
@@ -1405,14 +1405,14 @@ function addNewRole() {
 function editRole(role) {
     // 模拟站点数据
     const mockSites = [
-        { id: 1, name: '重庆总站', region: '西南区域' },
-        { id: 2, name: '成都分站', region: '西南区域' },
-        { id: 3, name: '武汉分站', region: '华中区域' },
-        { id: 4, name: '上海分站', region: '华东区域' },
-        { id: 5, name: '北京分站', region: '华北区域' },
-        { id: 6, name: '广州分站', region: '华南区域' },
-        { id: 7, name: '西安分站', region: '西北区域' },
-        { id: 8, name: '长春分站', region: '东北区域' }
+        { id: 1, name: '金华电器储能电站', region: '用户侧储能' },
+        { id: 2, name: '成都鑫众泰储能电站', region: '用户侧储能' },
+        { id: 3, name: '南京清研院储能电站', region: '用户侧储能' },
+        { id: 4, name: '广东中建储能电站', region: '工商业储能' },
+        { id: 5, name: '西藏林芝储能电站', region: '台区配储' },
+        { id: 6, name: '惠州新能源充电站', region: '充电设施' },
+        { id: 7, name: '西安光储一体化电站', region: '光储一体' },
+        { id: 8, name: '长春智慧微电网', region: '微电网' }
     ];
     
     // 模拟该角色已选择的站点（在实际应用中应从后端获取）
@@ -1682,14 +1682,14 @@ function editRole(role) {
 function previewRolePermissions(role) {
     // 模拟站点数据
     const mockSites = [
-        { id: 1, name: '重庆总站', region: '西南区域' },
-        { id: 2, name: '成都分站', region: '西南区域' },
-        { id: 3, name: '武汉分站', region: '华中区域' },
-        { id: 4, name: '上海分站', region: '华东区域' },
-        { id: 5, name: '北京分站', region: '华北区域' },
-        { id: 6, name: '广州分站', region: '华南区域' },
-        { id: 7, name: '西安分站', region: '西北区域' },
-        { id: 8, name: '长春分站', region: '东北区域' }
+        { id: 1, name: '金华电器储能电站', region: '用户侧储能' },
+        { id: 2, name: '成都鑫众泰储能电站', region: '用户侧储能' },
+        { id: 3, name: '南京清研院储能电站', region: '用户侧储能' },
+        { id: 4, name: '广东中建储能电站', region: '工商业储能' },
+        { id: 5, name: '西藏林芝储能电站', region: '台区配储' },
+        { id: 6, name: '惠州新能源充电站', region: '充电设施' },
+        { id: 7, name: '西安光储一体化电站', region: '光储一体' },
+        { id: 8, name: '长春智慧微电网', region: '微电网' }
     ];
     
     // 页面权限映射

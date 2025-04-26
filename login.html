@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>智慧运维系统 - 登录</title>
+    <!-- 引入 Font Awesome 图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* 全局样式 */
         :root {
@@ -485,9 +487,14 @@
             box-shadow: 0 5px 10px rgba(0, 0, 0, 0.05);
         }
 
-        .alt-login-btn img {
-            width: 25px;
-            height: 25px;
+        .alt-login-btn i {
+            font-size: 22px; /* 设置 Font Awesome 图标大小 */
+            color: var(--primary-color); /* 可以设置图标颜色 */
+            transition: color 0.3s ease;
+        }
+
+        .alt-login-btn:hover i {
+             color: var(--secondary-color);
         }
 
         /* 修改底部服务条款区域 */
@@ -717,13 +724,7 @@
 
                     <div class="alt-login">
                         <div class="alt-login-btn">
-                            <img src="assets/images/wechat-icon.svg" alt="微信">
-                        </div>
-                        <div class="alt-login-btn">
-                            <img src="assets/images/dingtalk-icon.svg" alt="钉钉">
-                        </div>
-                        <div class="alt-login-btn">
-                            <img src="assets/images/qrcode-icon.svg" alt="扫码">
+                            <i class="fa-brands fa-weixin" title="微信登录"></i>
                         </div>
                     </div>
 

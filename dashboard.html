@@ -414,7 +414,7 @@
         .fullscreen-btn {
             position: absolute;
             right: 20px;
-            top: 215px; /* 放在按钮组下方 */
+            top: 170px; /* 向上移动，填补刷新按钮空位 */
             width: 36px;
             height: 36px;
             background: white;
@@ -513,8 +513,10 @@
         /* 搜索和筛选控件样式 */
         .map-controls-container {
             position: absolute;
-            left: 20px;
-            top: 20px;
+            /* left: 20px; */
+            /* top: 20px; */
+            top: 120px; /* 与 返回/全屏 按钮垂直对齐 */
+            right: 66px; /* 放在 返回/全屏 按钮组左侧 */
             display: flex;
             gap: 10px;
             z-index: 10;
@@ -539,8 +541,10 @@
 
         .search-panel, .filter-panel {
             position: absolute;
-            left: 20px;
-            top: 66px;
+            /* left: 20px; */
+            /* top: 66px; */
+            top: 166px; /* 放在右上角按钮组下方 */
+            right: 66px; /* 与按钮组右对齐 */
             background: white;
             border-radius: 8px;
             padding: 15px;
@@ -568,17 +572,17 @@
             margin-right: 8px;
         }
 
-        /* 水波动态站点样式 - 减小中心圆大小 */
+        /* 水波动态站点样式 - 优化水波纹效果 */
         .pulsing-marker {
-            width: 12px; /* 减小中心圆大小 */
-            height: 12px; /* 减小中心圆大小 */
+            width: 12px; /* 中心圆大小 */
+            height: 12px; /* 中心圆大小 */
             border-radius: 50%;
             position: relative;
             cursor: pointer;
             z-index: 10;
         }
 
-        .pulse-inner, .pulse-outer {
+        .pulse-inner, .pulse-outer, .pulse-middle {
             position: absolute;
             border-radius: 50%;
             border-style: solid;
@@ -592,26 +596,37 @@
             left: 0;
             top: 0;
             opacity: 0.6;
-            animation: pulse 1.5s ease-out infinite;
+            animation: pulse-inner 1.5s ease-out infinite;
+        }
+
+        .pulse-middle {
+            width: 120%;
+            height: 120%;
+            left: -10%;
+            top: -10%;
+            opacity: 0.5;
+            animation: pulse-middle 2s ease-out infinite;
+            animation-delay: 0.3s; /* 错开动画时间，增加动感 */
         }
 
         .pulse-outer {
-            width: 140%;
-            height: 140%;
-            left: -20%;
-            top: -20%;
+            width: 160%;
+            height: 160%;
+            left: -30%;
+            top: -30%;
             opacity: 0.3;
-            animation: pulse 2s ease-out infinite;
+            animation: pulse-outer 2.5s ease-out infinite;
+            animation-delay: 0.7s; /* 错开动画时间，增加动感 */
         }
 
-        @keyframes pulse {
+        @keyframes pulse-inner {
             0% {
                 transform: scale(0.8);
                 opacity: 0.8;
             }
-            70% {
-                transform: scale(1.5);
-                opacity: 0;
+            50% {
+                transform: scale(1.2);
+                opacity: 0.5;
             }
             100% {
                 transform: scale(1.8);
@@ -619,11 +634,58 @@
             }
         }
 
+        @keyframes pulse-middle {
+            0% {
+                transform: scale(0.8);
+                opacity: 0.6;
+            }
+            60% {
+                transform: scale(1.6);
+                opacity: 0.2;
+            }
+            100% {
+                transform: scale(2.0);
+                opacity: 0;
+            }
+        }
+
+        @keyframes pulse-outer {
+            0% {
+                transform: scale(0.8);
+                opacity: 0.4;
+            }
+            70% {
+                transform: scale(2.0);
+                opacity: 0.1;
+            }
+            100% {
+                transform: scale(2.5);
+                opacity: 0;
+            }
+        }
+
+        /* 站点聚合样式 */
+        .cluster-marker {
+            animation: cluster-pulse 1.5s infinite alternate ease-in-out;
+            transition: all 0.3s ease;
+        }
+
+        @keyframes cluster-pulse {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 0 rgba(255, 255, 255, 0.6);
+            }
+            100% {
+                transform: scale(1.1);
+                box-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+            }
+        }
+
         /* 地图图例样式 */
         .map-legend {
             position: absolute;
-            left: 20px;
-            bottom: 20px;
+            top: 20px; /* 与顶部数据卡片对齐 */
+            left: calc(50% + 390px); /* 增加偏移量以避免与卡片重叠 */
             background: rgba(255, 255, 255, 0.9);
             border-radius: 6px;
             padding: 10px;
@@ -1291,6 +1353,185 @@
             border-radius: 0 8px 8px 0;
             margin: 10px 0;
         }
+
+        /* --- 新增：告警总览面板样式 --- */
+        .alert-overview-panel {
+            position: absolute;
+            top: 20px; /* 与顶部数据卡片和图例对齐 */
+            left: calc(50% + 510px); /* 放在地图图例右侧 */
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 6px;
+            padding: 12px 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left; /* 改为左对齐 */
+        }
+        
+        .alert-overview-panel:hover {
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .overview-item {
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        .overview-item:last-child { margin-bottom: 0; }
+        
+        .overview-item .count {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-right: 5px;
+        }
+
+        .overview-item .fault {
+            color: #E74C3C; /* 红色 */
+        }
+
+        .overview-item .warning {
+            color: #F39C12; /* 黄色 */
+        }
+
+        .overview-item .offline {
+            color: #6c757d; /* 灰色 */
+        }
+
+        /* --- 新增：告警详情模态框样式 --- */
+        .modal-backdrop { /* 背景遮罩 */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1050;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-backdrop.active {
+            display: flex;
+        }
+
+        .alert-details-modal {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            width: 80%;
+            max-width: 1200px;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .alert-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .alert-modal-tabs {
+            display: flex;
+            gap: 20px;
+        }
+
+        .alert-tab {
+            padding: 8px 0;
+            font-size: 15px;
+            color: #666;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .alert-tab.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .alert-tab:hover {
+            color: var(--primary-color);
+        }
+
+        .alert-tab .tab-count {
+            margin-left: 4px;
+            font-size: 0.9em;
+            font-weight: normal;
+            color: var(--gray-text, #6C757D);
+        }
+
+        .alert-modal-close {
+            font-size: 1.8rem;
+            color: #888;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0 5px;
+        }
+
+        .alert-modal-body {
+            padding: 15px 20px;
+            overflow-y: auto;
+            flex-grow: 1; /* 允许表格区域伸展 */
+        }
+
+        .alert-details-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .alert-details-table th,
+        .alert-details-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .alert-details-table th {
+            background-color: #f8f9fa;
+            font-weight: 500;
+            color: #666;
+            position: sticky;
+            top: 0; /* 表头悬浮 */
+        }
+
+        /* 新增：排序表头样式 */
+        .alert-details-table th.sortable-header {
+            cursor: pointer;
+            position: relative; /* 为了定位排序图标 */
+        }
+
+        .alert-details-table th.sortable-header:hover {
+            background-color: #e9ecef;
+        }
+
+        .sort-icon {
+            margin-left: 5px;
+            color: #aaa; /* 默认图标颜色 */
+            position: absolute; /* 绝对定位 */
+            right: 10px; /* 靠右显示 */
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .sort-icon.active {
+            color: var(--primary-color); /* 激活状态颜色 */
+        }
+
+        .alert-details-table tbody tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        /* 不同类型告警的样式 */
+        .alert-type-故障 { color: #E74C3C; font-weight: 500; }
+        .alert-type-告警 { color: #F39C12; }
+        .alert-type-离线 { color: #6c757d; }
     </style>
 </head>
 
@@ -1418,6 +1659,12 @@
             innerPulse.style.borderColor = color;
             markerContent.appendChild(innerPulse);
             
+            // 添加中层动画圆 - 新增
+            const middlePulse = document.createElement('div');
+            middlePulse.className = 'pulse-middle';
+            middlePulse.style.borderColor = color;
+            markerContent.appendChild(middlePulse);
+            
             // 添加外层动画圆
             const outerPulse = document.createElement('div');
             outerPulse.className = 'pulse-outer';
@@ -1461,7 +1708,7 @@
                 }));
             });
             
-            // 添加站点数据（模拟10个站点）
+            // 添加站点数据（模拟站点）
             addSiteMarkers();
             
             // 添加地图图例
@@ -1487,6 +1734,9 @@
             
             // 启用点聚合功能
             enableMarkerCluster();
+            
+            // 绑定地图事件
+            bindMapEvents();
         }
 
         // 添加新函数来创建地图视图切换按钮
@@ -2226,11 +2476,13 @@
 
         // 启用点聚合功能
         function enableMarkerCluster() {
+            // 检查是否已加载MarkerCluster插件
             map.plugin(['AMap.MarkerCluster'], function() {
-                // 创建聚合对象，传入地图实例
+                console.log("启用站点聚合功能...");
+                // 创建聚合对象
                 const cluster = new AMap.MarkerCluster(map, window.siteMarkers, {
-                    gridSize: 80, // 聚合网格大小
-                    maxZoom: 8,   // 最大的聚合级别，大于该级别就不进行相应的聚合
+                    gridSize: 60, // 聚合网格大小
+                    maxZoom: 10,   // 最大的聚合级别，大于该级别就不进行相应的聚合
                     
                     // 自定义聚合点样式
                     renderClusterMarker: function(context) {
@@ -2243,7 +2495,7 @@
                         let hasAlarm = false;
                         
                         markers.forEach(marker => {
-                            const status = marker.getExtData().status;
+                            const status = marker.getExtData()?.status || 'normal';
                             if (status === 'normal') hasNormal = true;
                             if (status === 'warning') hasWarning = true;
                             if (status === 'alarm') hasAlarm = true;
@@ -2289,6 +2541,21 @@
                         containerDiv.innerHTML = count;
                         
                         context.marker.setContent(containerDiv);
+                        
+                        // 添加点击事件
+                        context.marker.on('click', function() {
+                            // 点击聚合点时放大地图
+                            map.setZoomAndCenter(map.getZoom() + 2, context.marker.getPosition());
+                        });
+                    },
+                    
+                    // 点击聚合点放大的级别
+                    zoomOnClick: true,
+                    
+                    // 聚合点的初始动画效果
+                    renderOptions: {
+                        animation: true,
+                        animationDuration: 300
                     }
                 });
             });
@@ -2534,23 +2801,13 @@
 
         // 添加GIS视图的刷新按钮
         function addGISRefreshButton() {
-            // 创建按钮容器
+            // 创建按钮容器 (现在只包含返回原始视图按钮)
             const buttonContainer = document.createElement('div');
             buttonContainer.className = 'gis-buttons-container';
             
-            // 刷新按钮
-            const refreshBtn = document.createElement('div');
-            refreshBtn.className = 'refresh-btn gis-control-btn';
-            refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i>';
-            refreshBtn.title = '刷新地图';
-            
-            refreshBtn.addEventListener('click', function() {
-                refreshGISView();
-            });
-            
             // 返回原始视图按钮
             const resetViewBtn = document.createElement('div');
-            resetViewBtn.className = 'refresh-btn gis-control-btn';
+            resetViewBtn.className = 'refresh-btn gis-control-btn'; // 使用 refresh-btn 样式，但功能是重置
             resetViewBtn.innerHTML = '<i class="fas fa-globe-asia"></i>';
             resetViewBtn.title = '返回原始视图';
             
@@ -2559,8 +2816,7 @@
                 map.setZoomAndCenter(4, [105.0, 35.0]);
             });
             
-            // 添加按钮到容器
-            buttonContainer.appendChild(refreshBtn);
+            // 添加按钮到容器 (只添加返回原始视图按钮)
             buttonContainer.appendChild(resetViewBtn);
             
             // 添加容器到地图
@@ -3804,6 +4060,308 @@
             // 初始化AI助手
             init();
         })();
+
+        // 在地图初始化完成后绑定缩放事件，用于检测聚合效果
+        function bindMapEvents() {
+            map.on('zoomend', function() {
+                console.log('地图缩放级别: ' + map.getZoom());
+            });
+            
+            // 添加地图缩放完成后的回调，确保聚合功能正常工作
+            map.on('complete', function() {
+                console.log('地图加载完成，确保聚合功能启用');
+                // 确保聚合功能已启用
+                setTimeout(() => {
+                    enableMarkerCluster();
+                }, 500);
+            });
+        }
+    </script>
+
+    <!-- 告警详情模态框 -->
+    <div class="modal-backdrop" id="alert-details-backdrop">
+        <div class="alert-details-modal">
+            <div class="alert-modal-header">
+                <div class="alert-modal-tabs">
+                    <div class="alert-tab" data-type="统计">异常统计 <span class="tab-count" id="stat-count">0</span></div>
+                    <div class="alert-tab" data-type="离线">设备离线 <span class="tab-count" id="offline-count">0</span></div>
+                    <div class="alert-tab active" data-type="故障">故障总览 <span class="tab-count" id="fault-count">0</span></div>
+                    <div class="alert-tab" data-type="告警">告警总览 <span class="tab-count" id="warning-count">0</span></div>
+                </div>
+                <button class="alert-modal-close" id="alert-modal-close">&times;</button>
+            </div>
+            <div class="alert-modal-body">
+                <table class="alert-details-table">
+                    <thead>
+                        <tr>
+                            <th class="sortable-header" data-sort-key="site">站点名称 <span class="sort-icon"></span></th>
+                            <th class="sortable-header" data-sort-key="device">设备名称 <span class="sort-icon"></span></th>
+                            <th class="sortable-header" data-sort-key="type">类型 <span class="sort-icon"></span></th>
+                            <th class="sortable-header" data-sort-key="triggerTime">触发时间 <span class="sort-icon"></span></th>
+                            <th class="sortable-header" data-sort-key="duration">持续时间 <span class="sort-icon"></span></th>
+                        </tr>
+                    </thead>
+                    <tbody id="alert-table-body">
+                        <!-- 告警数据将由JS填充 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 新增：告警详情功能 --- 
+
+        // 模拟告警数据
+        const MOCK_ALERTS = [
+            { site: "重庆南岸区能源站", device: "1#储能柜", type: "告警", triggerTime: "2025-04-22 10:15:30", duration: "2h" }, // 保持
+            { site: "成都高新区能源站", device: "1#充电桩", type: "离线", triggerTime: "2025-04-22 08:00:10", duration: "5h" }, // 修改
+            { site: "贵阳清镇能源站", device: "1#储能柜", type: "故障", triggerTime: "2025-04-21 15:59:02", duration: "25h" }, // 修改 (逆变器 -> 储能柜)
+            { site: "重庆江北能源站", device: "1#储能柜", type: "告警", triggerTime: "2025-04-22 11:30:00", duration: "1h" }, // 修改 (BMS -> 储能柜)
+            { site: "武汉东湖能源站", device: "1#储能柜", type: "故障", triggerTime: "2025-04-22 09:10:45", duration: "10h" }, // 修改 (通讯 -> 储能柜)
+            { site: "上海浦东能源站", device: "1#储能柜", type: "告警", triggerTime: "2025-04-22 14:05:18", duration: "0h" }, // 修改 (传感器 -> 储能柜)
+            { site: "广州天河能源站", device: "1#储能柜", type: "故障", triggerTime: "2025-04-22 17:47:10", duration: "0h" }, // 修改 (集装箱 -> 储能柜)
+            { site: "渝玻玻璃储能电站", device: "2#储能柜", type: "告警", triggerTime: "2025-04-22 17:34:41", duration: "0h" },
+            { site: "渝玻玻璃储能电站", device: "3#储能柜", type: "告警", triggerTime: "2025-04-22 17:33:59", duration: "0h" },
+            { site: "渝玻玻璃储能电站", device: "4#储能柜", type: "告警", triggerTime: "2025-04-22 17:32:50", duration: "0h" },
+            { site: "渝玻玻璃储能电站", device: "1#储能柜", type: "告警", triggerTime: "2025-04-22 17:32:33", duration: "0h" },
+            { site: "高新区半边街/花房子储能电站", device: "2#储能柜", type: "告警", triggerTime: "2025-04-22 17:05:52", duration: "0h" },
+            { site: "高新区半边街/花房子储能电站", device: "1#储能柜", type: "告警", triggerTime: "2025-04-22 17:05:48", duration: "0h" },
+            { site: "深圳南山能源站", device: "1#充电桩", type: "离线", triggerTime: "2025-04-22 07:50:00", duration: "12h" }, // 修改
+            { site: "青岛市南能源站", device: "1#光伏", type: "故障", triggerTime: "2025-04-21 18:20:00", duration: "15h" }, // 修改 (风机 -> 光伏)
+            // ... 可以添加更多数据
+        ];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取告警面板和模态框相关元素
+            const alertOverviewPanel = document.getElementById('alert-overview-panel');
+            const alertDetailsBackdrop = document.getElementById('alert-details-backdrop');
+            const alertModalCloseBtn = document.getElementById('alert-modal-close');
+            const alertTabs = document.querySelectorAll('.alert-tab');
+            const alertTableBody = document.getElementById('alert-table-body');
+            const alertTableHeader = document.querySelector('.alert-details-table thead'); // 获取表头
+
+            // --- 新增：排序状态变量 ---
+            let currentSortKey = null;
+            let currentSortDirection = 'asc'; // 'asc' 或 'desc'
+            let currentFilteredAlerts = [...MOCK_ALERTS]; // 当前标签页过滤后的数据副本
+
+            // --- 初始化告警总览面板 --- 
+            function initAlertOverview() {
+                // 获取告警面板元素 - 在函数内部获取，确保获取的是已添加到DOM的元素
+                const alertOverviewPanel = document.getElementById('alert-overview-panel');
+                if (!alertOverviewPanel) {
+                    console.error('告警总览面板元素未找到!');
+                    return;
+                }
+                
+                const faultCount = MOCK_ALERTS.filter(a => a.type === '故障').length;
+                const warningCount = MOCK_ALERTS.filter(a => a.type === '告警').length;
+                const offlineCount = MOCK_ALERTS.filter(a => a.type === '离线').length;
+                
+                alertOverviewPanel.innerHTML = `
+                    <div class="overview-item">
+                        <span class="count fault">${faultCount}</span>
+                        <span class="fault">故障</span>
+                    </div>
+                    <div class="overview-item">
+                        <span class="count warning">${warningCount}</span>
+                        <span class="warning">告警</span>
+                    </div>
+                    <div class="overview-item">
+                        <span class="count offline">${offlineCount}</span>
+                        <span class="offline">离线</span>
+                    </div>
+                `;
+                
+                // 添加点击事件打开模态框
+                alertOverviewPanel.addEventListener('click', openAlertModal);
+            }
+
+            // --- 渲染告警表格 --- 
+            function renderAlertTable(alerts) {
+                alertTableBody.innerHTML = ''; // 清空表格
+                if (!alerts || alerts.length === 0) {
+                    alertTableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 20px;">暂无相关告警信息</td></tr>';
+                    return;
+                }
+
+                alerts.forEach(alert => {
+                    const row = alertTableBody.insertRow();
+                    // 修改站点名称列，添加<a>标签和跳转链接
+                    row.innerHTML = `
+                        <td><a href="site-homepage.html?siteName=${encodeURIComponent(alert.site)}" style="color: inherit; text-decoration: none;" title="点击查看站点详情">${alert.site}</a></td>
+                        <td>${alert.device}</td>
+                        <td><span class="alert-type-${alert.type}">${alert.type}</span></td>
+                        <td>${alert.triggerTime}</td>
+                        <td>${alert.duration}</td>
+                    `;
+                });
+            }
+
+            // --- 更新标签页统计数字 --- 
+            function updateTabCounts() {
+                const counts = {
+                    '统计': MOCK_ALERTS.length,
+                    '离线': MOCK_ALERTS.filter(a => a.type === '离线').length,
+                    '故障': MOCK_ALERTS.filter(a => a.type === '故障').length,
+                    '告警': MOCK_ALERTS.filter(a => a.type === '告警').length
+                };
+                document.getElementById('stat-count').textContent = counts['统计'];
+                document.getElementById('offline-count').textContent = counts['离线'];
+                document.getElementById('fault-count').textContent = counts['故障'];
+                document.getElementById('warning-count').textContent = counts['告警'];
+            }
+
+            // --- 打开模态框 --- 
+            function openAlertModal() {
+                alertDetailsBackdrop.classList.add('active');
+                // 默认显示故障总览
+                const defaultTab = document.querySelector('.alert-tab[data-type="故障"]');
+                setActiveTab(defaultTab); // 会自动处理排序和渲染
+                updateTabCounts(); // 更新统计数字
+            }
+
+            // --- 关闭模态框 --- 
+            function closeAlertModal() {
+                alertDetailsBackdrop.classList.remove('active');
+                 // 重置排序状态当关闭模态框时
+                currentSortKey = null;
+                currentSortDirection = 'asc';
+                resetSortIcons();
+            }
+
+            // --- 设置活动标签页 --- 
+            function setActiveTab(targetTab) {
+                if (!targetTab) return;
+
+                alertTabs.forEach(tab => tab.classList.remove('active'));
+                targetTab.classList.add('active');
+
+                const alertType = targetTab.dataset.type;
+                if (alertType === '统计') {
+                    currentFilteredAlerts = [...MOCK_ALERTS];
+                } else {
+                     currentFilteredAlerts = MOCK_ALERTS.filter(a => a.type === alertType);
+                }
+                // 应用当前排序并渲染
+                sortAndRenderTable();
+            }
+
+            // --- 新增：排序并渲染表格 ---
+            function sortAndRenderTable() {
+                if (currentSortKey) {
+                    sortAlertsByKey(currentFilteredAlerts, currentSortKey, currentSortDirection);
+                }
+                renderAlertTable(currentFilteredAlerts);
+            }
+
+            // --- 新增：重置排序图标 ---
+            function resetSortIcons() {
+                const icons = alertTableHeader.querySelectorAll('.sort-icon');
+                icons.forEach(icon => {
+                    icon.className = 'sort-icon fas fa-sort'; // 使用Font Awesome图标
+                });
+            }
+
+            // --- 新增：更新排序图标 ---
+            function updateSortIcons(clickedHeader) {
+                resetSortIcons(); // 先重置所有图标
+                const icon = clickedHeader.querySelector('.sort-icon');
+                if (icon) {
+                    icon.classList.remove('fa-sort');
+                    icon.classList.add(currentSortDirection === 'asc' ? 'fa-sort-up' : 'fa-sort-down');
+                    icon.classList.add('active'); // 添加激活状态样式
+                }
+            }
+
+            // --- 新增：排序函数 ---
+            function sortAlertsByKey(alerts, key, direction) {
+                alerts.sort((a, b) => {
+                    let valA = a[key];
+                    let valB = b[key];
+
+                    // 特殊处理持续时间，提取数字部分
+                    if (key === 'duration') {
+                        valA = parseFloat(valA) || 0;
+                        valB = parseFloat(valB) || 0;
+                    }
+                    // 特殊处理时间字符串
+                    if (key === 'triggerTime') {
+                        valA = new Date(valA).getTime();
+                        valB = new Date(valB).getTime();
+                    }
+
+                    let comparison = 0;
+                    if (typeof valA === 'string' && typeof valB === 'string') {
+                        comparison = valA.localeCompare(valB, 'zh-CN'); // 中文排序
+                    } else {
+                        if (valA < valB) {
+                            comparison = -1;
+                        } else if (valA > valB) {
+                            comparison = 1;
+                        }
+                    }
+
+                    return direction === 'desc' ? (comparison * -1) : comparison;
+                });
+            }
+
+            // --- 新增：表头点击事件监听 ---
+            alertTableHeader.addEventListener('click', (event) => {
+                const header = event.target.closest('.sortable-header');
+                if (!header) return; // 如果点击的不是可排序表头，则忽略
+
+                const sortKey = header.dataset.sortKey;
+
+                // 切换排序方向
+                if (currentSortKey === sortKey) {
+                    currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
+                } else {
+                    currentSortKey = sortKey;
+                    currentSortDirection = 'asc'; // 默认升序
+                }
+
+                // 更新图标
+                updateSortIcons(header);
+
+                // 排序并重新渲染当前标签页的数据
+                sortAndRenderTable();
+            });
+
+            // --- 事件监听 --- 
+            // 关闭按钮
+            alertModalCloseBtn.addEventListener('click', closeAlertModal);
+            // 点击背景关闭
+            alertDetailsBackdrop.addEventListener('click', (event) => {
+                if (event.target === alertDetailsBackdrop) {
+                    closeAlertModal();
+                }
+            });
+
+            // 标签页点击
+            alertTabs.forEach(tab => {
+                tab.addEventListener('click', () => setActiveTab(tab));
+            });
+
+            // --- 页面加载时执行初始化 --- 
+            // 需要等待地图容器完全加载后再添加面板
+            setTimeout(() => {
+                const mapContainer = document.getElementById('map-container');
+                if (mapContainer) {
+                    const overviewPanel = document.createElement('div');
+                    overviewPanel.id = 'alert-overview-panel';
+                    overviewPanel.className = 'alert-overview-panel';
+                    mapContainer.appendChild(overviewPanel);
+                    initAlertOverview(); // 初始化面板内容和事件
+                } else {
+                    console.error('地图容器未找到，无法添加告警总览面板');
+                }
+            }, 500); // 延迟一点时间确保地图容器存在
+            
+            // 页面加载时初始化排序图标为默认状态
+             resetSortIcons();
+        });
     </script>
 </body>
 

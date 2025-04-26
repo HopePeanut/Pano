@@ -405,80 +405,6 @@
             color: white;
         }
 
-        /* 二次验证样式 */
-        .two-factor {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 15px;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius);
-            margin-top: 20px;
-        }
-
-        .two-factor-info {
-            display: flex;
-            align-items: center;
-        }
-
-        .two-factor-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: var(--light-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 15px;
-            color: var(--primary-color);
-        }
-
-        /* 开关按钮样式 */
-        .toggle-switch {
-            position: relative;
-            display: inline-block;
-            width: 40px;
-            height: 20px;
-        }
-
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-            border-radius: 20px;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 16px;
-            width: 16px;
-            left: 2px;
-            bottom: 2px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-
-        input:checked + .slider {
-            background-color: var(--primary-color);
-        }
-
-        input:checked + .slider:before {
-            transform: translateX(20px);
-        }
-
         /* 通知设置样式 */
         .notification-settings {
             margin-top: 20px;
@@ -492,14 +418,20 @@
         .notification-table th,
         .notification-table td {
             padding: 15px;
-            text-align: left;
+            text-align: center; /* 居中对齐复选框 */
             border-bottom: 1px solid var(--border-color);
+            vertical-align: middle; /* 垂直居中 */
         }
 
         .notification-table th {
             font-weight: 500;
             color: var(--gray-text);
             font-size: 0.9rem;
+            text-align: center;
+        }
+        
+        .notification-table th:first-child {
+            text-align: left; /* 第一个表头左对齐 */
         }
 
         .notification-table tr:last-child td {
@@ -509,6 +441,7 @@
         .notification-type {
             display: flex;
             align-items: center;
+            text-align: left;
         }
 
         .notification-icon {
@@ -520,6 +453,7 @@
             justify-content: center;
             margin-right: 10px;
             color: white;
+            flex-shrink: 0; /* 防止图标被压缩 */
         }
 
         .notification-icon.alert {
@@ -537,6 +471,45 @@
         .notification-icon.success {
             background-color: var(--alert-green);
         }
+        
+        /* --- 新增：自定义复选框样式 --- */
+        .notification-checkbox {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            display: inline-block;
+            position: relative;
+            cursor: pointer;
+            vertical-align: middle; /* 确保垂直居中 */
+            transition: all 0.2s ease;
+            background-color: white;
+        }
+
+        .notification-checkbox:hover {
+            border-color: var(--primary-color);
+        }
+
+        .notification-checkbox:checked {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .notification-checkbox:checked::after {
+            content: '\f00c'; /* Font Awesome check icon */
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            color: white;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 12px;
+        }
+        /* --- 结束：自定义复选框样式 --- */
 
         /* 启动页设置样式 */
         .startup-options {
@@ -613,6 +586,63 @@
                 width: 100%;
             }
         }
+
+        /* 模态框样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: var(--radius);
+            max-width: 500px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+
+        .close {
+            color: var(--gray-text);
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            border-top: 1px solid var(--border-color);
+            padding-top: 15px;
+            gap: 10px;
+        }
     </style>
 </head>
 <body>
@@ -681,11 +711,11 @@
                             <div class="info-section">
                                 <div class="form-group">
                                     <label for="username" class="form-label">用户名</label>
-                                    <input type="text" id="username" class="form-control" value="陈彦祖">
+                                    <input type="text" id="username" class="form-control" value="陈工">
                                 </div>
                                 <div class="form-group">
                                     <label for="realname" class="form-label">真实姓名</label>
-                                    <input type="text" id="realname" class="form-control" value="陈彦祖">
+                                    <input type="text" id="realname" class="form-control" value="陈工">
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">用户角色</label>
@@ -708,22 +738,11 @@
                         
                         <!-- 修改密码 -->
                         <div class="security-section">
-                            <h3>修改密码</h3>
-                            <div class="password-form">
-                                <div class="form-group">
-                                    <label for="currentPassword" class="form-label">当前密码</label>
-                                    <input type="password" id="currentPassword" class="form-control">
-                                </div>
-                                <div class="form-group">
-                                    <label for="newPassword" class="form-label">新密码</label>
-                                    <input type="password" id="newPassword" class="form-control">
-                                </div>
-                                <div class="form-group">
-                                    <label for="confirmPassword" class="form-label">确认新密码</label>
-                                    <input type="password" id="confirmPassword" class="form-control">
-                                </div>
-                                <button class="btn btn-primary">修改密码</button>
-                            </div>
+                            <h3>密码管理</h3>
+                            <p style="margin-bottom: 15px; color: var(--gray-text);">定期修改密码可以提高账户安全性，建议使用包含字母、数字和特殊字符的复杂密码。</p>
+                            <button class="btn btn-primary" id="changePasswordBtn">
+                                <i class="fas fa-key" style="margin-right: 5px;"></i>修改密码
+                            </button>
                         </div>
                         
                         <!-- 联系方式 -->
@@ -760,26 +779,6 @@
                                         <div class="contact-action">立即绑定</div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                        
-                        <!-- 二次验证 -->
-                        <div class="security-section">
-                            <h3>二次验证</h3>
-                            <div class="two-factor">
-                                <div class="two-factor-info">
-                                    <div class="two-factor-icon">
-                                        <i class="fas fa-key"></i>
-                                    </div>
-                                    <div>
-                                        <div style="font-weight: 500;">双重验证</div>
-                                        <div style="font-size: 0.9rem; color: var(--gray-text);">登录时需要额外的验证码确认身份（推荐开启）</div>
-                                    </div>
-                                </div>
-                                <label class="toggle-switch">
-                                    <input type="checkbox">
-                                    <span class="slider"></span>
-                                </label>
                             </div>
                         </div>
                         
@@ -880,34 +879,19 @@
                                             </div>
                                         </td>
                                         <td>
-                                            <label class="toggle-switch">
-                                                <input type="checkbox" checked>
-                                                <span class="slider"></span>
-                                            </label>
+                                            <input type="checkbox" class="notification-checkbox" checked>
                                         </td>
                                         <td>
-                                            <label class="toggle-switch">
-                                                <input type="checkbox" checked>
-                                                <span class="slider"></span>
-                                            </label>
+                                            <input type="checkbox" class="notification-checkbox" checked>
                                         </td>
                                         <td>
-                                            <label class="toggle-switch">
-                                                <input type="checkbox" checked>
-                                                <span class="slider"></span>
-                                            </label>
+                                            <input type="checkbox" class="notification-checkbox" checked>
                                         </td>
                                         <td>
-                                            <label class="toggle-switch">
-                                                <input type="checkbox" checked>
-                                                <span class="slider"></span>
-                                            </label>
+                                            <input type="checkbox" class="notification-checkbox" checked>
                                         </td>
                                         <td>
-                                            <label class="toggle-switch">
-                                                <input type="checkbox">
-                                                <span class="slider"></span>
-                                            </label>
+                                            <input type="checkbox" class="notification-checkbox">
                                         </td>
                                     </tr>
                                     <tr>
@@ -920,34 +904,19 @@
                                             </div>
                                         </td>
                                         <td>
-                                            <label class="toggle-switch">
-                                                <input type="checkbox" checked>
-                                                <span class="slider"></span>
-                                            </label>
+                                            <input type="checkbox" class="notification-checkbox" checked>
                                         </td>
                                         <td>
-                                            <label class="toggle-switch">
-                                                <input type="checkbox" checked>
-                                                <span class="slider"></span>
-                                            </label>
+                                            <input type="checkbox" class="notification-checkbox" checked>
                                         </td>
                                         <td>
-                                            <label class="toggle-switch">
-                                                <input type="checkbox">
-                                                <span class="slider"></span>
-                                            </label>
+                                            <input type="checkbox" class="notification-checkbox">
                                         </td>
                                         <td>
-                                            <label class="toggle-switch">
-                                                <input type="checkbox" checked>
-                                                <span class="slider"></span>
-                                            </label>
+                                            <input type="checkbox" class="notification-checkbox" checked>
                                         </td>
                                         <td>
-                                            <label class="toggle-switch">
-                                                <input type="checkbox" checked>
-                                                <span class="slider"></span>
-                                            </label>
+                                            <input type="checkbox" class="notification-checkbox" checked>
                                         </td>
                                     </tr>
                                     <tr>
@@ -960,34 +929,19 @@
                                             </div>
                                         </td>
                                         <td>
-                                            <label class="toggle-switch">
-                                                <input type="checkbox" checked>
-                                                <span class="slider"></span>
-                                            </label>
+                                            <input type="checkbox" class="notification-checkbox" checked>
                                         </td>
                                         <td>
-                                            <label class="toggle-switch">
-                                                <input type="checkbox">
-                                                <span class="slider"></span>
-                                            </label>
+                                            <input type="checkbox" class="notification-checkbox">
                                         </td>
                                         <td>
-                                            <label class="toggle-switch">
-                                                <input type="checkbox">
-                                                <span class="slider"></span>
-                                            </label>
+                                            <input type="checkbox" class="notification-checkbox">
                                         </td>
                                         <td>
-                                            <label class="toggle-switch">
-                                                <input type="checkbox" checked>
-                                                <span class="slider"></span>
-                                            </label>
+                                            <input type="checkbox" class="notification-checkbox" checked>
                                         </td>
                                         <td>
-                                            <label class="toggle-switch">
-                                                <input type="checkbox" checked>
-                                                <span class="slider"></span>
-                                            </label>
+                                            <input type="checkbox" class="notification-checkbox" checked>
                                         </td>
                                     </tr>
                                     <tr>
@@ -1000,34 +954,19 @@
                                             </div>
                                         </td>
                                         <td>
-                                            <label class="toggle-switch">
-                                                <input type="checkbox" checked>
-                                                <span class="slider"></span>
-                                            </label>
+                                            <input type="checkbox" class="notification-checkbox" checked>
                                         </td>
                                         <td>
-                                            <label class="toggle-switch">
-                                                <input type="checkbox">
-                                                <span class="slider"></span>
-                                            </label>
+                                            <input type="checkbox" class="notification-checkbox">
                                         </td>
                                         <td>
-                                            <label class="toggle-switch">
-                                                <input type="checkbox">
-                                                <span class="slider"></span>
-                                            </label>
+                                            <input type="checkbox" class="notification-checkbox">
                                         </td>
                                         <td>
-                                            <label class="toggle-switch">
-                                                <input type="checkbox">
-                                                <span class="slider"></span>
-                                            </label>
+                                            <input type="checkbox" class="notification-checkbox">
                                         </td>
                                         <td>
-                                            <label class="toggle-switch">
-                                                <input type="checkbox" checked>
-                                                <span class="slider"></span>
-                                            </label>
+                                            <input type="checkbox" class="notification-checkbox" checked>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -1091,6 +1030,34 @@
         </div>
     </div>
 
+    <!-- 修改密码模态框 -->
+    <div class="modal" id="passwordModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">修改密码</h2>
+                <span class="close" id="closePasswordModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="currentPassword" class="form-label">当前密码</label>
+                    <input type="password" id="currentPassword" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="newPassword" class="form-label">新密码</label>
+                    <input type="password" id="newPassword" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword" class="form-label">确认新密码</label>
+                    <input type="password" id="confirmPassword" class="form-control">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="cancelPasswordChange">取消</button>
+                <button class="btn btn-primary" id="savePasswordChange">保存修改</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // 在页面加载完成后执行
         document.addEventListener('DOMContentLoaded', function() {
@@ -1133,6 +1100,61 @@
                     startupOptions.forEach(item => item.classList.remove('active'));
                     this.classList.add('active');
                 });
+            });
+            
+            // 修改密码模态框功能
+            const passwordModal = document.getElementById('passwordModal');
+            const changePasswordBtn = document.getElementById('changePasswordBtn');
+            const closePasswordModal = document.getElementById('closePasswordModal');
+            const cancelPasswordChange = document.getElementById('cancelPasswordChange');
+            const savePasswordChange = document.getElementById('savePasswordChange');
+            
+            // 打开修改密码模态框
+            changePasswordBtn.addEventListener('click', function() {
+                passwordModal.style.display = 'block';
+                // 清空表单
+                document.getElementById('currentPassword').value = '';
+                document.getElementById('newPassword').value = '';
+                document.getElementById('confirmPassword').value = '';
+            });
+            
+            // 关闭修改密码模态框
+            closePasswordModal.addEventListener('click', function() {
+                passwordModal.style.display = 'none';
+            });
+            
+            cancelPasswordChange.addEventListener('click', function() {
+                passwordModal.style.display = 'none';
+            });
+            
+            // 点击模态框外部时关闭
+            window.addEventListener('click', function(event) {
+                if (event.target === passwordModal) {
+                    passwordModal.style.display = 'none';
+                }
+            });
+            
+            // 保存密码修改
+            savePasswordChange.addEventListener('click', function() {
+                const currentPassword = document.getElementById('currentPassword').value;
+                const newPassword = document.getElementById('newPassword').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                
+                // 简单验证
+                if (!currentPassword || !newPassword || !confirmPassword) {
+                    alert('请填写所有密码字段');
+                    return;
+                }
+                
+                if (newPassword !== confirmPassword) {
+                    alert('新密码和确认密码不匹配');
+                    return;
+                }
+                
+                // 这里应该添加实际的密码修改逻辑，通常是发送到服务器
+                // 这里只是模拟成功
+                alert('密码修改成功');
+                passwordModal.style.display = 'none';
             });
         });
     </script>

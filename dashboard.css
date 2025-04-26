@@ -28,4 +28,184 @@
 
 .site-card:hover::after {
     transform: translateY(0);
-} 
+}
+
+/* --- Sidebar Styles --- */
+#sidebar-toggle-btn {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 36px;
+    height: 36px;
+    background: white;
+    border: none;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+    z-index: 20; /* Ensure it's above sidebar initially */
+    transition: all 0.3s ease;
+}
+#sidebar-toggle-btn:hover {
+    background-color: #f0f0f0;
+}
+#sidebar-toggle-btn i {
+     color: #555;
+     font-size: 16px;
+}
+
+#map-sidebar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 300px; /* Sidebar width */
+    height: 100%;
+    background: rgba(255, 255, 255, 0.95); /* Slightly less transparent */
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    padding-top: 70px; /* Leave space for toggle button */
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 15; /* Below toggle button when closed */
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Space between sections */
+}
+
+#map-sidebar.active {
+    transform: translateX(0);
+}
+
+/* --- Adjust styles for elements moved into sidebar --- */
+
+/* Remove absolute positioning and adjust layout */
+#map-sidebar .map-controls-container, /* Container for search/filter buttons */
+#map-sidebar .search-panel,
+#map-sidebar .filter-panel,
+#map-sidebar .map-legend,
+#map-sidebar .alert-overview-panel,
+#map-sidebar .gis-buttons-container, /* Container for reset view button */
+#map-sidebar .fullscreen-btn {
+    position: static !important; /* Override absolute positioning */
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+    box-shadow: none !important; /* Remove individual shadows if needed */
+    background: none !important; /* Remove individual backgrounds if needed */
+    width: auto !important; /* Let sidebar control width */
+    margin-bottom: 10px !important; /* Add spacing */
+    z-index: auto !important;
+}
+
+/* Sidebar Section Styling */
+ #map-sidebar .sidebar-section {
+     background-color: white;
+     border-radius: 6px;
+     padding: 15px;
+     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+     margin-bottom: 15px; /* Space between sections */
+}
+ #map-sidebar .sidebar-section:last-child {
+     margin-bottom: 0;
+}
+
+
+ #map-sidebar .sidebar-section-title {
+    font-weight: 500;
+    color: var(--primary-color);
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
+}
+
+/* Search/Filter Buttons within Sidebar */
+ #map-sidebar .map-controls-container {
+     display: flex;
+     gap: 10px;
+     margin-bottom: 10px;
+}
+ #map-sidebar .map-controls-container .control-button {
+     flex: 1; /* Make buttons fill space */
+     background-color: #f8f9fa;
+     border: 1px solid #eee;
+     width: auto; /* Reset width if needed */
+     height: 34px; /* Match height */
+}
+ #map-sidebar .map-controls-container .control-button:hover {
+     background-color: #e9ecef;
+}
+
+/* Search/Filter Panels within Sidebar */
+ #map-sidebar .search-panel, #map-sidebar .filter-panel {
+     padding: 10px;
+     border: 1px solid #eee;
+     border-radius: 4px;
+     margin-top: 10px;
+     background-color: #fdfdfd;
+     display: none; /* Keep hidden initially */
+     margin-bottom: 0; /* Reset bottom margin */
+}
+ #map-sidebar .search-panel.active, #map-sidebar .filter-panel.active {
+     display: block;
+}
+ #map-sidebar .search-input {
+     margin-bottom: 5px; /* Adjust spacing */
+}
+
+
+/* Legend styling within Sidebar */
+ #map-sidebar .map-legend {
+     padding: 10px;
+     background-color: #f8f9fa;
+     border-radius: 4px;
+     margin-bottom: 0;
+}
+
+/* Alert Overview styling within Sidebar */
+ #map-sidebar .alert-overview-panel {
+     padding: 12px 15px;
+     background-color: #f8f9fa;
+     border-radius: 4px;
+     cursor: pointer;
+     text-align: left;
+     margin-bottom: 0;
+}
+ #map-sidebar .alert-overview-panel:hover {
+     background-color: #e9ecef;
+}
+#map-sidebar .overview-item {
+     margin-bottom: 5px;
+}
+#map-sidebar .overview-item:last-child {
+     margin-bottom: 0;
+}
+
+/* Action Buttons (Reset, Fullscreen) within Sidebar */
+ #map-sidebar .action-buttons-group { /* Add a wrapper for layout */
+    display: flex;
+    gap: 10px;
+ }
+ #map-sidebar .gis-buttons-container, #map-sidebar .fullscreen-btn {
+     flex: 1; /* Make buttons share space */
+     margin-bottom: 0; /* Reset margin */
+ }
+
+ #map-sidebar .gis-control-btn {
+     flex: initial; /* Override flex:1 if needed */
+     background-color: #f8f9fa;
+     border: 1px solid #eee;
+     width: 100%; /* Make buttons full width */
+     height: 34px; /* Standard height */
+}
+ #map-sidebar .gis-control-btn:hover {
+     background-color: #e9ecef;
+}
+ #map-sidebar .fullscreen-btn {
+     padding: 0; /* Remove padding if needed */
+}

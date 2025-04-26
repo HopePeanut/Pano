@@ -13,6 +13,12 @@
     --warning-color: #F39C12;
     --danger-color: #E74C3C;
     --info-color: #3498DB;
+    --gray-text: #6C757D;
+    --radius: 8px;
+    --alert-red: #E74C3C;
+    --alert-yellow: #F39C12;
+    --alert-green: #2ECC71;
+    --alert-blue: #3498DB;
 }
 
 /* 全局重置 */

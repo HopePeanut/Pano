@@ -24,7 +24,8 @@
         }
         
         body {
-            background-color: #F5F5F5;
+            /* background-color: #F5F5F5; */
+            background: linear-gradient(to bottom, #F0FAF8, #FAFAFA 25%); /* 从极浅绿到浅灰的渐变 */
             color: var(--text-color);
             min-height: 100vh;
         }
@@ -78,6 +79,7 @@
             font-size: 2.2rem;
             color: var(--secondary-color);
             margin-bottom: 15px;
+            font-weight: 600; /* 稍微加粗标题 */
         }
         
         .hero-section p {
@@ -130,11 +132,14 @@
             transition: all 0.3s ease;
             cursor: pointer;
             text-decoration: none;
+            border: 1px solid transparent; /* 默认透明边框占位 */
         }
         
         .system-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--primary-color); /* 增加边框高亮 */
+            padding: 29px; /* 微调内边距以适应边框 */
         }
         
         .system-card img {
@@ -350,6 +355,14 @@
                 gap: 10px;
             }
         }
+        
+        /* 新增：初始视图容器样式 */
+        .initial-view-container {
+            min-height: calc(100vh - 81px); /* 100%视口高度 - 减去预估的header高度 (logo 40px + padding 20px*2 + 1px border/shadow?) */
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* 垂直居中内容 */
+        }
     </style>
 </head>
 <body>
@@ -366,41 +379,44 @@
     </header>
 
     <div class="main-content">
-        <section class="hero-section">
-            <h2>一站式综合能源管理解决方案</h2>
-            <p>Pano全栈式综合能源管理平台致力于为企业提供高效、智能的能源管理服务，通过数字化转型提升能源使用效率，降低运维成本，实现智慧能源管理的创新与突破。</p>
-        </section>
+        <!-- 将初始显示内容包裹起来 -->
+        <div class="initial-view-container">
+            <section class="hero-section">
+                <h2>一站式综合能源管理解决方案</h2>
+                <p>Pano全栈式综合能源管理平台致力于为企业提供高效、智能的能源管理服务，通过数字化转型提升能源使用效率，降低运维成本，实现智慧能源管理的创新与突破。</p>
+            </section>
 
-        <section class="systems-section">
-            <h3>平台系统入口</h3>
-            <div class="systems-grid">
-                <a href="login.html?system=planning" class="system-card">
-                    <img src="assets/images/planning-icon.svg" alt="能源规划">
-                    <h4>能源规划系统</h4>
-                    <p>科学规划能源布局，优化能源结构</p>
-                </a>
-                <a href="login.html?system=delivery" class="system-card">
-                    <img src="assets/images/delivery-icon.svg" alt="交付管理">
-                    <h4>交付管理系统</h4>
-                    <p>高效管理交付调试过程，确保服务质量</p>
-                </a>
-                <a href="login.html?system=energy" class="system-card">
-                    <img src="assets/images/energy-icon.svg" alt="综合能源">
-                    <h4>远程监视系统</h4>
-                    <p>整合多种能源形式，7*24小时实时监控</p>
-                </a>
-                <a href="login.html?system=maintenance" class="system-card">
-                    <img src="assets/images/maintenance-icon.svg" alt="智慧运维">
-                    <h4>智慧运维系统</h4>
-                    <p>智能化设备监控与维护，降低运维成本</p>
-                </a>
-                <a href="login.html?system=operation" class="system-card">
-                    <img src="assets/images/operation-icon.svg" alt="数智运营">
-                    <h4>数智运营系统</h4>
-                    <p>数据驱动决策，优化运营效率</p>
-                </a>
-            </div>
-        </section>
+            <section class="systems-section">
+                <h3>平台系统入口</h3>
+                <div class="systems-grid">
+                    <a href="login.html?system=planning" class="system-card">
+                        <img src="assets/images/planning-icon.svg" alt="能源规划">
+                        <h4>能源规划系统</h4>
+                        <p>科学规划能源布局，优化能源结构</p>
+                    </a>
+                    <a href="login.html?system=delivery" class="system-card">
+                        <img src="assets/images/delivery-icon.svg" alt="交付管理">
+                        <h4>交付管理系统</h4>
+                        <p>高效管理交付调试过程，确保服务质量</p>
+                    </a>
+                    <a href="login.html?system=energy" class="system-card">
+                        <img src="assets/images/energy-icon.svg" alt="综合能源">
+                        <h4>远程监视系统</h4>
+                        <p>整合多种能源形式，7*24小时实时监控</p>
+                    </a>
+                    <a href="login.html?system=maintenance" class="system-card">
+                        <img src="assets/images/maintenance-icon.svg" alt="智慧运维">
+                        <h4>智慧运维系统</h4>
+                        <p>智能化设备监控与维护，降低运维成本</p>
+                    </a>
+                    <a href="login.html?system=operation" class="system-card">
+                        <img src="assets/images/operation-icon.svg" alt="数智运营">
+                        <h4>数智运营系统</h4>
+                        <p>数据驱动决策，优化运营效率</p>
+                    </a>
+                </div>
+            </section>
+        </div> <!-- 初始视图容器结束 -->
 
         <section class="features-section">
             <h3>平台特色</h3>

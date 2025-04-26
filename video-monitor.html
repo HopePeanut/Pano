@@ -546,6 +546,7 @@
             display: flex;
             gap: 10px;
             align-items: center;
+            flex-wrap: wrap;
         }
 
         .time-select {
@@ -669,6 +670,81 @@
             90% { top: 30%; }
             100% { top: -5%; }
         }
+
+        /* 添加自定义日期时间选择器样式 */
+        .custom-time-selector {
+            display: none;
+            margin-left: 10px;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .custom-time-selector.active {
+            display: flex;
+        }
+
+        .datetime-input {
+            padding: 6px 10px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .datetime-input::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+        }
+
+        .return-live-btn {
+            padding: 6px 12px;
+            background-color: var(--danger-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+
+        .return-live-btn:hover {
+            background-color: #c0392b;
+        }
+
+        .return-live-btn i {
+            font-size: 12px;
+        }
+
+        /* 调整时间选择器布局 */
+        .playback-time-selector {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .time-label {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .apply-time-btn {
+            padding: 6px 12px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+
+        .apply-time-btn:hover {
+            background-color: var(--secondary-color);
+        }
     </style>
 </head>
 
@@ -753,13 +829,23 @@
                         <i class="fas fa-forward"></i>
                     </button>
                     <div class="playback-time-selector">
+                        <span class="time-label">时间：</span>
                         <select class="time-select" id="time-select">
                             <option value="live">实时</option>
                             <option value="1h">过去1小时</option>
                             <option value="6h">过去6小时</option>
                             <option value="24h">过去24小时</option>
                             <option value="7d">过去7天</option>
+                            <option value="custom">自定义时间</option>
                         </select>
+                        <div class="custom-time-selector" id="custom-time-selector">
+                            <input type="datetime-local" class="datetime-input" id="custom-datetime">
+                            <button class="apply-time-btn" id="apply-time-btn">应用</button>
+                        </div>
+                        <button class="return-live-btn" id="return-live-btn">
+                            <i class="fas fa-circle"></i>
+                            返回实时
+                        </button>
                     </div>
                 </div>
             </div>
@@ -1288,9 +1374,40 @@
             const playBtn = document.getElementById('play-btn');
             const timelineProgress = document.getElementById('timeline-progress');
             const timeSelect = document.getElementById('time-select');
+            const customDatetime = document.getElementById('custom-datetime');
             
             // 更改播放按钮图标
             playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            
+            // 获取回放开始时间
+            let startTimeText = "";
+            if (timeSelect.value === 'custom' && customDatetime.value) {
+                // 格式化自定义日期时间为友好的显示文本
+                const selectedDate = new Date(customDatetime.value);
+                startTimeText = selectedDate.toLocaleString('zh-CN', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false
+                });
+            } else {
+                // 处理预设选项
+                switch(timeSelect.value) {
+                    case '1h': startTimeText = "1小时前"; break;
+                    case '6h': startTimeText = "6小时前"; break;
+                    case '24h': startTimeText = "24小时前"; break;
+                    case '7d': startTimeText = "7天前"; break;
+                    default: startTimeText = "自定义时间";
+                }
+            }
+            
+            // 更新时间戳文本显示回放模式和开始时间
+            const timestamp = document.querySelector('.modal-video-container .camera-timestamp');
+            if (timestamp) {
+                timestamp.innerHTML = `<span style="color:#F39C12">回放模式 - 开始于: ${startTimeText}</span>`;
+            }
             
             // 模拟回放进度
             let progress = 0;
@@ -1302,11 +1419,91 @@
                 progress += 0.5;
                 timelineProgress.style.width = `${progress}%`;
                 
+                // 更新时间戳，模拟时间前进
+                updatePlaybackTimestamp(progress, startTimeText);
+                
                 // 到达100%时，停止回放
                 if (progress >= 100) {
                     stopPlayback();
                 }
             }, 200);
+            
+            // 显示返回实时按钮
+            document.getElementById('return-live-btn').style.display = 'flex';
+        }
+        
+        // 更新回放时间戳
+        function updatePlaybackTimestamp(progress, startTimeText) {
+            const timestamp = document.querySelector('.modal-video-container .camera-timestamp');
+            if (!timestamp) return;
+            
+            // 根据进度模拟时间前进
+            let now = new Date();
+            
+            if (progress < 100) {
+                timestamp.innerHTML = `<span style="color:#F39C12">回放模式 - 开始于: ${startTimeText}</span>`;
+            } else {
+                // 回放结束后回到当前时间
+                timestamp.textContent = now.toLocaleString('zh-CN', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: false
+                });
+            }
+        }
+        
+        // 返回实时监控
+        function returnToLive() {
+            const timeSelect = document.getElementById('time-select');
+            timeSelect.value = 'live';
+            
+            // 停止回放
+            stopPlayback();
+            
+            // 隐藏自定义时间选择器
+            document.getElementById('custom-time-selector').classList.remove('active');
+            
+            // 更新时间戳为实时
+            const timestamp = document.querySelector('.modal-video-container .camera-timestamp');
+            if (timestamp) {
+                const now = new Date();
+                timestamp.textContent = now.toLocaleString('zh-CN', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: false
+                });
+                
+                // 恢复时间戳更新
+                if (window.timestampInterval) {
+                    clearInterval(window.timestampInterval);
+                }
+                
+                window.timestampInterval = setInterval(() => {
+                    if (timestamp) {
+                        const now = new Date();
+                        timestamp.textContent = now.toLocaleString('zh-CN', {
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit',
+                            hour12: false
+                        });
+                    }
+                }, 1000);
+            }
+            
+            // 隐藏返回实时按钮
+            document.getElementById('return-live-btn').style.display = 'none';
         }
 
         // 停止回放
@@ -1509,6 +1706,10 @@
             const rewindBtn = document.getElementById('rewind-btn');
             const forwardBtn = document.getElementById('forward-btn');
             const timeSelect = document.getElementById('time-select');
+            const customDatetime = document.getElementById('custom-datetime');
+            const applyTimeBtn = document.getElementById('apply-time-btn');
+            const returnLiveBtn = document.getElementById('return-live-btn');
+            const customTimeSelector = document.getElementById('custom-time-selector');
             
             if (playBtn) {
                 playBtn.addEventListener('click', togglePlayback);
@@ -1517,10 +1718,47 @@
             if (timeSelect) {
                 timeSelect.addEventListener('change', function() {
                     resetPlayback();
-                    if (this.value !== 'live') {
-                        startPlayback();
+                    
+                    // 处理自定义时间选项
+                    if (this.value === 'custom') {
+                        customTimeSelector.classList.add('active');
+                        
+                        // 设置默认值为当前时间
+                        const now = new Date();
+                        // 格式化为datetime-local输入所需的格式: YYYY-MM-DDThh:mm
+                        const year = now.getFullYear();
+                        const month = String(now.getMonth() + 1).padStart(2, '0');
+                        const day = String(now.getDate()).padStart(2, '0');
+                        const hours = String(now.getHours()).padStart(2, '0');
+                        const minutes = String(now.getMinutes()).padStart(2, '0');
+                        
+                        customDatetime.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+                    } else {
+                        customTimeSelector.classList.remove('active');
+                        
+                        if (this.value !== 'live') {
+                            startPlayback();
+                        } else {
+                            returnToLive();
+                        }
                     }
                 });
+            }
+            
+            if (applyTimeBtn) {
+                applyTimeBtn.addEventListener('click', function() {
+                    if (customDatetime.value) {
+                        startPlayback();
+                    } else {
+                        alert('请选择有效的日期和时间');
+                    }
+                });
+            }
+            
+            if (returnLiveBtn) {
+                returnLiveBtn.addEventListener('click', returnToLive);
+                // 初始状态下隐藏
+                returnLiveBtn.style.display = 'none';
             }
             
             if (rewindBtn) {
@@ -1553,6 +1791,27 @@
                 exportBtn.addEventListener('click', function() {
                     alert('该功能待精进优化');
                 });
+            }
+            
+            if (customDatetime) {
+                // 设置最大值为当前时间
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const day = String(now.getDate()).padStart(2, '0');
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                
+                customDatetime.max = `${year}-${month}-${day}T${hours}:${minutes}`;
+                
+                // 设置最小值为30天前
+                const thirtyDaysAgo = new Date(now);
+                thirtyDaysAgo.setDate(now.getDate() - 30);
+                const yearMin = thirtyDaysAgo.getFullYear();
+                const monthMin = String(thirtyDaysAgo.getMonth() + 1).padStart(2, '0');
+                const dayMin = String(thirtyDaysAgo.getDate()).padStart(2, '0');
+                
+                customDatetime.min = `${yearMin}-${monthMin}-${dayMin}T00:00`;
             }
             
             // 启动摄像头动态效果

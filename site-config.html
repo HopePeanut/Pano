@@ -42,8 +42,8 @@
         }
 
         .main-content {
-            padding: 20px;
-            max-width: 1300px;
+            padding: 24px;
+            max-width: 1400px;
             margin: 0 auto;
         }
 
@@ -85,11 +85,11 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
             background-color: white;
             padding: 15px 20px;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
+            border-radius: 10px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.04);
         }
 
         .page-left {
@@ -173,6 +173,8 @@
             border-radius: var(--radius);
             overflow: hidden;
             background-color: white;
+            height: 36px;
+            align-items: stretch;
         }
 
         .search-input {
@@ -200,36 +202,35 @@
             background-color: white;
             border-radius: var(--radius);
             box-shadow: var(--shadow);
-            overflow: hidden;
+            overflow: auto;
             margin-bottom: 20px;
         }
 
         table {
+            border-collapse: separate;
+            border-spacing: 0;
             width: 100%;
-            border-collapse: collapse;
-            font-size: 14px;
         }
 
-        thead {
+        thead th {
+            position: sticky;
+            top: 0;
+            z-index: 1;
             background-color: var(--table-header-bg);
+            font-weight: 500;
         }
 
         th, td {
             padding: 12px 15px;
-            text-align: left;
             border-bottom: 1px solid var(--border-color);
             vertical-align: middle;
-        }
-
-        th {
-            font-weight: 500;
-            color: var(--gray-text);
-            font-size: 14px;
+            height: 56px; /* 统一行高 */
             white-space: nowrap;
         }
 
-        tbody tr:hover {
-            background-color: var(--table-hover-bg);
+        tbody tr {
+            transition: background-color 0.2s;
+            height: 56px; /* 统一行高 */
         }
 
         .status-badge {
@@ -258,8 +259,10 @@
         /* 操作按钮 */
         .action-btns {
             display: flex;
-            gap: 12px; /* 增加图标按钮间距 */
+            gap: 12px;
             align-items: center;
+            height: 100%;
+            white-space: nowrap;
         }
 
         .action-btn {
@@ -681,7 +684,7 @@
             color: white; /* 使用白色文字 */
             border: none;
             cursor: pointer;
-            padding: 4px 8px; /* 调整内边距，使其像一个小按钮 */
+            padding: 0 8px;
             font-size: 12px; /* 可以适当减小字体大小 */
             border-radius: 4px; /* 添加圆角 */
             white-space: nowrap; /* 保持不换行 */
@@ -691,6 +694,7 @@
             display: inline-flex; /* 使用 flex 布局以便未来添加图标 */
             align-items: center; /* 垂直居中 flex items */
             gap: 4px; /* 如果未来添加图标，设置间距 */
+            height: 28px;
         }
 
         .site-config-btn:hover {
@@ -700,6 +704,38 @@
 
         .site-config-btn i {
             font-size: 12px;
+        }
+
+        /* 排序表头样式 */
+        .sortable {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding-right: 25px !important;
+        }
+
+        .sortable:hover {
+            background-color: rgba(73, 161, 141, 0.08);
+        }
+
+        .sortable::after {
+            content: '↕';
+            position: absolute;
+            right: 8px;
+            color: #ccc;
+            font-size: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .sortable.asc::after {
+            content: '↑';
+            color: var(--primary-color);
+        }
+
+        .sortable.desc::after {
+            content: '↓';
+            color: var(--primary-color);
         }
     </style>
 </head>
@@ -742,13 +778,13 @@
                     <tr>
                         <th width="3%">序号</th>
                         <th width="12%">站点名称</th>
-                        <th width="15%">归属企业 <button class="manage-btn">管理</button></th>
-                        <th width="10%">站点标签 <button class="tag-manage-btn" title="管理标签"><i class="fas fa-tags"></i></button></th>
+                        <th width="15%" class="sortable" data-sort="company">归属企业 <button class="manage-btn">管理</button></th>
+                        <th width="10%" class="sortable" data-sort="tag">站点标签 <button class="tag-manage-btn" title="管理标签"><i class="fas fa-tags"></i></button></th>
                         <th width="15%">站点位置</th>
-                        <th width="5%">设备数量</th>
-                        <th width="10%">创建日期</th>
-                        <th width="6%">投运状态</th>
-                        <th width="6%">投运天数</th>
+                        <th width="5%" class="sortable" data-sort="device-count">设备数量</th>
+                        <th width="10%" class="sortable" data-sort="create-date">创建日期</th>
+                        <th width="6%" class="sortable" data-sort="status">投运状态</th>
+                        <th width="6%" class="sortable" data-sort="operation-days">投运天数</th>
                         <th width="8%">操作</th>
                     </tr>
                 </thead>
@@ -821,7 +857,7 @@
                         <td>广东中建储能电站</td>
                         <td>江苏顶晶融合电力工程有限公司</td>
                         <td><span class="tag-badge">用户侧</span></td>
-                        <td>惠州-东莞总站</td>
+                        <td>广东惠州工业园储能站</td>
                         <td>1</td>
                         <td>2022-10-29 11:47:50</td>
                         <td>
@@ -1060,6 +1096,90 @@
                     setActiveMenuItem('menu-admin', 'submenu-site-config');
                 }
             }
+
+            // 表格排序功能
+            const sortableThs = document.querySelectorAll('th.sortable');
+            let lastSortedTh = null; // 记录上一次排序的列
+            
+            sortableThs.forEach(th => {
+                th.addEventListener('click', function() {
+                    const sortBy = this.getAttribute('data-sort');
+                    const tbody = document.querySelector('tbody');
+                    const rows = Array.from(tbody.querySelectorAll('tr'));
+                    
+                    // 移除所有表头的排序状态
+                    if (lastSortedTh && lastSortedTh !== this) {
+                        lastSortedTh.classList.remove('asc', 'desc');
+                    }
+                    
+                    // 切换排序方向
+                    const isAsc = this.classList.contains('asc');
+                    this.classList.remove('asc', 'desc');
+                    this.classList.add(isAsc ? 'desc' : 'asc');
+                    
+                    // 记录当前排序的列
+                    lastSortedTh = this;
+                    
+                    // 排序函数
+                    const compareFn = (a, b) => {
+                        let valA, valB;
+                        
+                        // 根据不同的列获取相应的值
+                        switch(sortBy) {
+                            case 'company':
+                                valA = a.cells[2].textContent.trim();
+                                valB = b.cells[2].textContent.trim();
+                                break;
+                            case 'tag':
+                                valA = a.cells[3].textContent.trim();
+                                valB = b.cells[3].textContent.trim();
+                                break;
+                            case 'device-count':
+                                valA = parseInt(a.cells[5].textContent.trim()) || 0;
+                                valB = parseInt(b.cells[5].textContent.trim()) || 0;
+                                break;
+                            case 'create-date':
+                                // 处理日期，如果是"-"则视为最小值
+                                valA = a.cells[6].textContent.trim();
+                                valB = b.cells[6].textContent.trim();
+                                if (valA === '-') return isAsc ? -1 : 1;
+                                if (valB === '-') return isAsc ? 1 : -1;
+                                // 将日期转换为时间戳比较
+                                valA = new Date(valA).getTime() || 0;
+                                valB = new Date(valB).getTime() || 0;
+                                break;
+                            case 'status':
+                                valA = a.cells[7].querySelector('input').checked ? 1 : 0;
+                                valB = b.cells[7].querySelector('input').checked ? 1 : 0;
+                                break;
+                            case 'operation-days':
+                                // 处理投运天数，如果是"-"则视为0
+                                valA = a.cells[8].textContent.trim();
+                                valB = b.cells[8].textContent.trim();
+                                valA = valA === '-' ? 0 : parseInt(valA);
+                                valB = valB === '-' ? 0 : parseInt(valB);
+                                break;
+                            default:
+                                return 0;
+                        }
+                        
+                        // 根据排序方向比较值
+                        if (valA < valB) return isAsc ? -1 : 1;
+                        if (valA > valB) return isAsc ? 1 : -1;
+                        return 0;
+                    };
+                    
+                    // 对行进行排序
+                    rows.sort(compareFn);
+                    
+                    // 重新排序的行添加回tbody
+                    rows.forEach((row, index) => {
+                        // 更新序号列
+                        row.cells[0].textContent = index + 1;
+                        tbody.appendChild(row);
+                    });
+                });
+            });
 
             // 模态框相关操作
             const modal = document.getElementById('site-modal');
